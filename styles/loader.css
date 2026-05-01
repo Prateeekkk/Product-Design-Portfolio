@@ -1,0 +1,98 @@
+/*
+  Loader — full-screen dark canvas with rotating "Hello" greetings, then a
+  smooth fade-out dissolves cleanly into the website.
+*/
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--ink);
+  pointer-events: auto;
+  transition: opacity .9s cubic-bezier(.4, 0, .2, 1);
+  will-change: opacity;
+}
+
+/* When fading out, the entire loader gently dissolves to transparent. */
+.loader.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Once gone, take it off the layout entirely. */
+.loader.is-done {
+  display: none;
+}
+
+/* Hello stage — centred greeting */
+.loader-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.loader-word {
+  font-family: var(--font-serif);
+  /* Slightly smaller than before — prominent but balanced. */
+  font-size: clamp(40px, 5vw, 78px);
+  letter-spacing: -0.025em;
+  color: var(--white);
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .35s ease, transform .45s cubic-bezier(.16, 1, .3, 1);
+}
+.loader-word.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.loader-word.is-leaving {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+.loader-word::after {
+  content: '.';
+  color: var(--amber-soft);
+  font-style: italic;
+}
+.loader-word .lang {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 230, 0.45);
+  align-self: center;
+  margin-left: 6px;
+  margin-bottom: 12px;
+}
+
+/* Subtle progress bar near the bottom */
+.loader-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 14vh;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 1px;
+  background: rgba(255, 248, 230, 0.16);
+  overflow: hidden;
+  transition: opacity .4s ease;
+}
+.loader.is-fading .loader-bar { opacity: 0; }
+.loader-bar > span {
+  position: absolute; inset: 0;
+  background: rgba(255, 248, 230, 0.7);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1.6s linear;
+}
+
+/* Lock body scroll while loader is up */
+body.loader-active { overflow: hidden; }

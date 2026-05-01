@@ -1,0 +1,150 @@
+/*
+  Site footer — dark theme, fixed at viewport bottom, revealed from
+  underneath the white .site wrapper as the user scrolls to the end.
+
+  Positioning:
+  - position: fixed; bottom: 0 → footer always anchored to viewport bottom
+  - z-index: 1 → sits behind .site (z:2) so it's covered by content
+  - height: --footer-h → matches the margin-bottom on .site
+  - When the user scrolls to the document end, .site lifts past the
+    viewport, revealing this footer cleanly.
+
+  Visual:
+  - Deep neutral dark #111
+  - Off-white text + muted secondary
+  - Same Poppins / Instrument Serif system as the rest of the site
+*/
+
+:root {
+  --footer-h: 420px;
+  --footer-bg: #111111;
+  --footer-ink: #EAEAEA;
+  --footer-ink-55: #9A9A98;
+  --footer-ink-25: #5E5E5C;
+  --footer-brd: rgba(234, 234, 234, 0.10);
+}
+
+.site-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: var(--footer-h);
+  background: var(--footer-bg);
+  color: var(--footer-ink);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  /* very subtle gradient for depth */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.025) 0%, transparent 70%);
+}
+
+/* Inner column matches the rest of the site's grid + gutters */
+.site-footer-inner {
+  width: 100%;
+  max-width: var(--max-w);
+  padding: var(--s-9) var(--space) var(--s-6);
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--s-6);
+}
+
+/* Top — closing line as the headline */
+.site-footer-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(36px, 4.4vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--footer-ink);
+  max-width: 920px;
+}
+.site-footer-headline em {
+  font-style: italic;
+  color: #C9A47A;          /* warmer amber, readable on dark */
+}
+
+/* Middle — channel grid */
+.site-footer-channels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-5);
+  padding: var(--s-5) 0;
+  border-top: 1px solid var(--footer-brd);
+  border-bottom: 1px solid var(--footer-brd);
+  align-self: end;
+}
+
+.site-footer-channel-label {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--footer-ink-25);
+  margin-bottom: 8px;
+  display: block;
+  font-weight: 500;
+}
+
+.site-footer-channel a {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--footer-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: opacity .2s ease;
+}
+.site-footer-channel a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--footer-ink);
+  transition: width .3s var(--ease-out);
+}
+.site-footer-channel a:hover { opacity: 0.85; }
+.site-footer-channel a:hover::after { width: 100%; }
+
+/* Bottom — copyright + easter egg */
+.site-footer-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-5);
+  font-size: 11.5px;
+  color: var(--footer-ink-25);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.site-footer-meta b {
+  color: var(--footer-ink-55);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.site-footer-meta-egg {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--footer-ink-25);
+  letter-spacing: 0.01em;
+}
+
+/* Mobile: switch to natural in-flow footer (no fixed reveal) */
+@media (max-width: 720px) {
+  :root { --footer-h: auto; }
+  .site { margin-bottom: 0; box-shadow: none; }
+  .site-footer {
+    position: relative;
+    height: auto;
+  }
+  .site-footer-inner {
+    padding: var(--s-7) var(--space) var(--s-5);
+    gap: var(--s-5);
+  }
+  .site-footer-channels { grid-template-columns: 1fr; gap: var(--s-4); }
+  .site-footer-meta { flex-direction: column; gap: 6px; align-items: flex-start; }
+}

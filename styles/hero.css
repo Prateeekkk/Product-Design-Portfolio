@@ -1,0 +1,185 @@
+/* Hero — centered single-column statement. */
+
+.hero {
+  min-height: 100vh;
+  padding-left: var(--space);
+  padding-right: var(--space);
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--nav-h) + 96px);
+  padding-bottom: 56px;
+}
+
+.hero-left {
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+/* Soft warm halo behind the headline. */
+.hero-left::before {
+  content: '';
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 720px; height: 520px;
+  background: radial-gradient(ellipse, rgba(255,252,240,0.65) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-left > * { position: relative; z-index: 1; }
+
+/* Status pill */
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--brd);
+  border-radius: var(--r-pill);
+  padding: 5px 13px 5px 9px;
+  font-size: 10.5px; font-weight: 600;
+  color: var(--ink-55); letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(8px);
+  margin-bottom: 36px;
+
+  opacity: 0;
+  animation: arise .65s ease .08s forwards;
+}
+.pill-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: blink 2.8s ease-in-out infinite;
+}
+
+/* Headline */
+.headline {
+  font-family: var(--font-serif);
+  font-size: clamp(50px, 5.8vw, 84px);
+  line-height: 1.04;
+  letter-spacing: -0.033em;
+  color: var(--ink);
+  margin-bottom: 22px;
+
+  opacity: 0;
+  animation: arise .95s ease .2s forwards;
+}
+.headline .ital { font-style: italic; }
+.headline .mark { position: relative; display: inline; }
+.headline .mark::after {
+  content: ''; position: absolute;
+  bottom: 6px; left: 0;
+  width: 0; height: 1.5px;
+  background: var(--ink);
+  transition: width .4s var(--ease);
+}
+.headline:hover .mark::after { width: 100%; }
+
+/* Subtext */
+.subtext {
+  font-size: 15.5px; line-height: 1.74;
+  color: var(--ink-55);
+  max-width: 480px;
+  margin-bottom: 52px;
+
+  opacity: 0;
+  animation: arise .9s ease .34s forwards;
+}
+
+/* Annotations row */
+.annotations {
+  display: flex; align-items: flex-start;
+  justify-content: center;
+  gap: 56px;
+  opacity: 0;
+  animation: arise .9s ease .48s forwards;
+}
+.annot { display: flex; flex-direction: column; text-align: left; }
+.annot-note {
+  font-family: var(--font-serif); font-style: italic;
+  font-size: 14.5px; color: var(--amber);
+  line-height: 1.1; margin-bottom: 5px;
+}
+.annot-arrow { display: block; margin-bottom: 7px; }
+.annot-arrow path {
+  fill: none; stroke: var(--amber);
+  stroke-linecap: round;
+}
+.annot-main {
+  font-size: 13px; font-weight: 500;
+  color: var(--ink); letter-spacing: -0.01em;
+  margin-bottom: 2px;
+}
+.annot-sub {
+  font-size: 11px; color: var(--ink-25);
+  font-weight: 400; line-height: 1.5;
+}
+
+/* Bottom hero strip — pinned to viewport bottom */
+.hero-foot {
+  margin-top: auto;
+  border-top: 1px solid var(--brd);
+  padding: 18px 0 28px;
+  display: flex; align-items: center;
+  gap: 0;
+
+  opacity: 0;
+  animation: arise .7s ease 1.05s forwards;
+}
+
+.foot-item {
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--ink-25);
+  white-space: nowrap;
+}
+.foot-item.lit { color: var(--ink-55); }
+
+.foot-sep {
+  width: 1px; height: 11px;
+  background: var(--brd-mid);
+  margin: 0 20px; flex-shrink: 0;
+}
+
+/* Scroll cue, far right */
+.scroll-cue {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 12px;
+}
+.scroll-track {
+  width: 32px; height: 1px;
+  background: var(--brd);
+  position: relative; overflow: hidden;
+}
+.scroll-track::after {
+  content: '';
+  position: absolute; top: 0; left: -60%;
+  width: 60%; height: 100%;
+  background: var(--ink-25);
+  animation: scan 2s ease-in-out 1.6s infinite;
+}
+.scroll-label {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-25);
+}
+
+/* Hero animations */
+@keyframes arise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes scan {
+  0%   { left: -60%; }
+  100% { left:  160%; }
+}

@@ -1,0 +1,101 @@
+/*
+  Impact Strip — horizontal marquee of impact metrics.
+  Each item: a centred number above a label, with consistent baseline rhythm.
+*/
+
+.impact {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--brd);
+  border-bottom: 1px solid var(--brd);
+  background: var(--bg-soft);
+  padding: 32px 0;            /* tighter — less dominant */
+}
+
+.impact::before,
+.impact::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 140px;
+  pointer-events: none;
+  z-index: 2;
+}
+.impact::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg-soft) 0%, transparent 100%);
+}
+.impact::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg-soft) 0%, transparent 100%);
+}
+
+.impact-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  animation: impact-marquee 42s linear infinite;
+}
+
+.impact:hover .impact-track {
+  animation-play-state: paused;
+}
+
+/* Each item is a fixed-width column so spacing is even and rhythmic */
+.impact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;       /* centre number + label horizontally */
+  justify-content: center;
+  gap: 10px;
+  padding: 0 56px;           /* equal horizontal padding per item */
+  min-width: 280px;
+  text-align: center;
+}
+
+.impact-num {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 3.4vw, 48px);   /* tightened down from 40-60 */
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink);
+  font-feature-settings: "tnum" 1;
+}
+.impact-num em {
+  font-style: italic;
+  color: var(--amber);
+}
+
+.impact-label {
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  line-height: 1.45;
+  max-width: 220px;
+  font-weight: 500;
+}
+
+/* Vertical separator between items (replaces the dot for cleaner rhythm) */
+.impact-sep {
+  width: 1px;
+  height: 32px;
+  background: var(--brd);
+  flex-shrink: 0;
+}
+
+@keyframes impact-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-track { animation: none; }
+}
+
+@media (max-width: 720px) {
+  .impact { padding: 36px 0; }
+  .impact-item { padding: 0 36px; min-width: 220px; }
+  .impact-sep { height: 28px; }
+}

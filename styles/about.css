@@ -1,0 +1,248 @@
+/* About — split layout: portrait/quote panel + narrative + facts grid. */
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: var(--s-9);
+  align-items: start;
+}
+
+.about-head .eyebrow { margin-bottom: var(--s-5); }
+
+/* Left column: stylized portrait card */
+.about-portrait {
+  position: sticky;
+  top: calc(var(--nav-h) + 32px);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  background: var(--white);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.portrait-frame {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --tilt-z: 0px;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-md);
+  background:
+    radial-gradient(circle at 30% 30%, #F2EAD8 0%, transparent 55%),
+    linear-gradient(135deg, #ECE7DA 0%, #DCD4C0 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--tilt-z));
+  transition: transform .4s var(--ease-out);
+  will-change: transform;
+}
+
+/* Portrait image — covers the entire 4:5 frame, sits above the gradient bg. */
+.portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 3;
+  display: block;
+}
+
+/* Soft glow halo around the portrait — sits behind via negative margins. */
+.portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% var(--shine-y, 30%), rgba(255, 248, 226, 0.85) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 55% at 50% 50%, rgba(255, 244, 218, 0.55) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: portrait-shimmer 6s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Outer glow — the warm light leaking past the frame */
+.portrait-frame {
+  box-shadow:
+    0 0 60px -10px rgba(255, 235, 195, 0.55),
+    0 18px 40px -22px rgba(26, 24, 19, 0.20);
+}
+
+/* A travelling specular highlight across the portrait surface */
+.portrait-frame::before {
+  content: '';
+  position: absolute;
+  top: -5%; left: -25%;
+  width: 50%;
+  height: 110%;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 250, 230, 0.35) 50%, transparent 65%);
+  pointer-events: none;
+  animation: portrait-shine 7s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes portrait-shimmer {
+  0%, 100% { opacity: 0.65; transform: translateY(0); }
+  50%      { opacity: 1.0;  transform: translateY(-2%); }
+}
+@keyframes portrait-shine {
+  0%   { left: -40%; opacity: 0; }
+  20%  { opacity: 0.8; }
+  60%  { opacity: 0.8; }
+  100% { left: 110%; opacity: 0; }
+}
+/* Abstract stand-in for a photograph: soft circle shape + initials */
+.portrait-frame::before {
+  content: '';
+  position: absolute;
+  width: 60%; height: 70%;
+  bottom: -10%;
+  left: 20%;
+  background: radial-gradient(ellipse at center, #C9BFAA 0%, transparent 70%);
+  filter: blur(6px);
+}
+.portrait-initials {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-serif);
+  font-size: 96px;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  font-style: italic;
+  text-shadow: 0 2px 12px rgba(255, 245, 220, 0.3);
+}
+
+.portrait-label {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px;
+  color: var(--ink-25);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.portrait-label b {
+  color: var(--ink-55);
+  font-weight: 500;
+}
+
+.portrait-quote {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--ink-80);
+  font-style: italic;
+  border-top: 1px solid var(--brd);
+  padding-top: 18px;
+  letter-spacing: -0.01em;
+}
+.portrait-quote::before {
+  content: '"';
+  font-size: 32px;
+  color: var(--amber);
+  margin-right: 4px;
+  vertical-align: -8px;
+}
+
+/* Right column: narrative */
+.about-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+}
+
+.about-narrative p {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink-80);
+  margin-bottom: var(--s-5);
+}
+.about-narrative p:last-child { margin-bottom: 0; }
+.about-narrative em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* Beliefs list — small numbered, dry one-liners */
+.beliefs {
+  border-top: 1px solid var(--brd);
+  padding-top: var(--s-6);
+}
+.beliefs-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: -0.018em;
+  margin-bottom: var(--s-5);
+  color: var(--ink);
+}
+.beliefs-list {
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+.beliefs-list li {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 15px;
+  color: var(--ink-80);
+  line-height: 1.55;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--brd);
+}
+.beliefs-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.beliefs-list li::before {
+  content: counter(belief, decimal-leading-zero);
+  counter-increment: belief;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--amber);
+  font-style: italic;
+}
+.beliefs-list { counter-reset: belief; }
+
+/* Currently panel — tiny status board */
+.currently {
+  border-top: 1px solid var(--brd);
+  padding-top: var(--s-6);
+}
+.currently-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  margin-bottom: var(--s-5);
+  display: flex; align-items: center; gap: 10px;
+}
+.currently-title small {
+  font-family: var(--font-serif); font-style: italic;
+  color: var(--amber);
+  font-size: 16px;
+  font-style: normal;
+}
+.currently-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-5) var(--s-7);
+}
+.currently-item dt {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  margin-bottom: 6px;
+}
+.currently-item dd {
+  font-size: 14.5px;
+  color: var(--ink-80);
+  line-height: 1.5;
+}
+.currently-item dd em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink);
+}

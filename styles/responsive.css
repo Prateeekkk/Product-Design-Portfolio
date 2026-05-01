@@ -1,0 +1,139 @@
+/* Responsive adjustments. Loaded last so it can override section rules. */
+
+@media (max-width: 1100px) {
+  :root { --space: 40px; }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-7);
+  }
+  .about-portrait { position: static; }
+}
+
+/*
+  Mobile: drop the pinned-scroll storytelling.
+  On small screens there isn't room to show a visual + caption at once, and
+  scroll-jacking on touch feels hostile. Cases / screens stack vertically as
+  a normal flow; the section becomes a regular reading column.
+*/
+@media (max-width: 720px) {
+  :root { --space: 22px; }
+
+  .hero-body {
+    padding-top: calc(var(--nav-h) + 56px);
+    padding-bottom: 32px;
+  }
+  .hero-left { max-width: 100%; }
+  .annotations {
+    flex-direction: column;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .nav-links { display: none; }
+  .nav-sep   { display: none; }
+
+  .section { padding: var(--s-9) var(--space); }
+
+  /* Disable Work pinning */
+  .work-pinned {
+    height: auto !important;
+  }
+  .work-stage {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: var(--s-9) var(--space);
+    grid-template-rows: auto auto;
+  }
+  .work-stage-head { grid-template-columns: 1fr; }
+  .work-progress { display: none; }
+  .work-cases {
+    height: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-8);
+    margin-top: var(--s-7);
+  }
+  .work-case {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    filter: none;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    align-items: start;
+  }
+  .work-case[data-state] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  /* Disable the rise animation since cases are static-stacked on mobile */
+  .work-case[data-state="current"] .work-info > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .work-info-title { font-size: 28px; }
+  .work-stage-foot { display: none; }
+
+  /* Disable AI Playground pinning */
+  .ai-pinned {
+    height: auto !important;
+  }
+  .ai-stage {
+    position: static;
+    height: auto;
+    padding: var(--s-9) var(--space);
+  }
+  .ai-frame {
+    max-height: none;
+    height: auto;
+  }
+  .ai-stream {
+    position: static;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .ai-screen {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    grid-template-columns: 1fr;
+    padding: 22px;
+    gap: var(--s-4);
+    border-bottom: 1px solid var(--brd);
+  }
+  .ai-screen:last-child { border-bottom: none; }
+  .ai-screen[data-state] {
+    opacity: 1;
+    transform: none;
+  }
+  .ai-screen[data-state="current"] .ai-caption > *,
+  .ai-screen[data-state="current"] .ai-artifact-body > *,
+  .ai-screen[data-state="current"] .ai-artifact-list .row,
+  .ai-screen[data-state="current"] .ai-artifact-bars .bar {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .ai-frame-foot { display: none; }
+  .ai-frame-counter { display: none; }
+
+  .currently-grid { grid-template-columns: 1fr; }
+
+  .hero-foot {
+    flex-wrap: wrap;
+    gap: 8px 0;
+  }
+  .scroll-cue { display: none; }
+
+  .modal { width: 96vw; max-height: 90vh; }
+}

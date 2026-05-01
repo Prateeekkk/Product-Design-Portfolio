@@ -1,0 +1,59 @@
+<!--
+  Component: Talk-to-my-AI modal
+  Dependencies: styles/modal.css, scripts/modal.js
+  Trigger: any element with [data-modal-open="ai"]
+-->
+<div class="modal-backdrop" id="aiBackdrop"></div>
+
+<aside class="modal" id="aiModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+  <header class="modal-head">
+    <div class="modal-avatar">P</div>
+    <div class="modal-titles">
+      <span class="modal-title" id="modalTitle">Prateek's AI</span>
+      <span class="modal-status">Trained on his thinking · responds faster than him</span>
+    </div>
+    <button class="modal-close" data-modal-close aria-label="Close modal">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="modal-body">
+    <div class="bubble is-ai">
+      Hi. I'm a small AI trained on Prateek's writing, work, and slightly-too-strong design opinions. Ask me anything you'd ask him in an interview. I'll do my best impression.
+      <small>Demo · responses are pre-baked</small>
+    </div>
+  </div>
+
+  <div class="modal-prompts">
+    <button class="prompt-chip">Tell me about your work</button>
+    <button class="prompt-chip">Why should we hire you?</button>
+    <button class="prompt-chip">What's your design philosophy?</button>
+    <button class="prompt-chip">Explain Eximpe in 3 lines</button>
+    <button class="prompt-chip">Are you junior or senior?</button>
+  </div>
+
+  <footer class="modal-foot">
+    <div class="composer">
+      <input type="text" placeholder="Ask anything…" autocomplete="off" />
+      <button class="composer-btn is-mic" aria-label="Use voice">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="5" y="2" width="4" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M3 7 V8 A4 4 0 0 0 11 8 V7 M7 12 V14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="composer-btn is-send" aria-label="Send">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7 H12 M8 3 L12 7 L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-hints">
+      <span>Press <kbd>/</kbd> to open · <kbd>Esc</kbd> to close</span>
+      <span>It's a demo · be nice</span>
+    </div>
+  </footer>
+
+</aside>

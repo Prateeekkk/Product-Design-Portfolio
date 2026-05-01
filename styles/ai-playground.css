@@ -1,0 +1,452 @@
+/*
+  AI Playground — scattered, scroll-assembled, draggable cards on a board.
+
+  Cards are absolutely positioned at intentional but slightly varied
+  coordinates inside the board. Each card has its own --p (scroll-driven
+  fall), --rot (settled rotation), and individual top/left positions set
+  inline.
+
+  Cards are draggable: pointer events lift the card (scale + shadow), follow
+  the cursor with a tiny easing, and release back gently.
+
+  Hovering a card surfaces a small tooltip with extra context.
+*/
+
+.ai-pinned {
+  position: relative;
+  width: 100%;
+}
+
+.ai-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  padding: calc(var(--nav-h) + 24px) var(--space) 56px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  gap: var(--s-6);
+}
+
+.ai-stage-head {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--s-7);
+  align-items: end;
+}
+.ai-stage-head .section-title {
+  font-size: clamp(34px, 3.6vw, 50px);
+  margin-top: 16px;
+}
+.ai-stage-head-aside {
+  border-left: 1px solid var(--brd);
+  padding-left: var(--s-5);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-55);
+}
+.ai-stage-head-aside b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* The board */
+.ai-board {
+  position: relative;
+  height: 100%;
+  max-height: 560px;
+  border: 1px solid var(--brd-mid);
+  border-radius: 18px;
+  background:
+    /* faint graph paper */
+    linear-gradient(rgba(13,13,11,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, rgba(13,13,11,0.025) 1px, transparent 1px) 0 0 / 32px 32px,
+    /* warm wash */
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 252, 244, 0.5) 0%, transparent 70%),
+    rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 30px 60px -32px rgba(13, 13, 11, 0.22),
+    0 6px 16px -8px rgba(13, 13, 11, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.ai-board-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--brd);
+  background: rgba(246, 245, 240, 0.45);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+.ai-board-dots { display: flex; gap: 5px; }
+.ai-board-dots i {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--brd-mid);
+}
+.ai-board-dots i:first-child { background: rgba(155, 123, 92, 0.55); }
+.ai-board-title { display: inline-flex; align-items: center; gap: 8px; }
+.ai-board-title i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green);
+  animation: blink 2.4s ease-in-out infinite;
+}
+.ai-board-counter {
+  margin-left: auto;
+  font-family: var(--font-sans);
+  color: var(--ink-25);
+  font-size: 11px;
+}
+.ai-board-counter b { color: var(--ink); font-weight: 500; }
+
+/* Scattered card surface */
+.ai-surface {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-card {
+  --p: 0;            /* scroll-driven fall progress */
+  --rot: 0deg;       /* base rotation when settled */
+  --dx: 0px;         /* drag offset x */
+  --dy: 0px;         /* drag offset y */
+  --lift: 0;         /* 0 idle, 1 lifted */
+  position: absolute;
+  width: 240px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-80);
+  overflow: hidden;
+  cursor: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  box-shadow:
+    0 10px 22px -12px rgba(13,13,11,0.16),
+    /* extra lift shadow ramped by --lift */
+    calc(var(--lift) * 0px) calc(var(--lift) * 28px) calc(var(--lift) * 50px) calc(var(--lift) * -14px) rgba(13,13,11,calc(var(--lift) * 0.30));
+
+  /* combine: scroll fall × drag offset × hover lift × settled rotation */
+  opacity: var(--p);
+  transform:
+    translate3d(
+      calc(var(--dx) + 0px),
+      calc(var(--dy) + (-220% * (1 - var(--p)))),
+      0
+    )
+    rotate(calc(var(--rot) * var(--p)))
+    scale(calc(1 + (var(--lift) * 0.04)));
+
+  transition:
+    box-shadow .18s var(--ease-out),
+    transform .22s cubic-bezier(.5, 0, .25, 1);
+
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+/* While actively dragging, kill transform transition for instant follow */
+.ai-card.is-dragging {
+  transition: box-shadow .15s ease;
+  z-index: 50;
+}
+
+/* Hover lift (only when not dragging and after settled) */
+.ai-card[data-settled="true"]:hover {
+  --lift: 1;
+}
+
+/* Subtle highlight stripe on hover */
+.ai-card[data-settled="true"]:hover::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -50%;
+  width: 200%; height: 100%;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 248, 232, 0.55) 50%, transparent 65%);
+  pointer-events: none;
+  animation: card-shine 1s ease-out forwards;
+}
+@keyframes card-shine {
+  0%   { left: -50%; }
+  100% { left:  50%; }
+}
+
+/* Hover tooltip — context bubble that sits above the card */
+.ai-card[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  z-index: 60;
+  animation: tooltip-rise .25s var(--ease-out) both;
+}
+@keyframes tooltip-rise {
+  from { opacity: 0; transform: translate(-50%, 4px); }
+  to   { opacity: 1; transform: translate(-50%, 0);    }
+}
+
+/* Card chrome */
+.ai-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--brd);
+  margin-bottom: 2px;
+}
+.ai-card-head b {
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+.ai-card-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  letter-spacing: -0.018em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 1px;
+}
+.ai-card-line {
+  font-size: 11.5px;
+  color: var(--ink-55);
+  line-height: 1.5;
+}
+.ai-card-foot {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-top: auto;
+}
+
+/* Variant: code/output */
+.ai-card.is-mono {
+  background: linear-gradient(180deg, var(--white) 0%, var(--bg-soft) 100%);
+}
+.ai-card.is-mono .ai-card-line {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  color: var(--ink-80);
+}
+.ai-card.is-mono .ai-card-line em { font-style: normal; color: var(--amber); }
+.ai-card.is-mono .ai-card-line b  { color: var(--ink); font-weight: 500; }
+.ai-card.is-mono .ai-card-line s  { text-decoration: line-through; color: var(--ink-25); }
+
+/* Variant: bars */
+.ai-card.is-bars .bars { display: grid; gap: 6px; font-size: 10.5px; }
+.ai-card.is-bars .bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink-55);
+}
+.ai-card.is-bars .bar .track {
+  height: 3px;
+  background: var(--bg);
+  border-radius: 2px;
+  overflow: hidden;
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+.ai-card.is-bars .bar .track > span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--amber-soft), var(--amber));
+  width: var(--w, 50%);
+}
+.ai-card.is-bars .label { letter-spacing: 0.05em; text-transform: uppercase; font-size: 9.5px; }
+.ai-card.is-bars .val   { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 500; font-size: 11px; }
+
+/* Variant: list */
+.ai-card.is-list .row {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: var(--ink-80);
+  align-items: center;
+}
+.ai-card.is-list .row.is-pick {
+  background: var(--ink);
+  color: var(--bg);
+}
+.ai-card.is-list .row .num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink-25);
+  font-size: 11px;
+}
+.ai-card.is-list .row.is-pick .num { color: var(--amber-soft); }
+
+/* Variant: palette */
+.ai-card.is-palette .swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 2px;
+}
+.ai-card.is-palette .swatches i {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1px solid var(--brd);
+}
+
+/* Variant: type sample */
+.ai-card.is-type {
+  background: linear-gradient(135deg, #FFFCF4 0%, #F4ECDB 100%);
+}
+.ai-card.is-type .sample {
+  font-family: var(--font-serif);
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.ai-card.is-type .sample em { font-style: italic; }
+.ai-card.is-type .meta {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  margin-top: auto;
+}
+
+/* Variant: wireframe */
+.ai-card.is-wire .wire {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 5px;
+  height: 80px;
+}
+.ai-card.is-wire .wire .top {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+}
+.ai-card.is-wire .wire .top i {
+  height: 18px;
+  background: var(--bg);
+  border-radius: 2px;
+}
+.ai-card.is-wire .wire .body {
+  background: var(--bg);
+  border-radius: 3px;
+  position: relative;
+}
+.ai-card.is-wire .wire .body::after {
+  content: '';
+  position: absolute;
+  left: 8%; right: 8%; bottom: 22%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+}
+
+/* Variant: quote */
+.ai-card.is-quote {
+  background: linear-gradient(135deg, #FBF4E5 0%, #F1E4CA 100%);
+}
+.ai-card.is-quote .quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.ai-card.is-quote .by {
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-top: auto;
+}
+
+/* Variant: chip cloud */
+.ai-card.is-chips .chips {
+  display: flex; flex-wrap: wrap;
+  gap: 4px 5px;
+  margin-top: 2px;
+}
+.ai-card.is-chips .chips span {
+  font-size: 10px;
+  border: 1px solid var(--brd);
+  border-radius: 99px;
+  padding: 2px 7px;
+  color: var(--ink-55);
+  background: var(--bg-soft);
+}
+.ai-card.is-chips .chips span.is-pick {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+/* Board foot */
+.ai-board-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid var(--brd);
+  font-size: 10.5px;
+  color: var(--ink-25);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(246, 245, 240, 0.45);
+}
+.ai-board-foot b { color: var(--ink); font-weight: 500; }
+.ai-board-foot-progress { display: flex; align-items: center; gap: 12px; }
+.ai-board-foot-bar {
+  width: 140px;
+  height: 1px;
+  background: var(--brd);
+  position: relative;
+  overflow: hidden;
+}
+.ai-board-foot-bar > span {
+  position: absolute; inset: 0;
+  background: var(--ink);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform .25s var(--ease-out);
+}
+
+@media (max-width: 980px) {
+  .ai-stage-head { grid-template-columns: 1fr; gap: var(--s-5); }
+  .ai-card { width: 200px; }
+  .ai-board { max-height: 720px; }
+}

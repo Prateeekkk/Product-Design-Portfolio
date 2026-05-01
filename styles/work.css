@@ -1,0 +1,403 @@
+/*
+  Work section — pinned scroll storytelling with a cinematic intro and a
+  before/after horizontal-reveal slider transition between cases.
+
+  Layout: visual on the LEFT, info on the RIGHT.
+
+  Intro: a single mockup centred on stage with no side content. As the user
+  scrolls, the mockup slides into its left grid column while the info column
+  fades in from the right.
+
+  Case transitions: each case visual stacks in the same container. The
+  incoming case wipes in left-to-right via clip-path, while the outgoing case
+  remains underneath. JS sets a --reveal CSS variable for each case based on
+  its position in the scroll progression.
+*/
+
+.work-pinned {
+  position: relative;
+  width: 100%;
+}
+
+.work-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: calc(var(--nav-h) + 24px) var(--space) 32px;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.work-stage-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--s-7);
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--brd);
+}
+.work-stage-head .section-title {
+  font-size: clamp(34px, 3.6vw, 50px);
+  line-height: 1.05;
+  margin-top: 16px;
+}
+
+.work-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--ink-25);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.work-progress-counter b {
+  color: var(--ink);
+  font-weight: 500;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin-right: 2px;
+}
+.work-progress-track {
+  width: 96px;
+  height: 1px;
+  background: var(--brd);
+  position: relative;
+  overflow: hidden;
+}
+.work-progress-bar {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform .35s var(--ease-out);
+}
+
+.work-cases {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+}
+
+/*
+  Layout: visual LEFT, info RIGHT.
+  All cases share the same absolute container; only the active info is shown.
+*/
+.work-case {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: var(--s-9);
+  align-items: center;
+  pointer-events: none;
+}
+.work-case[data-state="current"] { pointer-events: auto; }
+
+/* Info side — only the current case's info is visible */
+.work-info {
+  --intro: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-self: center;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity .35s ease, transform .4s var(--ease-out);
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+.work-case[data-state="current"] .work-info {
+  opacity: var(--intro);
+  transform: translateX(calc(30px * (1 - var(--intro))));
+  pointer-events: auto;
+}
+
+/*
+  Visual side — the wrap is a single positioned container. Each case visual
+  stacks inside it via z-index based on its index. The incoming case clips in
+  from the left edge using --reveal (0 = clipped, 1 = fully visible).
+*/
+.work-visual-wrap {
+  --intro: 1;
+  position: relative;
+  height: 100%;
+  max-height: 440px;
+  /* Intro translation: at intro=0 the wrap sits centred on stage; at 1 it
+     lands in its left grid column (+45% of own width). */
+  transform: translateX(calc(45% * (1 - var(--intro))));
+  transition: transform .12s linear;
+  will-change: transform;
+}
+
+/* Each .work-visual is absolutely positioned inside the wrap */
+.work-visual {
+  --reveal: 0;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--brd);
+  box-shadow:
+    0 28px 56px -28px rgba(26, 24, 19, 0.22),
+    0 6px 14px -6px rgba(26, 24, 19, 0.10);
+
+  /* Horizontal wipe: at --reveal=0 the visual is clipped from the right
+     (nothing visible); at --reveal=1 it's fully visible. */
+  clip-path: inset(0 calc((1 - var(--reveal)) * 100%) 0 0);
+  -webkit-clip-path: inset(0 calc((1 - var(--reveal)) * 100%) 0 0);
+  transition: clip-path .12s linear;
+  will-change: clip-path;
+}
+
+/* Real product imagery — fills the visual, replacing the CSS mock when present. */
+.work-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Preserve fallback bg colour if image is missing */
+  background: transparent;
+}
+
+/* Stack the visuals so later ones (newer cases) are on top */
+.work-case:nth-of-type(1) .work-visual { z-index: 1; }
+.work-case:nth-of-type(2) .work-visual { z-index: 2; }
+.work-case:nth-of-type(3) .work-visual { z-index: 3; }
+.work-case:nth-of-type(4) .work-visual { z-index: 4; }
+.work-case:nth-of-type(5) .work-visual { z-index: 5; }
+
+.tint-eximpe   { background: linear-gradient(135deg, #FFFCF4 0%, #F1E4D2 100%); }
+.tint-calorie  { background: linear-gradient(135deg, #F0F6F1 0%, #DDEAE0 100%); }
+.tint-signal   { background: linear-gradient(135deg, #F2F0FA 0%, #E0DDF0 100%); }
+.tint-tms      { background: linear-gradient(135deg, #FFF7E8 0%, #F4E2BD 100%); }
+.tint-totl     { background: linear-gradient(135deg, #FAF5F2 0%, #ECDDD2 100%); }
+
+.work-mock {
+  position: absolute;
+  inset: 36px;
+  background: var(--white);
+  border-radius: var(--r-md);
+  border: 1px solid var(--brd);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 14px 28px -12px rgba(26,24,19,0.12);
+}
+.work-mock-bar {
+  height: 18px;
+  border-bottom: 1px solid var(--brd);
+  display: flex; align-items: center; gap: 4px;
+  padding: 0 10px;
+  background: var(--bg-soft);
+}
+.work-mock-bar i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-25); display: block; }
+.work-mock-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+  padding: 12px;
+}
+.work-mock-side {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 10px 8px;
+  display: flex; flex-direction: column;
+  gap: 7px;
+}
+.work-mock-side i { display: block; height: 6px; border-radius: 2px; background: var(--brd-mid); }
+.work-mock-side i.short { width: 60%; }
+.work-mock-main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+}
+.work-mock-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+.work-mock-tile {
+  height: 44px;
+  background: var(--bg);
+  border-radius: 4px;
+}
+.work-mock-tile.lit { background: linear-gradient(180deg, var(--bg) 0%, rgba(140, 110, 72, 0.10) 100%); }
+.work-mock-chart {
+  background: var(--bg);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.work-mock-chart::before {
+  content: '';
+  position: absolute; inset: 14% 6% 24% 6%;
+  background:
+    linear-gradient(180deg, transparent 60%, rgba(140, 110, 72, 0.06) 100%),
+    repeating-linear-gradient(90deg, transparent 0 18%, rgba(26, 24, 19, 0.04) 18% 19%);
+}
+.work-mock-chart::after {
+  content: '';
+  position: absolute; left: 8%; right: 8%; bottom: 30%;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent 0%, var(--amber) 12%, var(--amber) 88%, transparent 100%);
+}
+
+/* Info content */
+.work-info-tags {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.work-info-tag {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  padding: 3px 9px;
+  border: 1px solid var(--brd);
+  border-radius: var(--r-pill);
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(6px);
+}
+.work-info-tag.is-year { color: var(--ink-25); }
+
+.work-info-title {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 3.6vw, 48px);
+  letter-spacing: -0.028em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-top: 4px;
+}
+.work-info-line {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-55);
+  max-width: 460px;
+}
+.work-info-meta {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 4px var(--s-6);
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+}
+.work-info-meta b {
+  display: block;
+  color: var(--ink-80);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.work-info-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  padding: 10px 16px 10px 18px;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-pill);
+  transition: background .25s ease, color .25s ease, transform .35s var(--ease-out);
+}
+.work-info-cta:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+.work-info-cta-arrow { transition: transform .3s var(--ease-out); }
+.work-info-cta:hover .work-info-cta-arrow {
+  transform: translate(3px, -3px);
+}
+
+.work-stage-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--brd);
+}
+.work-jumpers {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.work-jump {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  padding: 6px 12px;
+  border-right: 1px solid var(--brd);
+  transition: color .2s ease;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.work-jump:last-child { border-right: 0; }
+.work-jump:hover { color: var(--ink-55); }
+.work-jump small {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink-25);
+  font-size: 12px;
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+.work-jump.is-active { color: var(--ink); }
+.work-jump.is-active small { color: var(--amber); }
+
+.work-stage-hint {
+  font-family: var(--font-serif); font-style: italic;
+  color: var(--amber);
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.work-stage-hint::before { content: '↓'; font-family: var(--font-sans); font-size: 11px; }
+
+@media (max-width: 980px) {
+  .work-stage { padding-left: var(--space); padding-right: var(--space); }
+  .work-case {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    align-items: start;
+  }
+  .work-visual-wrap {
+    max-height: none;
+    transform: none !important;
+    aspect-ratio: 16 / 10;
+    height: auto;
+  }
+  .work-visual {
+    clip-path: inset(0 0 0 0) !important;
+  }
+  .work-info {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .work-info-title { font-size: 28px; }
+  .work-jumpers { display: none; }
+}

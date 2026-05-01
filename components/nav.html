@@ -1,0 +1,21 @@
+<!--
+  Component: top navigation
+  Dependencies: styles/nav.css, scripts/nav.js, scripts/modal.js
+-->
+<nav class="nav">
+  <a href="#home" class="nav-logo">Prateek</a>
+
+  <ul class="nav-links">
+    <li><a href="#home"  data-section="home"  class="active">Home</a></li>
+    <li><a href="#work"  data-section="work">Work</a></li>
+    <li><a href="#about" data-section="about">About</a></li>
+    <li><a href="#ai"    data-section="ai">AI Playground</a></li>
+  </ul>
+
+  <span class="nav-sep" aria-hidden="true"></span>
+
+  <a href="#" class="nav-cta" id="navCta" data-modal-open="ai">
+    <span class="nav-cta-dot"></span>
+    <span class="nav-cta-label">Talk to my AI</span>
+  </a>
+</nav>

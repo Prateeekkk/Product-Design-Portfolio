@@ -1,0 +1,34 @@
+/* Custom cursor: a small solid dot + a smoothed trailing ring. */
+
+.c-dot {
+  position: fixed; z-index: 9999;
+  width: 5px; height: 5px;
+  background: var(--ink);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.c-ring {
+  position: fixed; z-index: 9998;
+  width: 28px; height: 28px;
+  border: 1px solid rgba(13,13,11,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width .24s ease, height .24s ease,
+              background .24s ease, border-color .24s ease;
+}
+
+body.hovering .c-ring {
+  width: 44px; height: 44px;
+  border-color: rgba(13,13,11,0.06);
+  background: rgba(13,13,11,0.03);
+}
+
+/* Touch / coarse-pointer devices: hide custom cursor. */
+@media (hover: none), (pointer: coarse) {
+  .c-dot, .c-ring { display: none; }
+  body { cursor: auto; }
+  button, input, textarea, a { cursor: auto; }
+}

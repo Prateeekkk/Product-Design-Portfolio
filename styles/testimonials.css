@@ -1,0 +1,204 @@
+/*
+  Testimonials — horizontal auto-marquee of layered cards.
+
+  Each card has a distinct visual identity: a numbered serif index, a clear
+  hierarchy between the quote and the attribution, and a subtle layered
+  shadow stack that reads as "card on a desk". On hover the marquee slows.
+*/
+
+.testimonials {
+  position: relative;
+  padding: var(--section-pad-y) 0;
+}
+
+.testimonials-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: var(--s-7);
+  margin-bottom: var(--s-7);
+  padding: 0 var(--space);
+  max-width: var(--max-w);
+  margin-left: auto;
+  margin-right: auto;
+}
+.testimonials-head .section-title { font-size: clamp(34px, 3.6vw, 50px); margin-top: 16px; }
+.testimonials-head-meta {
+  font-size: 11.5px;
+  color: var(--ink-25);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.testimonials-head-meta b { color: var(--ink-55); font-weight: 500; }
+
+.testimonials-track-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.testimonials-track-wrap::before,
+.testimonials-track-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 140px;
+  pointer-events: none;
+  z-index: 2;
+}
+.testimonials-track-wrap::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+}
+.testimonials-track-wrap::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--bg) 0%, transparent 100%);
+}
+
+.testimonials-track {
+  display: flex;
+  align-items: stretch;
+  gap: 28px;
+  width: max-content;
+  padding: 36px 0 48px;
+  animation: testimonials-marquee 90s linear infinite;
+}
+/* Hover interactions removed — calm, uninterrupted scroll only. */
+
+@keyframes testimonials-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonials-track { animation: none; }
+}
+
+/*
+  Card — layered, with a numbered index badge and a clean composition.
+  - A back card "shadow" rectangle suggests depth without heavy shadow.
+  - Content area has clear hierarchy: index → quote → attribution.
+*/
+.testimonial {
+  position: relative;
+  width: 460px;
+  flex-shrink: 0;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  padding: 32px 34px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow:
+    0 22px 44px -28px rgba(17, 17, 17, 0.18),
+    0 6px 14px -8px rgba(17, 17, 17, 0.08);
+}
+
+/* Layered "card behind a card" — adds the visual identity */
+.testimonial::before {
+  content: '';
+  position: absolute;
+  inset: 12px -10px -10px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  z-index: -1;
+  transform: rotate(1.2deg);
+  box-shadow: 0 12px 28px -18px rgba(17, 17, 17, 0.14);
+}
+
+.testimonial-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+.testimonial-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--amber);
+  letter-spacing: -0.01em;
+}
+.testimonial-tag {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+}
+.testimonial-tag b { color: var(--ink-55); font-weight: 500; }
+
+.testimonial-quote {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--ink);
+  letter-spacing: -0.012em;
+  flex: 1;
+}
+.testimonial-quote::before {
+  content: '"';
+  font-size: 30px;
+  line-height: 0;
+  color: var(--amber);
+  margin-right: 4px;
+  vertical-align: -8px;
+}
+
+.testimonial-by {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px solid var(--brd);
+}
+.testimonial-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--amber-soft), var(--amber));
+  color: var(--bg);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.testimonial-avatar.is-cool { background: linear-gradient(135deg, #98AAB7, #6F8694); }
+.testimonial-avatar.is-warm { background: linear-gradient(135deg, #C9B084, #9B7B5C); }
+.testimonial-avatar.is-sage { background: linear-gradient(135deg, #A7C0A8, #74957B); }
+.testimonial-avatar.is-deep { background: linear-gradient(135deg, #8B7AA8, #5C4F77); }
+
+.testimonial-by-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.testimonial-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.testimonial-role {
+  font-size: 11.5px;
+  color: var(--ink-55);
+  letter-spacing: 0.02em;
+}
+.testimonial-co {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  align-self: flex-start;
+  padding: 3px 8px;
+  border: 1px solid var(--brd);
+  border-radius: var(--r-pill);
+  font-weight: 500;
+}
+
+@media (max-width: 980px) {
+  .testimonials-head { grid-template-columns: 1fr; gap: var(--s-4); }
+  .testimonial { width: 320px; padding: 22px 24px; }
+  .testimonial-quote { font-size: 16px; }
+}

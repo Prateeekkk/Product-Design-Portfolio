@@ -1,0 +1,255 @@
+/* Talk-to-my-AI modal. */
+
+.modal-backdrop {
+  position: fixed; inset: 0;
+  z-index: 200;
+  background: rgba(13,13,11,0.32);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease-out);
+}
+.modal-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  position: fixed;
+  z-index: 201;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, calc(-50% + 14px));
+  width: min(92vw, 640px);
+  max-height: min(86vh, 720px);
+  background: var(--bg);
+  border: 1px solid var(--brd-mid);
+  border-radius: 18px;
+  box-shadow:
+    0 30px 80px -30px rgba(13,13,11,0.35),
+    0 8px 22px -10px rgba(13,13,11,0.18);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s var(--ease-out),
+              transform .35s var(--ease-out);
+}
+.modal.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+/* Header */
+.modal-head {
+  display: flex; align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--brd);
+}
+.modal-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #F0E5D0 0%, transparent 60%),
+    linear-gradient(135deg, #DCD2BE 0%, #B4A88E 100%);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.modal-titles {
+  display: flex; flex-direction: column; gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.modal-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 6px;
+}
+.modal-status {
+  font-size: 11px;
+  color: var(--ink-55);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.modal-status::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2.5s ease-in-out infinite;
+}
+
+.modal-close {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-55);
+  transition: background .18s, color .18s;
+}
+.modal-close:hover {
+  background: rgba(13,13,11,0.06);
+  color: var(--ink);
+}
+
+/* Conversation area */
+.modal-body {
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+}
+.modal-body::-webkit-scrollbar { width: 6px; }
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--brd-mid); border-radius: 3px;
+}
+
+.bubble {
+  max-width: 86%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  word-wrap: break-word;
+}
+.bubble.is-ai {
+  align-self: flex-start;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  color: var(--ink-80);
+  border-bottom-left-radius: 6px;
+}
+.bubble.is-user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--bg);
+  border-bottom-right-radius: 6px;
+}
+.bubble.is-thinking {
+  font-family: var(--font-serif); font-style: italic;
+  background: transparent;
+  border: 0;
+  color: var(--amber);
+  font-size: 15px;
+}
+.bubble.is-thinking::after {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-left: 6px;
+  animation: blink 1s ease-in-out infinite;
+}
+
+.bubble small {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-25);
+  text-transform: uppercase;
+}
+
+/* Sample prompts as chips */
+.modal-prompts {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 12px 18px 0;
+}
+.prompt-chip {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-55);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-pill);
+  padding: 6px 12px;
+  white-space: nowrap;
+  background: var(--white);
+  transition: color .15s, border-color .15s, background .15s;
+}
+.prompt-chip:hover {
+  color: var(--ink);
+  border-color: var(--brd-mid);
+  background: var(--bg-soft);
+}
+
+/* Composer */
+.modal-foot {
+  padding: 14px 18px 16px;
+  border-top: 1px solid var(--brd);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.composer {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--brd-mid);
+  border-radius: var(--r-md);
+  padding: 8px 8px 8px 14px;
+  transition: border-color .2s ease;
+}
+.composer:focus-within {
+  border-color: var(--ink);
+}
+.composer input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 14px;
+  color: var(--ink);
+}
+.composer input::placeholder { color: var(--ink-25); }
+
+.composer-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-55);
+  transition: background .18s, color .18s;
+}
+.composer-btn:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+.composer-btn.is-mic.is-recording {
+  background: var(--ink);
+  color: var(--bg);
+}
+.composer-btn.is-send {
+  background: var(--ink);
+  color: var(--bg);
+}
+.composer-btn.is-send:hover {
+  background: var(--ink-80);
+  color: var(--bg);
+}
+
+.modal-hints {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  display: flex;
+  justify-content: space-between;
+}
+.modal-hints kbd {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--ink-55);
+  text-transform: none;
+}

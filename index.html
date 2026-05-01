@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prateek — Product Designer</title>
+  <meta name="description" content="Product designer who designs products people don't abandon. Three years, opinions, occasional dry humour." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles/tokens.css?v=22" />
+  <link rel="stylesheet" href="styles/base.css?v=22" />
+  <link rel="stylesheet" href="styles/cursor.css?v=22" />
+  <link rel="stylesheet" href="styles/loader.css?v=22" />
+  <link rel="stylesheet" href="styles/nav.css?v=22" />
+  <link rel="stylesheet" href="styles/hero.css?v=22" />
+  <link rel="stylesheet" href="styles/impact.css?v=22" />
+  <link rel="stylesheet" href="styles/work.css?v=22" />
+  <link rel="stylesheet" href="styles/about.css?v=22" />
+  <link rel="stylesheet" href="styles/experience.css?v=22" />
+  <link rel="stylesheet" href="styles/ai-playground.css?v=22" />
+  <link rel="stylesheet" href="styles/testimonials.css?v=22" />
+  <link rel="stylesheet" href="styles/contact.css?v=22" />
+  <link rel="stylesheet" href="styles/modal.css?v=22" />
+  <link rel="stylesheet" href="styles/responsive.css?v=22" />
+</head>
+<body class="loader-active">
+
+  <!-- Loader — dark canvas, rotating greetings, fade-out exit -->
+  <div class="loader" id="loader">
+    <div class="loader-stage">
+      <span class="loader-word is-active" id="loaderWord">Hello<span class="lang" id="loaderLang">EN</span></span>
+    </div>
+    <div class="loader-bar"><span></span></div>
+  </div>
+
+  <!-- Custom cursor -->
+  <div class="c-dot" id="cdot"></div>
+  <div class="c-ring" id="cring"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#home" class="nav-logo">Prateek</a>
+
+    <ul class="nav-links">
+      <li><a href="#home"  data-section="home"  class="active">Home</a></li>
+      <li><a href="#work"  data-section="work">Work</a></li>
+      <li><a href="#about" data-section="about">About</a></li>
+      <li><a href="#ai"    data-section="ai">AI Playground</a></li>
+    </ul>
+
+    <span class="nav-sep" aria-hidden="true"></span>
+
+    <a href="/assets/prateek-resume.pdf" target="_blank" rel="noopener" class="nav-resume">
+      Resume <span class="nav-resume-arrow">↗</span>
+    </a>
+
+    <a href="#" class="nav-cta" id="navCta" data-modal-open="ai">
+      <span class="nav-cta-dot"></span>
+      <span class="nav-cta-label">Talk to my AI</span>
+    </a>
+  </nav>
+
+  <!-- Main content wrapper — sits above the dark footer (z-index: 2) -->
+  <main class="site">
+
+  <!-- Hero -->
+  <section id="home" class="hero">
+    <div class="hero-body">
+      <div class="hero-left">
+
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Product Designer · Available for Q3
+        </div>
+
+        <h1 class="headline">
+          I design products<br>
+          people <span class="ital mark">don't</span> abandon.
+        </h1>
+
+        <p class="subtext">
+          Three years of asking "but why?" before opening Figma.
+          I work at the intersection of product thinking and interaction craft —
+          which is a fancy way of saying I care about the words too.
+        </p>
+
+        <div class="annotations">
+          <div class="annot">
+            <span class="annot-note">the day job ↘</span>
+            <svg class="annot-arrow" width="16" height="28" viewBox="0 0 16 28" fill="none">
+              <path id="ap1" d="M8 2 C6 8 10 15 8 24" stroke-width="1.1"/>
+              <path id="ap2" d="M5 22 L8 26 L11 22"   stroke-width="1.1" stroke-linejoin="round"/>
+            </svg>
+            <span class="annot-main">Currently designing at Eximpe</span>
+            <span class="annot-sub">making cross-border trade<br>less of a paperwork sport</span>
+          </div>
+
+          <div class="annot">
+            <span class="annot-note">not a hot take ↘</span>
+            <svg class="annot-arrow" width="16" height="28" viewBox="0 0 16 28" fill="none">
+              <path id="ap3" d="M8 2 C6 8 10 15 8 24" stroke-width="1.1"/>
+              <path id="ap4" d="M5 22 L8 26 L11 22"   stroke-width="1.1" stroke-linejoin="round"/>
+            </svg>
+            <span class="annot-main">Yes, I have opinions on your spacing.</span>
+            <span class="annot-sub">and your copy. and your<br>border radius.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-foot">
+      <span class="foot-item lit">3 yrs</span>
+      <span class="foot-sep"></span>
+      <span class="foot-item">Product Design</span>
+      <span class="foot-sep"></span>
+      <span class="foot-item">Design Systems</span>
+      <span class="foot-sep"></span>
+      <span class="foot-item">India · IST</span>
+
+      <div class="scroll-cue">
+        <div class="scroll-track"></div>
+        <span class="scroll-label">Scroll</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Impact Strip — between Hero and Work -->
+  <section class="impact" aria-label="Impact metrics">
+    <div class="impact-track">
+      <!-- Group 1 -->
+      <div class="impact-item">
+        <span class="impact-num">100<em>+</em></span>
+        <span class="impact-label">Features shipped to production</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">78<em>%</em></span>
+        <span class="impact-label">Adoption on the redesigned dashboard</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">12</span>
+        <span class="impact-label">Design systems built or rescued</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">30<em>M+</em></span>
+        <span class="impact-label">Users on surfaces I've worked on</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">14<em>→</em>4</span>
+        <span class="impact-label">Onboarding steps removed at Eximpe</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">3</span>
+        <span class="impact-label">Companies, two industries, one obsession</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <!-- Group 2 (duplicate for seamless loop) -->
+      <div class="impact-item">
+        <span class="impact-num">100<em>+</em></span>
+        <span class="impact-label">Features shipped to production</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">78<em>%</em></span>
+        <span class="impact-label">Adoption on the redesigned dashboard</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">12</span>
+        <span class="impact-label">Design systems built or rescued</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">30<em>M+</em></span>
+        <span class="impact-label">Users on surfaces I've worked on</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">14<em>→</em>4</span>
+        <span class="impact-label">Onboarding steps removed at Eximpe</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+      <div class="impact-item">
+        <span class="impact-num">3</span>
+        <span class="impact-label">Companies, two industries, one obsession</span>
+      </div>
+      <span class="impact-sep" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- Work — pinned, 4 projects, intro reveal + clip-path slider -->
+  <!-- 4 cases + 1 intro segment = 5 segments × 100vh = 500vh -->
+  <section id="work" class="work-pinned" data-intro="true" style="height: 500vh;">
+    <div class="work-stage">
+
+      <header class="work-stage-head">
+        <div>
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Selected Work · 2022—2025</span>
+          <h2 class="section-title">Things I shipped, mostly on&nbsp;time.</h2>
+        </div>
+        <div class="work-progress">
+          <span class="work-progress-counter"><b data-counter-current>01</b> / <span data-counter-total>04</span></span>
+          <div class="work-progress-track">
+            <div class="work-progress-bar" data-progress-bar></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="work-cases">
+
+        <article class="work-case" data-state="current">
+          <div class="work-visual-wrap">
+            <div class="work-visual tint-eximpe">
+              <img class="work-img" src="assets/work/work-1-reimbursement.png" alt="Reimbursement approval flow on mobile" loading="lazy" />
+            </div>
+          </div>
+          <div class="work-info">
+            <div class="work-info-tags">
+              <span class="work-info-tag">B2B Fintech</span>
+              <span class="work-info-tag">Mobile</span>
+              <span class="work-info-tag is-year">2024</span>
+            </div>
+            <h3 class="work-info-title">Reimbursement experience, redesigned.</h3>
+            <p class="work-info-line">
+              A mobile claim flow that took 50% less time on bulk submissions. Restructured the form into a chat-style sequence so employees stop guessing which field is required next.
+            </p>
+            <div class="work-info-meta">
+              <div>Role<b>Product Designer</b></div>
+              <div>Surface<b>iOS · Android</b></div>
+            </div>
+            <a href="https://prateekdesign.framer.website/redesigned-reimbursement-experience-reducing-claim-time-by-half" target="_blank" rel="noopener" class="work-info-cta">Read case study <span class="work-info-cta-arrow">↗</span></a>
+          </div>
+        </article>
+
+        <article class="work-case" data-state="future">
+          <div class="work-visual-wrap">
+            <div class="work-visual tint-signal">
+              <img class="work-img" src="assets/work/work-2-vendor.png" alt="Pazy vendor payments dashboard" loading="lazy" />
+            </div>
+          </div>
+          <div class="work-info">
+            <div class="work-info-tags">
+              <span class="work-info-tag">B2B Fintech</span>
+              <span class="work-info-tag">Dashboard</span>
+              <span class="work-info-tag is-year">2024</span>
+            </div>
+            <h3 class="work-info-title">Vendor payments, finally visible.</h3>
+            <p class="work-info-line">
+              A unified view for finance teams tracking ₹60Cr+ in invoices and vendor advances. Hit ~70% daily adoption inside a quarter — replacing the spreadsheet that nobody wanted to maintain.
+            </p>
+            <div class="work-info-meta">
+              <div>Role<b>Product Designer</b></div>
+              <div>Surface<b>Web · Dashboard</b></div>
+            </div>
+            <a href="https://prateekdesign.framer.website/invoice-advance-management-overview" target="_blank" rel="noopener" class="work-info-cta">Read case study <span class="work-info-cta-arrow">↗</span></a>
+          </div>
+        </article>
+
+        <article class="work-case" data-state="future">
+          <div class="work-visual-wrap">
+            <div class="work-visual tint-tms">
+              <img class="work-img" src="assets/work/work-3-designsystem.png" alt="Design system foundations" loading="lazy" />
+            </div>
+          </div>
+          <div class="work-info">
+            <div class="work-info-tags">
+              <span class="work-info-tag">Mental Health</span>
+              <span class="work-info-tag">Design System</span>
+              <span class="work-info-tag is-year">2023</span>
+            </div>
+            <h3 class="work-info-title">A design system that doesn't shout.</h3>
+            <p class="work-info-line">
+              Foundations for a mental-health app — accessibility-first colour, calm motion, copy that doesn't moralise. A scalable kit for a product that needed to feel safer than it looked.
+            </p>
+            <div class="work-info-meta">
+              <div>Role<b>Product Designer</b></div>
+              <div>Surface<b>iOS · Tokens</b></div>
+            </div>
+            <a href="https://prateekdesign.framer.website/building-a-scalable-design-system-ui-foundation-for-an-emotional-support-app" target="_blank" rel="noopener" class="work-info-cta">View project <span class="work-info-cta-arrow">↗</span></a>
+          </div>
+        </article>
+
+        <article class="work-case" data-state="future">
+          <div class="work-visual-wrap">
+            <div class="work-visual tint-calorie">
+              <img class="work-img" src="assets/work/work-4-stockex.png" alt="Stockex investing app for beginners" loading="lazy" />
+            </div>
+          </div>
+          <div class="work-info">
+            <div class="work-info-tags">
+              <span class="work-info-tag">Personal</span>
+              <span class="work-info-tag">Stocks · Mobile</span>
+              <span class="work-info-tag is-year">2023</span>
+            </div>
+            <h3 class="work-info-title">An investing app for first-timers.</h3>
+            <p class="work-info-line">
+              A side project for people who want to start, not study. Stripped the jargon, surfaced the right next decision, and made the chart less of a Rorschach test.
+            </p>
+            <div class="work-info-meta">
+              <div>Role<b>Designer · Side project</b></div>
+              <div>Surface<b>Mobile</b></div>
+            </div>
+            <a href="https://www.behance.net/gallery/208469723/Streamlining-Stock-Trading-Process-UIUX-Case-Study" target="_blank" rel="noopener" class="work-info-cta">View project <span class="work-info-cta-arrow">↗</span></a>
+          </div>
+        </article>
+
+      </div>
+
+      <footer class="work-stage-foot">
+        <nav class="work-jumpers" aria-label="Case studies">
+          <a href="#" class="work-jump is-active" data-jump="0"><small>01</small> Reimbursements</a>
+          <a href="#" class="work-jump" data-jump="1"><small>02</small> Vendor Payments</a>
+          <a href="#" class="work-jump" data-jump="2"><small>03</small> Mental Health DS</a>
+          <a href="#" class="work-jump" data-jump="3"><small>04</small> Stocks for Beginners</a>
+        </nav>
+        <span class="work-stage-hint">scroll to advance</span>
+      </footer>
+
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section">
+
+    <header class="about-head reveal" style="margin-bottom: var(--s-9);">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> About</span>
+      <h2 class="section-title" style="margin-top: 24px;">
+        Designer. Reluctant generalist.<br>Caffeine-stable.
+      </h2>
+    </header>
+
+    <div class="about-grid">
+
+      <aside class="about-portrait reveal">
+        <div class="portrait-frame" data-parallax-tilt>
+          <img class="portrait-img" src="https://lh3.googleusercontent.com/d/1eJ-3iQDPwbUNwgZG8VCLH2Stu4XVQJUM=w2000" alt="Prateek — illustrated portrait" referrerpolicy="no-referrer" />
+        </div>
+        <div class="portrait-label">
+          <span><b>Prateek</b> · Bengaluru</span>
+          <span>est. 2002</span>
+        </div>
+        <p class="portrait-quote">
+          The best UI is the one no one notices. I keep failing at this in interesting ways.
+        </p>
+      </aside>
+
+      <div class="about-body">
+
+        <div class="about-narrative reveal">
+          <p>
+            I started in product design the way most people start in product design —
+            making landing pages for friends and slowly realising the landing page wasn't the problem.
+            Six years later I'm still figuring out the same thing, just at higher resolution.
+          </p>
+          <p>
+            I work best on <em>messy, end-to-end product surfaces</em> where the question
+            isn't "what should this button look like" but "should this button exist at all."
+            Fintech, internal tools, anything with a workflow that someone has been quietly
+            tolerating for too long.
+          </p>
+          <p>
+            Outside of work I write a little, run a lot less than I should, and maintain a
+            healthy relationship with my Notes app. I'm available for full-time roles and
+            the occasional thoughtful side project.
+          </p>
+        </div>
+
+        <div class="beliefs reveal">
+          <h3 class="beliefs-title">Things I believe, mostly.</h3>
+          <ol class="beliefs-list">
+            <li>If the copy is wrong, the design is wrong. The button doesn't fix it.</li>
+            <li>"Make it pop" is feedback the same way "I'm fine" is.</li>
+            <li>Most products don't need more features. They need fewer, better ones.</li>
+            <li>Engineers are not a downstream. They are the design team.</li>
+            <li>If you can't explain the flow on a napkin, the user can't follow it on a screen.</li>
+          </ol>
+        </div>
+
+        <div class="currently reveal">
+          <h3 class="currently-title">
+            Currently
+            <small>updated when I remember</small>
+          </h3>
+          <dl class="currently-grid">
+            <div class="currently-item">
+              <dt>Reading</dt>
+              <dd><em>The Design of Everyday Things</em>, again. It's a comfort book.</dd>
+            </div>
+            <div class="currently-item">
+              <dt>Building</dt>
+              <dd>An internal AI tool that turns PM rambles into briefs.</dd>
+            </div>
+            <div class="currently-item">
+              <dt>Thinking about</dt>
+              <dd>Why every B2B product wants to be a "platform."</dd>
+            </div>
+            <div class="currently-item">
+              <dt>Avoiding</dt>
+              <dd>Yet another portfolio rewrite. (You found me mid-relapse.)</dd>
+            </div>
+          </dl>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Experience — text above, vertical stack of 3 cards centred -->
+  <section class="experience">
+
+    <div class="experience-head reveal">
+      <span class="eyebrow"><span class="eyebrow-dot"></span> Experience</span>
+      <h2 class="section-title">A small deck of where I've been.</h2>
+      <span class="experience-head-meta"><b>03</b> roles · drag the front card to cycle</span>
+    </div>
+
+    <div class="exp-stack">
+
+      <article class="exp-card" style="--i: 0">
+        <header class="exp-card-head">
+          <div class="exp-card-logo is-amber">E</div>
+          <span class="exp-card-period">Sep 2025 — Present</span>
+        </header>
+        <h3 class="exp-card-name">Eximpe</h3>
+        <p class="exp-card-line">B2B cross-border payments platform.</p>
+        <ul class="exp-card-bullets">
+          <li>Designed merchant checkout, subscription management, payment links and dispute flows.</li>
+          <li>Reshaped checkout into a single-screen confirmation; cut completion time noticeably.</li>
+          <li>Owned end-to-end design across 5 product surfaces.</li>
+        </ul>
+        <div class="exp-card-role">Product Designer</div>
+      </article>
+
+      <article class="exp-card" style="--i: 1">
+        <header class="exp-card-head">
+          <div class="exp-card-logo is-cool">P</div>
+          <span class="exp-card-period">Aug 2024 — Aug 2025</span>
+        </header>
+        <h3 class="exp-card-name">Pazy</h3>
+        <p class="exp-card-line">Finance tooling for CFOs and ops teams.</p>
+        <ul class="exp-card-bullets">
+          <li>Designed CFO dashboards — lifted daily adoption to ~70%.</li>
+          <li>Redesigned notifications + payment flows for clarity.</li>
+          <li>Owned the mobile redesign — read-time per screen down 40%.</li>
+        </ul>
+        <div class="exp-card-role">Product Designer</div>
+      </article>
+
+      <article class="exp-card" style="--i: 2">
+        <header class="exp-card-head">
+          <div class="exp-card-logo is-sage">M</div>
+          <span class="exp-card-period">Jun 2022 — Jun 2024</span>
+        </header>
+        <h3 class="exp-card-name">Mongoosh</h3>
+        <p class="exp-card-line">Design agency — variety and velocity.</p>
+        <ul class="exp-card-bullets">
+          <li>Shipped 14+ client projects across SaaS, brand and commerce.</li>
+          <li>Built the agency's reusable component library in Framer.</li>
+          <li>Worked end-to-end: research, prototypes, HTML/CSS/JS, no-code tooling.</li>
+        </ul>
+        <div class="exp-card-role">UI Designer</div>
+      </article>
+
+    </div>
+
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- AI Playground -->
+  <section id="ai" class="ai-pinned" style="height: 500vh;">
+    <div class="ai-stage">
+
+      <header class="ai-stage-head">
+        <div>
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Playground · WIP</span>
+          <h2 class="section-title">Where I break things on purpose.</h2>
+        </div>
+        <p class="ai-stage-head-aside">
+          Eight small AI experiments. <b>Some worked. Some built character.</b>
+          Scroll to drop them onto the board — then drag them around if you must.
+        </p>
+      </header>
+
+      <div class="ai-board">
+
+        <div class="ai-board-bar">
+          <span class="ai-board-dots"><i></i><i></i><i></i></span>
+          <span class="ai-board-title"><i></i> Playground · live board</span>
+          <span class="ai-board-counter">
+            <b data-counter-current>00</b> / <span data-counter-total>08</span> placed
+          </span>
+        </div>
+
+        <div class="ai-surface">
+
+          <article class="ai-card is-mono" style="left: 4%; top: 8%; --rot: -4deg;" data-tooltip="My most-used. v0.2 added 'dry'.">
+            <div class="ai-card-head"><span><b>Tone Tuner</b></span><span>Live</span></div>
+            <div class="ai-card-line">
+              <em>// in</em> Our platform empowers teams.<br>
+              <b>Dry:</b> A tool. For meetings about meetings.<br>
+              <b>Casual:</b> Less back-and-forth. More work.
+            </div>
+            <div class="ai-card-foot">Experiment 01</div>
+          </article>
+
+          <article class="ai-card is-bars" style="left: 36%; top: 4%; --rot: 5deg;" data-tooltip="Severity, kindly.">
+            <div class="ai-card-head"><span><b>Component Critic</b></span><span>Concept</span></div>
+            <h3 class="ai-card-title">Severity, ranked.</h3>
+            <div class="bars">
+              <div class="bar"><span class="label">Hierarchy</span><span class="val">4.4</span><div class="track"><span style="--w: 88%"></span></div></div>
+              <div class="bar"><span class="label">Copy</span><span class="val">3.5</span><div class="track"><span style="--w: 70%"></span></div></div>
+              <div class="bar"><span class="label">Alignment</span><span class="val">3.0</span><div class="track"><span style="--w: 60%"></span></div></div>
+            </div>
+            <div class="ai-card-foot">Experiment 03</div>
+          </article>
+
+          <article class="ai-card is-list" style="right: 3%; top: 11%; --rot: -3deg;" data-tooltip="Tally won. Receiptly cried.">
+            <div class="ai-card-head"><span><b>Naming Things</b></span><span>For fun</span></div>
+            <div class="row"><span class="num">01</span><span>Receiptly</span></div>
+            <div class="row"><span class="num">02</span><span>Bill.io</span></div>
+            <div class="row is-pick"><span class="num">03</span><span>Tally</span></div>
+            <div class="row"><span class="num">04</span><span>InvoiceBro</span></div>
+            <div class="ai-card-foot">Experiment 04</div>
+          </article>
+
+          <article class="ai-card is-mono" style="left: 8%; top: 56%; --rot: 2deg;" data-tooltip="11 messages → 1 page.">
+            <div class="ai-card-head"><span><b>Spec Whisperer</b></span><span>Beta</span></div>
+            <h3 class="ai-card-title">Compressed.</h3>
+            <div class="ai-card-line">
+              <em>// in</em> 4,200 words / 11 msgs<br>
+              <em>// out</em> 1 page · 3 questions · 0 emojis
+            </div>
+            <div class="ai-card-foot">Experiment 02</div>
+          </article>
+
+          <article class="ai-card is-palette" style="left: 38%; top: 50%; --rot: -6deg;" data-tooltip="Five from a screenshot.">
+            <div class="ai-card-head"><span><b>Color Eye</b></span><span>Demo</span></div>
+            <h3 class="ai-card-title">Picks five from a shot.</h3>
+            <div class="swatches">
+              <i style="background:#0D0D0B"></i>
+              <i style="background:#9B7B5C"></i>
+              <i style="background:#E8E4D8"></i>
+              <i style="background:#C7BFAB"></i>
+              <i style="background:#58B076"></i>
+            </div>
+            <div class="ai-card-foot">Experiment 05</div>
+          </article>
+
+          <article class="ai-card is-type" style="right: 30%; top: 56%; --rot: 4deg;" data-tooltip="Pairs serif + sans politely.">
+            <div class="ai-card-head"><span><b>Type Mixer</b></span><span>Concept</span></div>
+            <div class="sample">A<em>a</em></div>
+            <div class="meta">Instrument Serif · Inter</div>
+          </article>
+
+          <article class="ai-card is-wire" style="right: 4%; top: 50%; --rot: -2deg;" data-tooltip="Sketches a layout from a brief.">
+            <div class="ai-card-head"><span><b>Wire Sketch</b></span><span>WIP</span></div>
+            <div class="wire">
+              <div class="top"><i></i><i></i><i></i></div>
+              <div class="body"></div>
+            </div>
+            <div class="ai-card-foot">Experiment 06</div>
+          </article>
+
+          <article class="ai-card is-quote" style="left: 22%; top: 30%; --rot: 6deg; width: 220px;" data-tooltip="Critique with a sense of humour.">
+            <div class="ai-card-head"><span><b>Crit · pull</b></span><span>Today</span></div>
+            <p class="quote">"This card has six fonts. Three of them are italic. Pick a fight."</p>
+            <span class="by">— Component Critic</span>
+          </article>
+
+        </div>
+
+        <div class="ai-board-foot">
+          <span><b data-counter-current>00</b> of <span data-counter-total>08</span> cards placed</span>
+          <div class="ai-board-foot-progress">
+            <span>Assembling</span>
+            <div class="ai-board-foot-bar"><span data-foot-bar></span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Testimonials — longer, more believable copy + layered cards -->
+  <section class="testimonials">
+    <header class="testimonials-head reveal">
+      <div>
+        <span class="eyebrow"><span class="eyebrow-dot"></span> What people say</span>
+        <h2 class="section-title">Said about me, mostly behind my back.</h2>
+      </div>
+      <span class="testimonials-head-meta"><b>04</b> testimonials · gathered honestly</span>
+    </header>
+
+    <div class="testimonials-track-wrap">
+      <div class="testimonials-track">
+
+        <!-- Group 1 -->
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">01</span>
+            <span class="testimonial-tag"><b>EXIMPE</b> · 2024</span>
+          </div>
+          <p class="testimonial-quote">He spent forty minutes arguing for a button label and another twenty rewriting the empty state. We shipped both. Conversion went up 18% in the first month and our support tickets stopped including the phrase "I don't understand what this means." I have stopped rolling my eyes.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-warm">A</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Aanya Sharma</span>
+              <span class="testimonial-role">Engineering Lead, Eximpe</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">02</span>
+            <span class="testimonial-tag"><b>LOADWISE</b> · 2023</span>
+          </div>
+          <p class="testimonial-quote">Finally, a designer who reads the comments. And the requirements. And the user research. Prateek pushed back on three of our biggest assumptions in the first month — turned out two of them were wrong. He's the reason our ops team can do in eleven minutes what used to take thirty-eight.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-cool">M</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Marcus Patel</span>
+              <span class="testimonial-role">Product Manager, Loadwise</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">03</span>
+            <span class="testimonial-tag"><b>TOP OF THE LINE</b> · 2022</span>
+          </div>
+          <p class="testimonial-quote">He'll ask "but why?" until you actually have an answer. Annoying for thirty seconds, useful for the next six months. Our brand finally has a system instead of a colour palette. He also writes the copy he's designing for, which I didn't know I needed in a designer.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-sage">S</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Saanvi Rao</span>
+              <span class="testimonial-role">Founder, Top of the Line</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">04</span>
+            <span class="testimonial-tag"><b>EXIMPE</b> · 2025</span>
+          </div>
+          <p class="testimonial-quote">Treats UX writing as design, not an afterthought. When I send him three sentences that mean almost the same thing, he comes back with one that means exactly what we needed. Half my product manager job got easier the day he joined the team.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-deep">N</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Neha Kulkarni</span>
+              <span class="testimonial-role">Product Manager, Eximpe</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Group 2 (duplicate for seamless loop) -->
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">01</span>
+            <span class="testimonial-tag"><b>EXIMPE</b> · 2024</span>
+          </div>
+          <p class="testimonial-quote">He spent forty minutes arguing for a button label and another twenty rewriting the empty state. We shipped both. Conversion went up 18% in the first month and our support tickets stopped including the phrase "I don't understand what this means." I have stopped rolling my eyes.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-warm">A</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Aanya Sharma</span>
+              <span class="testimonial-role">Engineering Lead, Eximpe</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">02</span>
+            <span class="testimonial-tag"><b>LOADWISE</b> · 2023</span>
+          </div>
+          <p class="testimonial-quote">Finally, a designer who reads the comments. And the requirements. And the user research. Prateek pushed back on three of our biggest assumptions in the first month — turned out two of them were wrong. He's the reason our ops team can do in eleven minutes what used to take thirty-eight.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-cool">M</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Marcus Patel</span>
+              <span class="testimonial-role">Product Manager, Loadwise</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">03</span>
+            <span class="testimonial-tag"><b>TOP OF THE LINE</b> · 2022</span>
+          </div>
+          <p class="testimonial-quote">He'll ask "but why?" until you actually have an answer. Annoying for thirty seconds, useful for the next six months. Our brand finally has a system instead of a colour palette. He also writes the copy he's designing for, which I didn't know I needed in a designer.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-sage">S</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Saanvi Rao</span>
+              <span class="testimonial-role">Founder, Top of the Line</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial">
+          <div class="testimonial-row">
+            <span class="testimonial-num">04</span>
+            <span class="testimonial-tag"><b>EXIMPE</b> · 2025</span>
+          </div>
+          <p class="testimonial-quote">Treats UX writing as design, not an afterthought. When I send him three sentences that mean almost the same thing, he comes back with one that means exactly what we needed. Half my product manager job got easier the day he joined the team.</p>
+          <div class="testimonial-by">
+            <div class="testimonial-avatar is-deep">N</div>
+            <div class="testimonial-by-text">
+              <span class="testimonial-name">Neha Kulkarni</span>
+              <span class="testimonial-role">Product Manager, Eximpe</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  </main><!-- /.site -->
+
+  <!-- Invisible spacer — extends document so .site can scroll past, revealing the footer -->
+  <div class="footer-spacer" aria-hidden="true"></div>
+
+  <!--
+    Site footer — dark theme, fixed at viewport bottom.
+    Revealed from underneath the white .site as the user scrolls to the end.
+  -->
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+
+      <h2 class="site-footer-headline">
+        Always open to talk about<br>design, product, or <em>AI.</em>
+      </h2>
+
+      <div class="site-footer-channels">
+        <div class="site-footer-channel">
+          <span class="site-footer-channel-label">Email</span>
+          <a href="mailto:prateekdaswani22@gmail.com">prateekdaswani22@gmail.com</a>
+        </div>
+        <div class="site-footer-channel">
+          <span class="site-footer-channel-label">Instagram</span>
+          <a href="https://instagram.com/" target="_blank" rel="noopener">@prateek.daswani</a>
+        </div>
+        <div class="site-footer-channel">
+          <span class="site-footer-channel-label">Behance</span>
+          <a href="https://behance.net/" target="_blank" rel="noopener">behance.net/prateek</a>
+        </div>
+      </div>
+
+      <div class="site-footer-meta">
+        <span>© 2026 <b>Prateek</b></span>
+        <span class="site-footer-meta-egg">designed in figma · written in Notes · shipped, mostly on time</span>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- Talk-to-my-AI Modal -->
+  <div class="modal-backdrop" id="aiBackdrop"></div>
+
+  <aside class="modal" id="aiModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+    <header class="modal-head">
+      <div class="modal-avatar">P</div>
+      <div class="modal-titles">
+        <span class="modal-title" id="modalTitle">Prateek's AI</span>
+        <span class="modal-status">Trained on his thinking · responds faster than him</span>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close modal">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="bubble is-ai">
+        Hi. I'm a small AI trained on Prateek's writing, work, and slightly-too-strong design opinions. Ask me anything you'd ask him in an interview. I'll do my best impression.
+        <small>Demo · responses are pre-baked</small>
+      </div>
+    </div>
+
+    <div class="modal-prompts">
+      <button class="prompt-chip">Tell me about your work</button>
+      <button class="prompt-chip">Why should we hire you?</button>
+      <button class="prompt-chip">What's your design philosophy?</button>
+      <button class="prompt-chip">Explain Eximpe in 3 lines</button>
+      <button class="prompt-chip">Are you junior or senior?</button>
+    </div>
+
+    <footer class="modal-foot">
+      <div class="composer">
+        <input type="text" placeholder="Ask anything…" autocomplete="off" />
+        <button class="composer-btn is-mic" aria-label="Use voice">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="5" y="2" width="4" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M3 7 V8 A4 4 0 0 0 11 8 V7 M7 12 V14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="composer-btn is-send" aria-label="Send">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7 H12 M8 3 L12 7 L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-hints">
+        <span>Press <kbd>/</kbd> to open · <kbd>Esc</kbd> to close</span>
+        <span>It's a demo · be nice</span>
+      </div>
+    </footer>
+
+  </aside>
+
+  <script src="scripts/loader.js?v=22"></script>
+  <script src="scripts/cursor.js?v=22" defer></script>
+  <script src="scripts/nav.js?v=22" defer></script>
+  <script src="scripts/modal.js?v=22" defer></script>
+  <script src="scripts/scenes.js?v=22" defer></script>
+  <script src="scripts/main.js?v=22" defer></script>
+
+</body>
+</html>

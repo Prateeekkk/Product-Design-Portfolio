@@ -1,0 +1,281 @@
+/*
+  Experience — STACKED DECK of cards, centred on screen.
+
+  Default: front card centered. Back cards peek UP from behind the front
+  with a slight tilt — like holding a deck of cards.
+  Hover:   the stack "breathes open" — back cards shift further up and tilt
+           a touch more, increasing visible spacing without spreading
+           horizontally.
+  Drag:    only the front card is draggable. Pulling it down past a
+           threshold cycles it to the back of the stack; the next card
+           becomes the front.
+
+  No left/right fan, no off-screen overflow, no aggressive motion.
+*/
+
+.experience {
+  position: relative;
+  padding: var(--section-pad-y) var(--space);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.experience-head {
+  display: block;
+  text-align: left;
+  margin-bottom: var(--s-9);
+}
+.experience-head .eyebrow { margin-bottom: var(--s-5); }
+.experience-head .section-title {
+  font-size: clamp(34px, 3.8vw, 50px);
+  margin-top: 16px;
+}
+.experience-head-meta {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ink-25);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: var(--s-4);
+}
+.experience-head-meta b { color: var(--ink-55); font-weight: 500; }
+
+/* Stack container — centred; height accommodates the upward peek */
+.exp-stack {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  height: 480px;
+  margin: 0 auto;
+  perspective: 1400px;
+}
+
+/*
+  Each card is absolutely positioned and stacked on top of one another.
+  --i drives the card's depth: 0 = front, 1 = mid, 2 = back.
+  Back cards translate UP and rotate slightly, like a held deck.
+*/
+.exp-card {
+  --i: 0;
+  --drag-x: 0px;
+  --drag-y: 0px;
+  --drag-rot: 0deg;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--brd);
+  background: var(--white);
+  box-shadow:
+    0 24px 50px -28px rgba(17, 17, 17, 0.18),
+    0 6px 14px -8px rgba(17, 17, 17, 0.08);
+  padding: 30px 36px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transform-origin: center bottom;
+  transition: transform .55s cubic-bezier(.5, 0, .25, 1),
+              box-shadow .35s ease;
+  z-index: calc(10 - var(--i));
+  cursor: none;
+  text-align: left;
+  /* Prevent browser from hijacking the drag with text selection or scroll */
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+}
+
+/*
+  Default state — directional stack matching the reference image.
+  Both back cards lift UP and shift RIGHT, with progressive clockwise tilt:
+  - i=0 (front):  centred, no rotation, fully readable.
+  - i=1 (mid):    shifted up-right, +10deg clockwise tilt.
+  - i=2 (back):   shifted further up-right, +18deg clockwise tilt.
+*/
+.exp-card[style*="--i: 0"] {
+  transform: translate3d(var(--drag-x), var(--drag-y), 0)
+             rotate(var(--drag-rot));
+}
+.exp-card[style*="--i: 1"] {
+  transform: translate3d(calc(40px + var(--drag-x)), calc(-30px + var(--drag-y)), -8px)
+             rotate(calc(10deg + var(--drag-rot)));
+}
+.exp-card[style*="--i: 2"] {
+  transform: translate3d(calc(80px + var(--drag-x)), calc(-50px + var(--drag-y)), -16px)
+             rotate(calc(18deg + var(--drag-rot)));
+}
+
+/*
+  Hover — cards "loosen" in place. Eximpe stays put as the centre anchor.
+  Back cards extend slightly further along their existing direction (right)
+  and pick up a touch more tilt. No symmetric fan, no big jumps.
+*/
+/*
+  Hover — spread all three cards so each is fully readable.
+  Front stays centred. Mid swings out to the LEFT, back swings out to the
+  RIGHT (matching its default right-lean direction). Both back cards
+  straighten almost to neutral so the content reads clearly.
+*/
+.exp-stack:hover .exp-card[style*="--i: 0"],
+.exp-stack:focus-within .exp-card[style*="--i: 0"] {
+  transform: translate3d(var(--drag-x), var(--drag-y), 30px)
+             rotate(var(--drag-rot));
+}
+.exp-stack:hover .exp-card[style*="--i: 1"],
+.exp-stack:focus-within .exp-card[style*="--i: 1"] {
+  transform: translate3d(calc(-340px + var(--drag-x)), var(--drag-y), 12px)
+             rotate(calc(-4deg + var(--drag-rot)));
+}
+.exp-stack:hover .exp-card[style*="--i: 2"],
+.exp-stack:focus-within .exp-card[style*="--i: 2"] {
+  transform: translate3d(calc(340px + var(--drag-x)), var(--drag-y), 12px)
+             rotate(calc(4deg + var(--drag-rot)));
+}
+
+/* Dragging the front card — instant follow + stronger lift shadow */
+.exp-card.is-grabbing {
+  transition: box-shadow .15s ease;
+  z-index: 100;
+  box-shadow:
+    0 48px 80px -28px rgba(17, 17, 17, 0.36),
+    0 12px 24px -6px rgba(17, 17, 17, 0.18);
+  cursor: grabbing;
+}
+
+/*
+  Cycle-out animation — when the user releases the front card past the
+  downward threshold, it slides further down + tilts before being swapped
+  to the back of the stack. Smooth easing, then settles into back position.
+*/
+.exp-card.is-cycling {
+  transition: transform .32s cubic-bezier(.4, 0, .7, .2),
+              opacity .32s ease;
+  z-index: 100;
+  opacity: 0.6;
+}
+/* Slight scale on grab (driven by --grab-scale set in JS) */
+.exp-card[style*="--i: 0"].is-grabbing {
+  transform: translate3d(var(--drag-x), var(--drag-y), 60px)
+             rotate(var(--drag-rot))
+             scale(var(--grab-scale, 1.025));
+}
+
+/* ────────────────────────────────────────────
+   Card content
+─────────────────────────────────────────────── */
+.exp-card-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Logo — dark filled square with white wordmark, like the reference */
+.exp-card-logo {
+  width: 44px; height: 44px;
+  border-radius: 11px;
+  background: var(--ink);
+  color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+/* Variant tints retained but subtler — keep dark feel */
+.exp-card-logo.is-amber { background: #2A1F12; }
+.exp-card-logo.is-cool  { background: #142028; }
+.exp-card-logo.is-sage  { background: #142A1C; }
+
+.exp-card-period {
+  justify-self: end;
+  font-size: 13.5px;
+  color: var(--ink-55);
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Company name — bold sans, like the reference (not serif italic) */
+.exp-card-name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 38px;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-top: 6px;
+}
+
+.exp-card-line {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-55);
+  margin-top: -10px;
+}
+
+.exp-card-bullets {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--brd);
+}
+.exp-card-bullets li {
+  font-size: 14px;
+  color: var(--ink-80);
+  line-height: 1.5;
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+.exp-card-bullets li::before {
+  content: '•';
+  color: var(--ink-55);
+  font-size: 14px;
+  line-height: 1;
+  position: relative;
+  top: 1px;
+}
+
+/* Role — bold sans at bottom */
+.exp-card-role {
+  margin-top: auto;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  padding-top: 14px;
+}
+
+.exp-hint {
+  text-align: center;
+  margin-top: var(--s-7);
+  font-family: var(--font-serif); font-style: italic;
+  color: var(--amber);
+  font-size: 16px;
+}
+
+@media (max-width: 980px) {
+  .experience-head { text-align: left; margin-bottom: var(--s-7); }
+  .exp-stack { height: auto; perspective: none; max-width: 100%; }
+  .exp-card,
+  .exp-card[style*="--i: 0"],
+  .exp-card[style*="--i: 1"],
+  .exp-card[style*="--i: 2"] {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+    margin-bottom: 14px;
+    padding: 24px;
+  }
+  .exp-card:last-child { margin-bottom: 0; }
+}

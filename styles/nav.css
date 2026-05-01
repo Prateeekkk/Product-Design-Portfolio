@@ -1,0 +1,125 @@
+/* Sticky frosted nav. Logo · page links · separator · CTA. */
+
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  height: var(--nav-h);
+  padding: 0 var(--space);
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--brd);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  font-family: var(--font-serif);
+  font-size: 17px; letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-right: auto;
+  flex-shrink: 0;
+  display: inline-flex; align-items: baseline; gap: 4px;
+}
+/* The little dot at the end of the logotype */
+.nav-logo::after {
+  content: '·';
+  color: var(--amber);
+  font-weight: 700;
+  transform: translateY(-2px);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex; align-items: center; gap: 2px;
+}
+
+.nav-links a {
+  display: block;
+  font-size: 13px; font-weight: 400;
+  color: var(--ink-55);
+  padding: 6px 12px; border-radius: 7px;
+  transition: color .18s ease, background .18s ease;
+  white-space: nowrap;
+}
+
+.nav-links a:hover {
+  color: var(--ink);
+  background: rgba(13,13,11,0.05);
+}
+
+.nav-links a.active {
+  color: var(--ink);
+  font-weight: 500;
+}
+.nav-links a.active::before {
+  content: '·';
+  margin-right: 4px;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.nav-sep {
+  width: 1px; height: 18px;
+  background: var(--brd-mid);
+  margin: 0 12px;
+  flex-shrink: 0;
+}
+
+/* Resume secondary link — outline pill, quieter than the CTA */
+.nav-resume {
+  display: inline-flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink-55);
+  padding: 7px 12px;
+  transition: color .2s ease, background .2s ease;
+  white-space: nowrap;
+  border-radius: 8px;
+}
+.nav-resume:hover {
+  color: var(--ink);
+  background: rgba(13,13,11,0.05);
+}
+.nav-resume-arrow {
+  display: inline-block;
+  transition: transform .25s var(--ease-out);
+}
+.nav-resume:hover .nav-resume-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Talk-to-my-AI CTA */
+.nav-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink);
+  border: 1px solid var(--brd-mid);
+  border-radius: 8px;
+  padding: 7px 14px;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+  white-space: nowrap;
+}
+.nav-cta:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.nav-cta-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: blink 2.5s ease-in-out infinite;
+  transition: background .2s ease;
+}
+.nav-cta:hover .nav-cta-dot { background: var(--green-soft); }
+
+.nav-cta-label {
+  transition: opacity .14s ease;
+}
+
+/* Keyframes used by both the pill dot and the CTA dot. */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}

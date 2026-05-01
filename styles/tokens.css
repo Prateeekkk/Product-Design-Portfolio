@@ -1,0 +1,68 @@
+/* Design tokens. Single source of truth for color, type, spacing, motion. */
+
+:root {
+  /* Surface — pure white canvas */
+  --bg:          #FFFFFF;        /* page bg */
+  --bg-soft:     #FAFAF8;        /* very lifted surfaces / chrome */
+  --bg-mid:      #F4F3EE;        /* recessed (e.g. impact strip) */
+  --bg-deep:     #ECEAE2;        /* deepest layer */
+  --white:       #FFFFFF;
+
+  /* Ink */
+  --ink:         #111111;        /* near-black */
+  --ink-80:      #2A2A2A;
+  --ink-55:      #6E6E6E;
+  --ink-40:      #8E8E8E;
+  --ink-25:      #B9B9B5;
+
+  /* Accents */
+  --amber:       #8C6E48;
+  --amber-soft:  #C2A47A;
+  --green:       #5DA678;
+  --green-soft:  #84C99A;
+
+  /* Lines — slightly darker since the page is now pure white */
+  --brd:         rgba(17, 17, 17, 0.08);
+  --brd-mid:     rgba(17, 17, 17, 0.14);
+  --brd-strong:  rgba(17, 17, 17, 0.22);
+
+  /* Layout — unified across the entire portfolio */
+  --space:       64px;        /* horizontal padding (gutters) — single source of truth */
+  --nav-h:       62px;
+  --max-w:       1280px;       /* max content width */
+  --content-pad: var(--space); /* alias for clarity */
+
+  /* Spacing scale */
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+
+  /* Vertical rhythm — used for top/bottom padding on every section */
+  --section-pad-y: var(--s-10);
+
+  /* Radii */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  14px;
+  --r-xl:  20px;
+  --r-pill: 100px;
+
+  /* Motion */
+  --ease:        cubic-bezier(.4, 0, .2, 1);
+  --ease-out:    cubic-bezier(.16, 1, .3, 1);
+  --t-fast:      .18s;
+  --t-base:      .28s;
+  --t-slow:      .55s;
+
+  /* Type — only two families across the entire site */
+  --font-sans:   'Poppins', system-ui, sans-serif;       /* body + UI */
+  --font-serif:  'Instrument Serif', 'Times New Roman', serif;  /* display */
+  --font-script: 'Instrument Serif', serif;              /* alias kept for compatibility */
+}
