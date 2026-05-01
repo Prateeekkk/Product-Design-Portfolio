@@ -27,7 +27,7 @@ body {
 .site {
   position: relative;
   z-index: 2;
-  background: #F5F5F5;
+  background: #FFFFFF;
   /* faint shadow at the bottom edge to separate content from footer */
   box-shadow: 0 -24px 36px -24px rgba(17, 17, 17, 0.18);
 }
