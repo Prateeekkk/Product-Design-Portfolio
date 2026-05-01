@@ -1,8 +1,8 @@
 /* Design tokens. Single source of truth for color, type, spacing, motion. */
 
 :root {
-  /* Surface — pure white canvas */
-  --bg:          #FFFFFF;        /* page bg */
+  /* Surface — soft off-white canvas */
+  --bg:          #F5F5F5;        /* page bg */
   --bg-soft:     #FAFAF8;        /* very lifted surfaces / chrome */
   --bg-mid:      #F4F3EE;        /* recessed (e.g. impact strip) */
   --bg-deep:     #ECEAE2;        /* deepest layer */
