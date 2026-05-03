@@ -395,6 +395,45 @@
   margin-top: auto;
 }
 
+/* Variant: image — project thumbnail with title + caption */
+.ai-card.is-image {
+  width: 280px;
+  padding: 10px 10px 12px;
+  gap: 10px;
+}
+.ai-card.is-image .ai-card-head {
+  padding: 0 4px 8px;
+}
+.ai-card.is-image .ai-card-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+}
+.ai-card.is-image .ai-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  transform: scale(1);
+  transition: transform .5s var(--ease-out);
+}
+.ai-card.is-image[data-settled="true"]:hover .ai-card-thumb img {
+  transform: scale(1.04);
+}
+.ai-card.is-image .ai-card-line {
+  padding: 0 4px;
+  font-size: 11.5px;
+  color: var(--ink-55);
+}
+.ai-card.is-image .ai-card-foot {
+  padding: 0 4px;
+}
+
 /* Variant: chip cloud */
 .ai-card.is-chips .chips {
   display: flex; flex-wrap: wrap;
