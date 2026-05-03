@@ -2,7 +2,7 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { height: 100%; }
+html, body { height: 100%; overflow-x: hidden; }
 
 /*
   Body uses the DARK footer colour as its base so the area below the white
@@ -14,7 +14,6 @@ body {
   -webkit-font-smoothing: antialiased;
   color: var(--ink);
   cursor: none;
-  overflow-x: hidden;
   background: #0E0E0E;
   margin: 0;
 }
