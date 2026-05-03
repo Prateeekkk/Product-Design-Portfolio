@@ -397,9 +397,9 @@
 
 /* Variant: image — project thumbnail with title + caption */
 .ai-card.is-image {
-  width: 280px;
+  width: 260px;
   padding: 10px 10px 12px;
-  gap: 10px;
+  gap: 8px;
 }
 .ai-card.is-image .ai-card-head {
   padding: 0 4px 8px;
