@@ -177,6 +177,8 @@
     flex-wrap: wrap;
     gap: var(--s-2) 0;     /* 8px */
   }
+  .hero-foot .is-location,
+  .hero-foot .is-location-sep { display: none; }   /* drop "India · IST" on mobile */
   .scroll-cue { display: none; }
 
   /*
