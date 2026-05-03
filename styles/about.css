@@ -79,10 +79,18 @@
   50%      { opacity: 1.0;  transform: translateY(-2%); }
 }
 
-/* Scroll/tilt-driven specular highlight — a soft diagonal stripe that
-   sweeps from TOP-LEFT to BOTTOM-RIGHT as the portrait travels up
-   through the viewport. JS sets --shine-progress (0 → 1) on the frame
-   from the same scroll math that drives the parallax tilt. */
+/* Register --shine-progress as an animatable number so CSS can
+   smoothly tween it inside @keyframes (otherwise CSS variables
+   default to discrete swaps with no interpolation). */
+@property --shine-progress {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: -0.5;
+}
+
+/* Continuous specular highlight — a soft diagonal stripe that sweeps
+   from TOP-LEFT to BOTTOM-RIGHT, snaps off-screen, and rests before
+   the next pass. Cycle is intentionally relaxed (~7s) for ambience. */
 .portrait-frame::before {
   content: '';
   position: absolute;
@@ -91,16 +99,24 @@
   z-index: 4;
   background: linear-gradient(
     135deg,
-    transparent           calc(var(--shine-progress, 0.5) * 100% - 24%),
-    rgba(255, 255, 255, 0.20) calc(var(--shine-progress, 0.5) * 100% - 12%),
-    rgba(255, 255, 255, 0.85) calc(var(--shine-progress, 0.5) * 100%),
-    rgba(255, 255, 255, 0.20) calc(var(--shine-progress, 0.5) * 100% + 12%),
-    transparent           calc(var(--shine-progress, 0.5) * 100% + 24%)
+    transparent               calc(var(--shine-progress) * 100% - 22%),
+    rgba(255, 255, 255, 0.18) calc(var(--shine-progress) * 100% - 11%),
+    rgba(255, 255, 255, 0.85) calc(var(--shine-progress) * 100%),
+    rgba(255, 255, 255, 0.18) calc(var(--shine-progress) * 100% + 11%),
+    transparent               calc(var(--shine-progress) * 100% + 22%)
   );
   mix-blend-mode: overlay;
   filter: blur(0.4px);
-  /* tiny ease so a thumbflick of scroll feels silky, not jittery */
-  transition: background-image .08s linear;
+  animation: portrait-shine-loop 7s ease-in-out infinite;
+}
+
+@keyframes portrait-shine-loop {
+  /* 0  → 38%   : visible diagonal sweep TL → BR */
+  /* 38.01% → 100% : snap reset off-screen and rest before next pass */
+  0%      { --shine-progress: -0.5; }
+  38%     { --shine-progress:  1.5; }
+  38.01%  { --shine-progress: -0.5; }
+  100%    { --shine-progress: -0.5; }
 }
 .portrait-initials {
   position: relative;
