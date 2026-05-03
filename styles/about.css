@@ -74,38 +74,33 @@
     0 18px 40px -22px rgba(26, 24, 19, 0.20);
 }
 
-/* A travelling specular highlight across the portrait surface */
-.portrait-frame::before {
-  content: '';
-  position: absolute;
-  top: -5%; left: -25%;
-  width: 50%;
-  height: 110%;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 250, 230, 0.35) 50%, transparent 65%);
-  pointer-events: none;
-  animation: portrait-shine 7s ease-in-out infinite;
-  z-index: 2;
-}
-
 @keyframes portrait-shimmer {
   0%, 100% { opacity: 0.65; transform: translateY(0); }
   50%      { opacity: 1.0;  transform: translateY(-2%); }
 }
-@keyframes portrait-shine {
-  0%   { left: -40%; opacity: 0; }
-  20%  { opacity: 0.8; }
-  60%  { opacity: 0.8; }
-  100% { left: 110%; opacity: 0; }
-}
-/* Abstract stand-in for a photograph: soft circle shape + initials */
+
+/* Scroll/tilt-driven specular highlight — a soft diagonal stripe that
+   sweeps from TOP-LEFT to BOTTOM-RIGHT as the portrait travels up
+   through the viewport. JS sets --shine-progress (0 → 1) on the frame
+   from the same scroll math that drives the parallax tilt. */
 .portrait-frame::before {
   content: '';
   position: absolute;
-  width: 60%; height: 70%;
-  bottom: -10%;
-  left: 20%;
-  background: radial-gradient(ellipse at center, #C9BFAA 0%, transparent 70%);
-  filter: blur(6px);
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: linear-gradient(
+    135deg,
+    transparent           calc(var(--shine-progress, 0.5) * 100% - 24%),
+    rgba(255, 255, 255, 0.20) calc(var(--shine-progress, 0.5) * 100% - 12%),
+    rgba(255, 255, 255, 0.85) calc(var(--shine-progress, 0.5) * 100%),
+    rgba(255, 255, 255, 0.20) calc(var(--shine-progress, 0.5) * 100% + 12%),
+    transparent           calc(var(--shine-progress, 0.5) * 100% + 24%)
+  );
+  mix-blend-mode: overlay;
+  filter: blur(0.4px);
+  /* tiny ease so a thumbflick of scroll feels silky, not jittery */
+  transition: background-image .08s linear;
 }
 .portrait-initials {
   position: relative;

@@ -250,6 +250,12 @@
       target.style.setProperty('--tilt-y', (clamp * 5) + 'deg');
       target.style.setProperty('--tilt-z', (-Math.abs(clamp) * 14) + 'px');
       target.style.setProperty('--shine-y', (50 - clamp * 30) + '%');
+      // Diagonal shine sweep: 0 = top-left, 1 = bottom-right.
+      // clamp =  1 → portrait below viewport (entering)  → progress 0 (TL)
+      // clamp =  0 → portrait centered                   → progress 0.5 (mid)
+      // clamp = -1 → portrait above viewport (exiting)   → progress 1 (BR)
+      const shineProgress = (1 - clamp) / 2;
+      target.style.setProperty('--shine-progress', shineProgress.toFixed(3));
     }
     update();
     window.addEventListener('scroll', update, { passive: true });
