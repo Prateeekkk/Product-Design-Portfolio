@@ -65,4 +65,24 @@
   --font-sans:   'Poppins', system-ui, sans-serif;       /* body + UI */
   --font-serif:  'Instrument Serif', 'Times New Roman', serif;  /* display */
   --font-script: 'Instrument Serif', serif;              /* alias kept for compatibility */
+
+  /* Type scale — strict hierarchy. Each step is clearly smaller than the
+     previous so a section heading always reads bigger than card titles
+     within it. clamp() makes it responsive without per-section overrides. */
+  --fs-display: clamp(44px, 5.8vw, 84px);   /* Hero only */
+  --fs-h1:      clamp(30px, 4.2vw, 56px);   /* Section titles (largest after hero) */
+  --fs-h2:      clamp(24px, 3.2vw, 40px);   /* Major secondary (e.g. active case title) */
+  --fs-h3:      clamp(18px, 1.7vw, 24px);   /* Card titles (company names, work-title) */
+  --fs-h4:      16px;                       /* Sub-card titles, prominent labels */
+  --fs-body-lg: 16px;                       /* Long-form prose */
+  --fs-body:    15px;                       /* Default body */
+  --fs-body-sm: 13px;                       /* Secondary text */
+  --fs-caption: 12px;                       /* Small captions, meta */
+  --fs-eyebrow: 10.5px;                     /* Eyebrow labels */
+
+  /* Line-heights — paired with type scale */
+  --lh-tight:  1.05;   /* Display, H1 */
+  --lh-snug:   1.2;    /* H2, H3 */
+  --lh-normal: 1.5;    /* Body */
+  --lh-loose:  1.7;    /* Long-form prose */
 }

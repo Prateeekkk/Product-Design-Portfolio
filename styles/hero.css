@@ -68,11 +68,11 @@
 /* Headline */
 .headline {
   font-family: var(--font-serif);
-  font-size: clamp(50px, 5.8vw, 84px);
-  line-height: 1.04;
+  font-size: var(--fs-display);     /* clamp(44, 5.8vw, 84) */
+  line-height: var(--lh-tight);
   letter-spacing: -0.033em;
   color: var(--ink);
-  margin-bottom: 22px;
+  margin-bottom: var(--s-5);        /* 24px — was 22 */
 
   opacity: 0;
   animation: arise .95s ease .2s forwards;

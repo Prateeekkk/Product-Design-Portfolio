@@ -28,12 +28,12 @@
 }
 .experience-head .eyebrow { margin-bottom: var(--s-5); }
 .experience-head .section-title {
-  font-size: clamp(34px, 3.8vw, 50px);
-  margin-top: 16px;
+  /* font-size now inherits unified --fs-h1 from base */
+  margin-top: var(--s-3);   /* 12px — was 16px; tighter under the eyebrow */
 }
 .experience-head-meta {
   display: block;
-  font-size: 11.5px;
+  font-size: var(--fs-caption);
   color: var(--ink-25);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -71,10 +71,10 @@
   box-shadow:
     0 24px 50px -28px rgba(17, 17, 17, 0.18),
     0 6px 14px -8px rgba(17, 17, 17, 0.08);
-  padding: 30px 36px 28px;
+  padding: var(--s-6);   /* 32px on all sides — 8px grid */
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--s-4);       /* 16px — was 18px */
   transform-origin: center bottom;
   transition: transform .55s cubic-bezier(.5, 0, .25, 1),
               box-shadow .35s ease;
@@ -170,19 +170,19 @@
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 14px;
+  gap: var(--s-4);   /* 16px — was 14px */
 }
 
 /* Logo — dark filled square with white wordmark, like the reference */
 .exp-card-logo {
-  width: 44px; height: 44px;
-  border-radius: 11px;
+  width: 40px; height: 40px;          /* was 44 — 8px grid */
+  border-radius: var(--r-md);          /* 10px — was 11px */
   background: var(--ink);
   color: var(--white);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 20px;
+  font-size: 18px;                     /* was 20 — proportional to smaller logo */
   letter-spacing: -0.02em;
   flex-shrink: 0;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
@@ -194,50 +194,52 @@
 
 .exp-card-period {
   justify-self: end;
-  font-size: 13.5px;
+  font-size: var(--fs-body-sm);   /* 13px — was 13.5 */
   color: var(--ink-55);
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
 }
 
-/* Company name — bold sans, like the reference (not serif italic) */
+/* Company name — H3 in the type scale, clearly smaller than the
+   --fs-h1 section title above it. Was 38px static, which on smaller
+   viewports matched or exceeded the section title (broken hierarchy). */
 .exp-card-name {
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 38px;
+  font-size: var(--fs-h3);         /* clamp(18, 1.7vw, 24) — was 38px static */
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: var(--lh-snug);
   color: var(--ink);
-  margin-top: 6px;
+  margin-top: var(--s-1);          /* 4px — was 6px */
 }
 
 .exp-card-line {
-  font-size: 14.5px;
-  line-height: 1.55;
+  font-size: var(--fs-body);       /* 15px — was 14.5 */
+  line-height: var(--lh-normal);
   color: var(--ink-55);
-  margin-top: -10px;
+  margin-top: 0;                   /* was -10px hack */
 }
 
 .exp-card-bullets {
   list-style: none;
   display: grid;
-  gap: 12px;
-  padding-top: 14px;
+  gap: var(--s-3);                 /* 12px */
+  padding-top: var(--s-4);         /* 16px — was 14 */
   border-top: 1px solid var(--brd);
 }
 .exp-card-bullets li {
-  font-size: 14px;
+  font-size: var(--fs-body-sm);    /* 13px — was 14 */
   color: var(--ink-80);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
   display: grid;
   grid-template-columns: 14px 1fr;
-  gap: 10px;
+  gap: var(--s-2);                 /* 8px — was 10 */
   align-items: baseline;
 }
 .exp-card-bullets li::before {
   content: '•';
   color: var(--ink-55);
-  font-size: 14px;
+  font-size: var(--fs-body-sm);
   line-height: 1;
   position: relative;
   top: 1px;
@@ -247,11 +249,11 @@
 .exp-card-role {
   margin-top: auto;
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--fs-h4);         /* 16px */
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.01em;
-  padding-top: 14px;
+  padding-top: var(--s-4);         /* 16px — was 14 */
 }
 
 .exp-hint {
@@ -259,7 +261,7 @@
   margin-top: var(--s-7);
   font-family: var(--font-serif); font-style: italic;
   color: var(--amber);
-  font-size: 16px;
+  font-size: var(--fs-h4);         /* 16px */
 }
 
 @media (max-width: 980px) {
@@ -274,8 +276,8 @@
     width: 100%;
     height: auto;
     transform: none !important;
-    margin-bottom: 14px;
-    padding: 24px;
+    margin-bottom: var(--s-4);   /* 16px — 8px grid */
+    padding: var(--s-5);          /* 24px */
   }
   .exp-card:last-child { margin-bottom: 0; }
 }

@@ -40,7 +40,7 @@
   border-bottom: 1px solid var(--brd);
 }
 .work-stage-head .section-title {
-  font-size: clamp(34px, 3.6vw, 50px);
+  /* font-size now inherits unified --fs-h1 from base */
   line-height: 1.05;
   margin-top: 16px;
 }
@@ -275,15 +275,15 @@
 
 .work-info-title {
   font-family: var(--font-serif);
-  font-size: clamp(32px, 3.6vw, 48px);
+  font-size: var(--fs-h2);          /* clamp(24, 3.2vw, 40) — sits between H1 and H3 */
   letter-spacing: -0.028em;
-  line-height: 1.05;
+  line-height: var(--lh-snug);
   color: var(--ink);
-  margin-top: 4px;
+  margin-top: var(--s-1);            /* 4px */
 }
 .work-info-line {
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: var(--fs-h4);           /* 16px */
+  line-height: var(--lh-loose);
   color: var(--ink-55);
   max-width: 460px;
 }

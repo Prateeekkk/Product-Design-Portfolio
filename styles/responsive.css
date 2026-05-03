@@ -1,7 +1,17 @@
-/* Responsive adjustments. Loaded last so it can override section rules. */
+/* Responsive adjustments. Loaded last so it can override section rules.
+   Breakpoints (mobile-first reading, but written desktop-down here):
+     ≤1100  : tablet / smaller laptop — reduce gutters, stack about layout
+     ≤980   : tablet portrait — already handled in section files (exp-stack)
+     ≤720   : mobile — un-pin scroll-jacked sections, vertical layout, smaller type
+     ≤420   : small phone — tightest spacing + type adjustments
+*/
 
+/* ─── ≤1100 : tablet / small laptop ─────────────────────────── */
 @media (max-width: 1100px) {
-  :root { --space: 40px; }
+  :root {
+    --space: 40px;                    /* horizontal gutter */
+    --section-pad-y: var(--s-9);      /* 96px — was 128 (--s-10) */
+  }
 
   .about-grid {
     grid-template-columns: 1fr;
@@ -10,30 +20,43 @@
   .about-portrait { position: static; }
 }
 
+/* ─── ≤720 : mobile ─────────────────────────────────────────── */
 /*
   Mobile: drop the pinned-scroll storytelling.
   On small screens there isn't room to show a visual + caption at once, and
   scroll-jacking on touch feels hostile. Cases / screens stack vertically as
   a normal flow; the section becomes a regular reading column.
+
+  Also tighten typography min values via the global type tokens so headings
+  don't dominate small viewports while still leading the hierarchy.
 */
 @media (max-width: 720px) {
-  :root { --space: 22px; }
+  :root {
+    --space: var(--s-5);              /* 24px gutter — was 22, snaps to grid */
+    --section-pad-y: var(--s-8);      /* 64px section vertical — was 96 */
+
+    /* Tighter type scale for mobile — keep hierarchy intact */
+    --fs-display: clamp(36px, 9vw, 56px);   /* hero — was 44 min */
+    --fs-h1:      clamp(26px, 7vw, 38px);   /* section titles */
+    --fs-h2:      clamp(22px, 5.5vw, 30px); /* major secondary */
+    --fs-h3:      clamp(17px, 4.2vw, 21px); /* card titles */
+  }
 
   .hero-body {
-    padding-top: calc(var(--nav-h) + 56px);
-    padding-bottom: 32px;
+    padding-top: calc(var(--nav-h) + var(--s-7));   /* nav + 48px — was 56 */
+    padding-bottom: var(--s-6);                      /* 32px */
   }
   .hero-left { max-width: 100%; }
   .annotations {
     flex-direction: column;
-    gap: 28px;
+    gap: var(--s-5);                                 /* 24px — was 28 */
     align-items: center;
   }
 
   .nav-links { display: none; }
   .nav-sep   { display: none; }
 
-  .section { padding: var(--s-9) var(--space); }
+  .section { padding: var(--section-pad-y) var(--space); }
 
   /* Disable Work pinning */
   .work-pinned {
@@ -78,7 +101,7 @@
     opacity: 1;
     transform: none;
   }
-  .work-info-title { font-size: 28px; }
+  .work-info-title { font-size: var(--fs-h2); }   /* uses mobile-tightened token */
   .work-stage-foot { display: none; }
 
   /* Disable AI Playground pinning */
@@ -131,9 +154,27 @@
 
   .hero-foot {
     flex-wrap: wrap;
-    gap: 8px 0;
+    gap: var(--s-2) 0;     /* 8px */
   }
   .scroll-cue { display: none; }
 
   .modal { width: 96vw; max-height: 90vh; }
+}
+
+/* ─── ≤420 : small phones (iPhone SE / older Android) ────────── */
+@media (max-width: 420px) {
+  :root {
+    --space: var(--s-4);          /* 16px gutter — tighter still */
+    --section-pad-y: var(--s-7);  /* 48px section vertical */
+
+    /* Final shrink for very small viewports */
+    --fs-display: clamp(32px, 10vw, 44px);
+    --fs-h1:      clamp(24px, 7.5vw, 32px);
+    --fs-h2:      clamp(20px, 6vw, 26px);
+    --fs-h3:      clamp(16px, 4.6vw, 19px);
+  }
+
+  .nav-cta-label  { display: none; }   /* keep just the dot+icon */
+  .nav-resume     { padding: var(--s-1) var(--s-2); }
+  .modal          { width: 100vw; max-height: 92vh; border-radius: 0; }
 }
