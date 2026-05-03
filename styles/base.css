@@ -2,18 +2,26 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body { height: 100%; overflow-x: hidden; }
+html, body { height: 100%; }
 
 /*
   Body uses the DARK footer colour as its base so the area below the white
   page-wrap reads as the footer revealing from underneath. The white .site
   wrapper sits above the footer in the z-stack.
+
+  IMPORTANT: overflow-x is set ONLY on body, never on html.  Putting it on
+  html turns the html element into a scroll container and breaks the
+  `position: sticky` behaviour that the Work + AI Playground pinned scenes
+  depend on. `overflow-x: clip` (modern browsers) clips without creating a
+  scroll container; `hidden` remains as the legacy fallback declaration.
 */
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   color: var(--ink);
   cursor: none;
+  overflow-x: hidden;
+  overflow-x: clip;
   background: #0E0E0E;
   margin: 0;
 }
