@@ -73,17 +73,40 @@
     });
   }
 
-  /* ---------- Drag for AI cards ---------- */
+  /* ---------- Drag for AI cards ----------
+     Uses document-level pointermove/up during drag so the card follows the
+     cursor even when it leaves the visible card bounds (e.g. clipped
+     image areas, fast drag motions, overlapping cards). */
   function dragCards(cardSelector) {
     const cards = Array.from(document.querySelectorAll(cardSelector));
     cards.forEach((card) => {
       let dragging = false;
       let startX = 0, startY = 0;
       let baseDx = 0, baseDy = 0;
+      let activePointerId = null;
 
+      function onPointerMove(e) {
+        if (!dragging || e.pointerId !== activePointerId) return;
+        const dx = (e.clientX - startX) + baseDx;
+        const dy = (e.clientY - startY) + baseDy;
+        card.style.setProperty('--dx', dx + 'px');
+        card.style.setProperty('--dy', dy + 'px');
+      }
+      function onPointerUp(e) {
+        if (!dragging) return;
+        if (e && e.pointerId !== undefined && e.pointerId !== activePointerId) return;
+        dragging = false;
+        activePointerId = null;
+        card.classList.remove('is-dragging');
+        card.style.setProperty('--lift', '0');
+        document.removeEventListener('pointermove',   onPointerMove);
+        document.removeEventListener('pointerup',     onPointerUp);
+        document.removeEventListener('pointercancel', onPointerUp);
+      }
       function onPointerDown(e) {
         if (card.dataset.settled !== 'true') return;
         dragging = true;
+        activePointerId = e.pointerId;
         startX = e.clientX;
         startY = e.clientY;
         baseDx = parseFloat(getComputedStyle(card).getPropertyValue('--dx')) || 0;
@@ -91,26 +114,13 @@
         card.classList.add('is-dragging');
         card.style.setProperty('--lift', '1');
         try { card.setPointerCapture(e.pointerId); } catch (_) {}
+        // Track at document level so drag survives leaving card bounds.
+        document.addEventListener('pointermove',   onPointerMove);
+        document.addEventListener('pointerup',     onPointerUp);
+        document.addEventListener('pointercancel', onPointerUp);
         e.preventDefault();
       }
-      function onPointerMove(e) {
-        if (!dragging) return;
-        const dx = (e.clientX - startX) + baseDx;
-        const dy = (e.clientY - startY) + baseDy;
-        card.style.setProperty('--dx', dx + 'px');
-        card.style.setProperty('--dy', dy + 'px');
-      }
-      function onPointerUp() {
-        if (!dragging) return;
-        dragging = false;
-        card.classList.remove('is-dragging');
-        card.style.setProperty('--lift', '0');
-      }
-      card.addEventListener('pointerdown',   onPointerDown);
-      card.addEventListener('pointermove',   onPointerMove);
-      card.addEventListener('pointerup',     onPointerUp);
-      card.addEventListener('pointercancel', onPointerUp);
-      card.addEventListener('pointerleave',  onPointerUp);
+      card.addEventListener('pointerdown', onPointerDown);
     });
   }
 
