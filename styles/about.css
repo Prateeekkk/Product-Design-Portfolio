@@ -88,9 +88,10 @@
   initial-value: -0.5;
 }
 
-/* Continuous specular highlight — a soft diagonal stripe that sweeps
-   from TOP-LEFT to BOTTOM-RIGHT, snaps off-screen, and rests before
-   the next pass. Cycle is intentionally relaxed (~7s) for ambience. */
+/* Specular highlight — soft diagonal stripe sweeps TL → BR, snaps
+   off-screen, rests, repeats. Animation is PAUSED by default and only
+   plays once the About section enters the viewport (JS toggles
+   .is-shine-active). Cycle is brisk (~4.5s) for a lively feel. */
 .portrait-frame::before {
   content: '';
   position: absolute;
@@ -107,15 +108,20 @@
   );
   mix-blend-mode: overlay;
   filter: blur(0.4px);
-  animation: portrait-shine-loop 7s ease-in-out infinite;
+  animation: portrait-shine-loop 4.5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+/* About section entered viewport → fire the loop */
+.about-portrait.is-shine-active .portrait-frame::before {
+  animation-play-state: running;
 }
 
 @keyframes portrait-shine-loop {
-  /* 0  → 38%   : visible diagonal sweep TL → BR */
-  /* 38.01% → 100% : snap reset off-screen and rest before next pass */
+  /* 0  → 45%   : visible diagonal sweep TL → BR */
+  /* 45.01% → 100% : snap reset off-screen, brief rest before next pass */
   0%      { --shine-progress: -0.5; }
-  38%     { --shine-progress:  1.5; }
-  38.01%  { --shine-progress: -0.5; }
+  45%     { --shine-progress:  1.5; }
+  45.01%  { --shine-progress: -0.5; }
   100%    { --shine-progress: -0.5; }
 }
 .portrait-initials {

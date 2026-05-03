@@ -237,6 +237,23 @@
     });
   }
 
+  /* ---------- Shine activation — start CSS loop on viewport entry ---------- */
+  function activateShineOnEnter() {
+    const portrait = document.querySelector('.about-portrait');
+    if (!portrait) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      // Fallback: just turn it on immediately.
+      portrait.classList.add('is-shine-active');
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        portrait.classList.toggle('is-shine-active', entry.isIntersecting);
+      });
+    }, { threshold: 0.15 });   /* fire as soon as ~15% of the portrait is visible */
+    io.observe(portrait);
+  }
+
   /* ---------- Parallax portrait ---------- */
   function parallaxPortrait() {
     const target = document.querySelector('[data-parallax-tilt]');
@@ -425,6 +442,7 @@
   dragCards('.ai-card');
   dragExpStack('.exp-stack');
   parallaxPortrait();
+  activateShineOnEnter();
 
   update();
   window.addEventListener('scroll', onScroll, { passive: true });
