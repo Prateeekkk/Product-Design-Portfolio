@@ -31,8 +31,12 @@
         e.preventDefault();
         const wrapHeight = rootEl.offsetHeight - window.innerHeight;
         const segments = items.length + (hasIntro ? 1 : 0);
-        const offset = hasIntro ? 1 : 0;
-        const target = (i + offset + 0.5) / segments;
+        // With intro: case 0 fully arrives at seg=1, case i fully arrives at seg=i+1.
+        // Land slightly past that boundary (1.05) for visual stability.
+        // Without intro: land at midpoint of each case's segment.
+        const target = hasIntro
+          ? (i + 1.05) / segments
+          : (i + 0.5) / segments;
         const y = rootEl.offsetTop + wrapHeight * target;
         window.scrollTo({ top: y, behavior: 'smooth' });
       });
@@ -280,21 +284,35 @@
 
       if (sc.hasIntro) {
         if (seg < 1) {
-          // Intro phase — case 0 is fully visible (reveal=1) and centered;
-          // intro drives only the position (centred → grid). The wipe slider
-          // is reserved for transitions between cases.
+          // INTRO PHASE — case 0 is fully visible (reveal=1) and animates
+          // from centered to grid layout via --intro (0 → 1).
           //
-          // Dead zone: hold the centred state for the first 30% of the intro
-          // segment so the user can see the layout before motion begins.
+          // Sequence inside this segment:
+          //   - 0    → DEAD : hold centered state (lets user see what's there)
+          //   - DEAD → 1    : progressive shift from center to left grid slot
+          //                   (right-side title/body/CTA fade in via --intro too)
+          //
+          // Reveal stays at 1 throughout — case 0's image is already shown.
           active = 0;
-          const DEAD = 0.30;
+          const DEAD = 0.25;
           const adjusted = clamp01((seg - DEAD) / (1 - DEAD));
           introP = ease(adjusted);
           caseSub = 1;
         } else {
-          active = Math.min(total - 1, Math.floor(seg - 1));
+          // CASE TRANSITIONS — each post-intro segment wipe-reveals the NEXT
+          // case (case 1 in seg 1→2, case 2 in seg 2→3, …).
+          //
+          // Case 0 stays revealed (loop logic: i < active → reveal = 1), so
+          // it is NOT re-wiped after intro. This eliminates the prior glitch
+          // where case 0 first slid left, then re-played its wipe animation.
+          //
+          // Clear separation enforced:
+          //   - layout shift (intro) is fully done by seg = 1
+          //   - image wipe transitions only START at seg = 1
           introP = 1;
-          caseSub = ease(clamp01((seg - 1) - active));
+          const caseSeg = seg - 1;
+          active = Math.min(total - 1, Math.floor(caseSeg) + 1);
+          caseSub = ease(clamp01(caseSeg - (active - 1)));
         }
       } else {
         active = Math.min(total - 1, Math.floor(seg));
@@ -393,8 +411,13 @@
   registerScenes(document.querySelector('.work-pinned'), '.work-case');
   registerAssembly(document.querySelector('.ai-pinned'), '.ai-card', {
     stagger: 0.55,
-    from: 0.04,
-    to:   0.65,            /* finish sooner — gives a quicker, snappier feel */
+    /* Tightened scroll mapping for direct-feeling responsiveness:
+       - from = 0    : no entry delay; first card starts assembling immediately
+       - to   = 0.92 : minimal exit dead zone; near-full section used by anim
+       Combined with reduced section height (320vh) this removes the prior
+       large dead-scroll zones at start and end. */
+    from: 0,
+    to:   0.92,
   });
   dragCards('.ai-card');
   dragExpStack('.exp-stack');
