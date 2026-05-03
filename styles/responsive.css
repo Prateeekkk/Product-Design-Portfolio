@@ -104,51 +104,72 @@
   .work-info-title { font-size: var(--fs-h2); }   /* uses mobile-tightened token */
   .work-stage-foot { display: none; }
 
-  /* Disable AI Playground pinning */
+  /*
+    AI Playground — mobile rebuild.
+    Desktop: section is 320vh tall with sticky stage, cards absolutely
+    positioned by % and assembled via scroll. None of that works on
+    mobile (no room, no scroll-jacking on touch). Convert to a normal
+    vertical column of stacked image cards.
+  */
   .ai-pinned {
     height: auto !important;
   }
   .ai-stage {
     position: static;
     height: auto;
-    padding: var(--s-9) var(--space);
+    padding: var(--section-pad-y) var(--space);
+    display: block;            /* was grid */
+    grid-template-rows: none;
   }
-  .ai-frame {
+  .ai-stage-head {
+    display: block;
+    margin-bottom: var(--s-6);
+  }
+  .ai-stage-head-aside {
+    border-left: none;
+    padding-left: 0;
+    margin-top: var(--s-3);
+  }
+  /* Board becomes a transparent vertical wrapper, no graph paper or fixed height */
+  .ai-board {
     max-height: none;
-    height: auto;
+    background: none;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
-  .ai-stream {
+  .ai-board-bar,
+  .ai-board-foot { display: none; }   /* desktop chrome doesn't help on mobile */
+  .ai-surface {
     position: static;
-    height: auto;
+    overflow: visible;
     display: flex;
     flex-direction: column;
+    gap: var(--s-5);              /* 24px between cards */
   }
-  .ai-screen {
-    position: relative;
-    inset: auto;
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-    grid-template-columns: 1fr;
-    padding: 22px;
-    gap: var(--s-4);
-    border-bottom: 1px solid var(--brd);
+  /* Cards drop their absolute positioning + rotation + scroll-fall transform */
+  .ai-card,
+  .ai-card.is-image {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+    --p: 1;
+    --rot: 0deg;
+    --dx: 0px;
+    --dy: 0px;
+    cursor: auto;
   }
-  .ai-screen:last-child { border-bottom: none; }
-  .ai-screen[data-state] {
-    opacity: 1;
-    transform: none;
-  }
-  .ai-screen[data-state="current"] .ai-caption > *,
-  .ai-screen[data-state="current"] .ai-artifact-body > *,
-  .ai-screen[data-state="current"] .ai-artifact-list .row,
-  .ai-screen[data-state="current"] .ai-artifact-bars .bar {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-  .ai-frame-foot { display: none; }
-  .ai-frame-counter { display: none; }
+  /* Disable hover lift + shine ribbon on touch — they don't apply */
+  .ai-card[data-settled="true"]:hover { --lift: 0; }
+  .ai-card[data-settled="true"]:hover::before { animation: none; }
+  /* Make sure cards are settled (drag works on mobile too) */
+  .ai-card { pointer-events: auto; }
 
   .currently-grid { grid-template-columns: 1fr; }
 
@@ -158,7 +179,29 @@
   }
   .scroll-cue { display: none; }
 
-  .modal { width: 96vw; max-height: 90vh; }
+  /*
+    AI modal — full-bleed on mobile so the composer + prompt chips
+    have breathing room. Backdrop padding is removed; modal pins to
+    bottom area with comfortable safe-zone above.
+  */
+  .modal {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: calc(100vh - var(--nav-h) - var(--s-3));
+    border-radius: 14px 14px 0 0;
+    inset: auto auto 0 50%;
+    transform: translate(-50%, 8%);
+  }
+  .modal.is-open { transform: translate(-50%, 0); }
+  .modal-head { padding: var(--s-3) var(--s-4); }
+  .modal-body { padding: var(--s-4); }
+  .modal-prompts {
+    padding: var(--s-3) var(--s-4);
+    gap: var(--s-2);
+    flex-wrap: wrap;
+  }
+  .modal-foot { padding: var(--s-3) var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom, 0px)); }
+  .modal-hints { display: none; }   /* "/" shortcut + footer text not relevant on touch */
 }
 
 /* ─── ≤420 : small phones (iPhone SE / older Android) ────────── */
@@ -174,7 +217,11 @@
     --fs-h3:      clamp(16px, 4.6vw, 19px);
   }
 
-  .nav-cta-label  { display: none; }   /* keep just the dot+icon */
+  /* Keep CTA label visible — it's the primary action on mobile */
+  .nav-cta-label  { display: inline; font-size: 11px; }
   .nav-resume     { padding: var(--s-1) var(--s-2); }
-  .modal          { width: 100vw; max-height: 92vh; border-radius: 0; }
+  .nav-resume-arrow { display: none; }   /* tighten resume button */
+
+  /* Modal already full-bleed at ≤720; sharpen the corners on smallest phones */
+  .modal { border-radius: 12px 12px 0 0; }
 }
