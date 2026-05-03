@@ -349,7 +349,10 @@
 
       const N = ar.cards.length;
       const overlap = ar.stagger;
-      const slot = (1 - overlap) / Math.max(1, N - 1);
+      // slot = (1 - overlap) / N ensures the LAST card's end == 1.0 so it
+      // actually reaches p=1 and gets data-settled="true" (required for drag).
+      // Earlier (N-1) divisor left the last card permanently at p<1 → undraggable.
+      const slot = (1 - overlap) / Math.max(1, N);
       const span_each = slot + overlap;
 
       let settled = 0;
