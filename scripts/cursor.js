@@ -30,4 +30,27 @@
     el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
     el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
   });
+
+  /* ---------- Dark-context cursor (footer) ----------
+     The site footer is dark; the default black cursor disappears on it.
+     We watch the cursor's position and toggle .on-dark on <body> when
+     the pointer is inside the visible footer band (or any element flagged
+     with [data-cursor-dark]). CSS inverts the dot + ring to white. */
+  const darkBands = Array.from(document.querySelectorAll('[data-cursor-dark], .site-footer'));
+  if (darkBands.length) {
+    function checkDarkContext(e) {
+      const x = e.clientX, y = e.clientY;
+      let onDark = false;
+      for (const band of darkBands) {
+        const r = band.getBoundingClientRect();
+        if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+          onDark = true; break;
+        }
+      }
+      if (onDark !== document.body.classList.contains('on-dark')) {
+        document.body.classList.toggle('on-dark', onDark);
+      }
+    }
+    document.addEventListener('mousemove', checkDarkContext, { passive: true });
+  }
 })();

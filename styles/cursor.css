@@ -7,6 +7,7 @@
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%);
+  transition: background .18s var(--ease-out);
 }
 
 .c-ring {
@@ -24,6 +25,20 @@ body.hovering .c-ring {
   width: 44px; height: 44px;
   border-color: rgba(13,13,11,0.06);
   background: rgba(13,13,11,0.03);
+}
+
+/* Dark-context (e.g. site footer) — invert dot + ring to white so the
+   cursor stays visible.  JS toggles .on-dark on <body> based on the
+   pointer's bounding-box test against [data-cursor-dark] / .site-footer. */
+body.on-dark .c-dot {
+  background: var(--white);
+}
+body.on-dark .c-ring {
+  border-color: rgba(255, 255, 255, 0.30);
+}
+body.on-dark.hovering .c-ring {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Touch / coarse-pointer devices: hide custom cursor. */

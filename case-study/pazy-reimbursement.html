@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pazy Reimbursement — Prateek Daswani</title>
+  <meta name="description" content="Case study: redesigning the Pazy reimbursement experience, cutting claim time roughly in half." />
+
+  <!-- Reuse the global design system from the main site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
+
+  <link rel="stylesheet" href="../styles/tokens.css?v=40" />
+  <link rel="stylesheet" href="../styles/base.css?v=40" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=40" />
+  <link rel="stylesheet" href="../styles/nav.css?v=40" />
+  <link rel="stylesheet" href="../styles/contact.css?v=40" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=40" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=40" />
+</head>
+<body>
+
+  <!-- Custom cursor (matches main site) -->
+  <div id="cdot" class="c-dot" aria-hidden="true"></div>
+  <div id="cring" class="c-ring" aria-hidden="true"></div>
+
+  <!-- Top nav (simplified — back to portfolio) -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">Prateek</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#ai">AI Playground</a></li>
+      </ul>
+      <span class="nav-sep" aria-hidden="true"></span>
+      <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
+    </div>
+  </nav>
+
+  <main class="cs-shell">
+    <div class="cs-wrap">
+
+      <!-- Side nav — scroll-spy highlights current section -->
+      <aside class="cs-sidenav">
+        <span class="cs-sidenav-label">On this page</span>
+        <ul class="cs-sidenav-list">
+          <li><a href="#overview" class="is-active">Overview</a></li>
+          <li><a href="#problem">The problem</a></li>
+          <li><a href="#role">Role &amp; constraints</a></li>
+          <li><a href="#process">Process</a></li>
+          <li><a href="#solution">Solution</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#reflection">What I'd do differently</a></li>
+        </ul>
+      </aside>
+
+      <article class="cs-main">
+
+        <a href="../index.html#work" class="cs-back">
+          <span class="cs-back-arrow">←</span> Back to work
+        </a>
+
+        <header>
+          <span class="cs-eyebrow">
+            <span class="cs-eyebrow-dot"></span>
+            Pazy &middot; B2B Fintech
+          </span>
+          <h1 class="cs-title">Reimbursements that don't feel like paperwork.</h1>
+          <p class="cs-deck">
+            A mobile claim flow that cut submission time in half on bulk filings,
+            introduced mileage reimbursements as a first-class workflow, and stopped
+            employees from asking finance which field is required next.
+          </p>
+
+          <div class="cs-meta">
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Role</span>
+              <span class="cs-meta-value">Product Designer</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Company</span>
+              <span class="cs-meta-value">Pazy</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Year</span>
+              <span class="cs-meta-value">2023</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Surface</span>
+              <span class="cs-meta-value">iOS &middot; Android &middot; Web</span>
+            </div>
+          </div>
+
+          <img class="cs-hero-img"
+               src="../assets/work/work-1-reimbursement.png"
+               alt="Pazy mobile reimbursement screens — claim entry, bulk submission, and review states." />
+        </header>
+
+        <!-- ──────────── Sections ──────────── -->
+
+        <section id="overview" class="cs-section">
+          <span class="cs-section-eyebrow">01 &middot; Overview</span>
+          <h2 class="cs-section-title">A claim flow built for one receipt, used for thirty.</h2>
+          <div class="cs-section-body">
+            <p>
+              Pazy is a B2B accounts-payable platform used by finance teams across
+              India. Inside the product, employees file expense reimbursements —
+              fuel, travel, food, software, the long tail of work spend.
+            </p>
+            <p>
+              The original flow was designed for a person filing one claim. The
+              actual users were sales reps and field staff who'd file <strong>thirty
+              receipts on the last day of the cycle</strong> and then ping support
+              about why their submission stalled.
+            </p>
+          </div>
+        </section>
+
+        <section id="problem" class="cs-section">
+          <span class="cs-section-eyebrow">02 &middot; The problem</span>
+          <h2 class="cs-section-title">Three failure modes nobody had named.</h2>
+          <div class="cs-section-body">
+            <p>
+              Talking to ten heavy users over a week, three patterns kept showing up:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Repetitive entry.</strong> Filing twenty similar claims
+                meant twenty identical sequences. No memory of recent merchants,
+                no carry-over of category, no batch action.
+              </li>
+              <li>
+                <strong>Hidden requirements.</strong> Fields like GSTIN appeared
+                or disappeared based on category — but the form didn't say why,
+                so users guessed and got bounced back by approvers.
+              </li>
+              <li>
+                <strong>Mileage didn't exist.</strong> Sales reps were filing
+                "Travel" claims with hand-typed kilometre estimates and screenshots
+                of Google Maps. No one believed the numbers.
+              </li>
+            </ul>
+            <p>
+              Approvers, on the other side, were stuck in a queue of nearly
+              identical claims with no easy way to bulk-action or sort by trust.
+            </p>
+          </div>
+
+          <blockquote class="cs-callout">
+            "I'm not filing one claim, I'm filing my whole month. Why does
+            it keep asking me the same five questions?"
+            <br>— Field sales user, week one of research
+          </blockquote>
+        </section>
+
+        <section id="role" class="cs-section">
+          <span class="cs-section-eyebrow">03 &middot; Role &amp; constraints</span>
+          <h2 class="cs-section-title">What I owned, and what I had to live with.</h2>
+          <div class="cs-section-body">
+            <p>
+              I led the redesign end-to-end — discovery, IA, interaction, visual,
+              UX writing, and shipping with engineering. I worked alongside a senior
+              designer (Murali), one PM, two iOS engineers, and one Android engineer.
+            </p>
+            <p>
+              Constraints worth flagging:
+            </p>
+            <ul class="cs-list">
+              <li>The approver-side desktop flow couldn't change in the same release — admin panel was downstream of an API rewrite.</li>
+              <li>OCR on receipt images existed but was unreliable on rotated photos. We had to design for the case where the vendor name came back wrong.</li>
+              <li>Some details on the legacy approval logic are under NDA — happy to walk through the approach in a conversation.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="process" class="cs-section">
+          <span class="cs-section-eyebrow">04 &middot; Process</span>
+          <h2 class="cs-section-title">From entry form to a chat-style sequence.</h2>
+          <div class="cs-section-body">
+            <p>
+              The first three rounds of exploration were variations on "make the form
+              less ugly." None of them moved the needle in usability tests. The break
+              came when I stopped treating it as a form at all.
+            </p>
+            <p>
+              Sales reps were already writing their claims as a sentence in their
+              head — <em>"yesterday, fuel, six hundred bucks, on my way to Pune"</em>.
+              The interface fought that mental model. The redesign rebuilt entry as
+              a <strong>chat-style sequence</strong>: one decision per screen, a
+              persistent running summary at the top, and instant carry-forward of
+              merchant + category between similar claims.
+            </p>
+            <p>
+              Mileage got its own first-class flow — pick origin and destination on
+              a map, the system computed kilometres at the org's per-km rate, and
+              the receipt became a route image instead of a ticket photo.
+            </p>
+          </div>
+
+          <img class="cs-image"
+               src="../assets/work/work-1-reimbursement.png"
+               alt="Three frames showing the redesigned entry sequence: category, amount, vendor with auto-suggest." />
+        </section>
+
+        <section id="solution" class="cs-section">
+          <span class="cs-section-eyebrow">05 &middot; Solution</span>
+          <h2 class="cs-section-title">Bulk submission, mileage, smarter form logic.</h2>
+          <div class="cs-section-body">
+            <p>
+              Three pieces shipped together:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Bulk submit.</strong> A multi-select on the claims list
+                with a single review screen showing every claim's status in one
+                scrollable card stack. One signature, one tap.
+              </li>
+              <li>
+                <strong>Mileage reimbursement.</strong> Map-based entry, system-
+                calculated distance, and a confidence indicator on the result so
+                approvers stopped second-guessing it.
+              </li>
+              <li>
+                <strong>Conditional fields, transparently.</strong> When GSTIN
+                appeared, the form said why ("Required for software / SaaS receipts")
+                and let users skip with a reason. No more silent rejections.
+              </li>
+            </ul>
+            <p>
+              UX writing shifted from neutral form labels to <strong>plain
+              instructions</strong>. "Add receipt" became "Snap or upload — we'll
+              read the amount." Empty states explained the next action instead
+              of the current state.
+            </p>
+          </div>
+        </section>
+
+        <section id="impact" class="cs-section">
+          <span class="cs-section-eyebrow">06 &middot; Impact</span>
+          <h2 class="cs-section-title">The numbers, and the things you can't number.</h2>
+
+          <div class="cs-stats">
+            <div class="cs-stat">
+              <span class="cs-stat-num">~50%</span>
+              <span class="cs-stat-label">faster bulk submission, end-to-end</span>
+            </div>
+            <div class="cs-stat">
+              <span class="cs-stat-num">3.4×</span>
+              <span class="cs-stat-label">jump in mileage claim adoption in the first month</span>
+            </div>
+            <div class="cs-stat">
+              <span class="cs-stat-num">−42%</span>
+              <span class="cs-stat-label">drop in support tickets containing the phrase "this is confusing"</span>
+            </div>
+          </div>
+
+          <div class="cs-section-body">
+            <p>
+              The qualitative win mattered more. Approvers told us they could clear
+              a day's queue in one sitting instead of three. Sales managers stopped
+              flagging reimbursements as a retention concern in 1:1s. And finance
+              stopped getting Slack DMs at 11pm on cycle-end day.
+            </p>
+          </div>
+        </section>
+
+        <section id="reflection" class="cs-section">
+          <span class="cs-section-eyebrow">07 &middot; What I'd do differently</span>
+          <h2 class="cs-section-title">Two honest regrets.</h2>
+          <div class="cs-section-body">
+            <p>
+              <strong>One:</strong> I shipped without a settings layer for
+              org-specific category rules. Every customer ended up requesting one,
+              and we patched it in two months later. Designing it from day one
+              would have saved a release cycle.
+            </p>
+            <p>
+              <strong>Two:</strong> The mileage feature was built around the assumption
+              that the OS map permission would be granted. About 18% of users denied
+              it, and the manual fallback was an afterthought. Today I'd treat the
+              "permission denied" branch as the primary path and the map as the
+              acceleration on top.
+            </p>
+          </div>
+        </section>
+
+        <!-- Footer / next-case nav -->
+        <footer class="cs-foot">
+          <a href="../index.html#work" class="cs-foot-link">
+            <small>← Back to</small> All work
+          </a>
+          <a href="#overview" class="cs-foot-link" style="text-align: right;">
+            <small>Top of</small> This case study
+          </a>
+        </footer>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="../scripts/cursor.js?v=40" defer></script>
+  <script src="../scripts/case-study.js?v=40" defer></script>
+
+</body>
+</html>
