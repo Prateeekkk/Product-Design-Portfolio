@@ -16,7 +16,10 @@
   margin: 0 auto;
   padding: var(--s-9) var(--space) var(--s-10);
   display: grid;
-  grid-template-columns: 220px 1fr;
+  /* minmax(0, 1fr) prevents the main column from blowing out the wrap when
+     a child has min-content larger than the available space (long titles,
+     images). Without this, the grid silently overflows on narrow viewports. */
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: var(--s-8);
   align-items: start;
 }
@@ -81,8 +84,11 @@
 }
 
 /* ────────── Main content column ────────── */
+/* min-width: 0 lets this grid item shrink below its intrinsic content
+   width — required so long words / images don't expand the column. */
 .cs-main {
   min-width: 0;
+  width: 100%;
 }
 
 .cs-back {
@@ -313,7 +319,7 @@
 /* ────────── Mobile (≤980 → side nav becomes top sticky bar) ────────── */
 @media (max-width: 980px) {
   .cs-wrap {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--s-6);
     padding: var(--s-7) var(--space) var(--s-9);
   }
