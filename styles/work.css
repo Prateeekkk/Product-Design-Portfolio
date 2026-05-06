@@ -97,7 +97,7 @@
   display: grid;
   grid-template-columns: 1.35fr 1fr;
   gap: var(--s-9);
-  align-items: center;
+  align-items: start;            /* details column anchors to the top */
   pointer-events: none;
 }
 .work-case[data-state="current"] { pointer-events: auto; }
@@ -108,7 +108,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  align-self: center;
+  align-self: start;             /* hard top-align inside the row */
+  padding-top: var(--s-7);       /* breathe down from the top edge */
   opacity: 0;
   transform: translateX(30px);
   transition: opacity .35s ease, transform .4s var(--ease-out);
@@ -287,24 +288,32 @@
   color: var(--ink-55);
   max-width: 460px;
 }
-.work-info-meta {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px var(--s-6);
-  margin-top: 6px;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-25);
-}
-.work-info-meta b {
-  display: block;
+/* Single highlight metric per card — replaces the role/surface block.
+   Reads as a quick "what changed" stat alongside title + body + CTA. */
+.work-info-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  align-self: flex-start;
+  font-size: 13px;
   color: var(--ink-80);
+  padding: 6px 12px 6px 10px;
+  border-radius: var(--r-pill);
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+}
+.work-info-metric::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+}
+.work-info-metric b {
+  color: var(--ink);
   font-weight: 500;
   letter-spacing: -0.005em;
-  text-transform: none;
-  font-size: 14px;
-  margin-top: 2px;
 }
 
 .work-info-cta {

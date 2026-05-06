@@ -173,24 +173,32 @@
   gap: var(--s-4);   /* 16px — was 14px */
 }
 
-/* Logo — dark filled square with white wordmark, like the reference */
+/* Logo — square frame holding the actual brand mark.
+   No padding: logos fill the rounded square edge-to-edge so the
+   border-radius reads as if it belongs to the image itself. The white
+   background acts as a fallback for logos with transparent areas
+   (e.g. an icon-only PNG); colour-filled logos cover it entirely. */
 .exp-card-logo {
-  width: 40px; height: 40px;          /* was 44 — 8px grid */
-  border-radius: var(--r-md);          /* 10px — was 11px */
-  background: var(--ink);
-  color: var(--white);
+  width: 40px; height: 40px;
+  border-radius: var(--r-md);
+  background: var(--white);
+  border: 1px solid var(--brd);
+  flex-shrink: 0;
+  overflow: hidden;
   display: flex; align-items: center; justify-content: center;
+  /* fallback typography for cards rendered without an <img> */
+  color: var(--ink);
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 18px;                     /* was 20 — proportional to smaller logo */
+  font-size: 16px;
   letter-spacing: -0.02em;
-  flex-shrink: 0;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
-/* Variant tints retained but subtler — keep dark feel */
-.exp-card-logo.is-amber { background: #2A1F12; }
-.exp-card-logo.is-cool  { background: #142028; }
-.exp-card-logo.is-sage  { background: #142A1C; }
+.exp-card-logo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-user-drag: none;
+}
 
 .exp-card-period {
   justify-self: end;

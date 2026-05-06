@@ -33,20 +33,16 @@
 
   /* ---------- Dark-context cursor (footer) ----------
      The site footer is dark; the default black cursor disappears on it.
-     We watch the cursor's position and toggle .on-dark on <body> when
-     the pointer is inside the visible footer band (or any element flagged
-     with [data-cursor-dark]). CSS inverts the dot + ring to white. */
-  const darkBands = Array.from(document.querySelectorAll('[data-cursor-dark], .site-footer'));
-  if (darkBands.length) {
+     We use elementFromPoint() — which respects the z-stacking order — so
+     the cursor only goes white when the topmost element under the pointer
+     is actually the footer. The previous bounding-box approach gave false
+     positives because .site-footer is position:fixed at the viewport
+     bottom but covered by .site (z-index: 2) until the user scrolls past
+     it. */
+  if (document.querySelector('.site-footer, [data-cursor-dark]')) {
     function checkDarkContext(e) {
-      const x = e.clientX, y = e.clientY;
-      let onDark = false;
-      for (const band of darkBands) {
-        const r = band.getBoundingClientRect();
-        if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
-          onDark = true; break;
-        }
-      }
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const onDark = !!(target && target.closest('.site-footer, [data-cursor-dark]'));
       if (onDark !== document.body.classList.contains('on-dark')) {
         document.body.classList.toggle('on-dark', onDark);
       }

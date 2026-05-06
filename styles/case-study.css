@@ -203,6 +203,19 @@
   max-width: 22ch;
 }
 
+/* Sub-heading inside a case-study section — sits between the
+   section title and a paragraph, e.g. "1 · Invoices were…". */
+.cs-subhead {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  font-weight: 500;
+  margin: var(--s-6) 0 var(--s-3);
+  max-width: 48ch;
+}
+
 .cs-section-body {
   font-size: var(--fs-body-lg);
   line-height: var(--lh-loose);
@@ -235,6 +248,90 @@
   width: 14px; height: 1px;
   background: var(--ink-25);
 }
+
+/* Figures inside a case-study section need breathing room below them so
+   the (italic, smaller) caption / pointer block doesn't collide with the
+   next body paragraph. Without this margin, the figure and the next
+   <div class="cs-section-body"> butt right up against each other. */
+.cs-section figure {
+  margin: var(--s-5) 0 var(--s-7);     /* 24px top, 48px bottom */
+}
+.cs-section figure:last-child { margin-bottom: 0; }
+
+/* Emocare design-system case study — most exports are PNGs of UI on
+   transparent / off-white surfaces. Drop them onto a dark backdrop
+   inside the rounded frame so the design-system context reads as a
+   showcase. Hero gets its natural aspect ratio (no cropping). */
+body.cs-emocare .cs-hero-img,
+body.cs-emocare .cs-image {
+  background: #0E0E0E;
+  border: 1px solid #1A1A1A;
+}
+body.cs-emocare .cs-hero-img {
+  aspect-ratio: auto;          /* let the source decide — no top/bottom crop */
+  height: auto;
+  object-fit: contain;
+  padding: var(--s-5);          /* breathing room inside the dark frame */
+}
+body.cs-emocare .cs-image {
+  object-fit: contain;
+  padding: var(--s-5);
+}
+
+/* Plain narrator caption — the kind that sits under an image to explain
+   what's shown ("Before: each payment stage was its own siloed tab…").
+   Italic + medium grey + slightly smaller than body, so it reads as a
+   subordinate companion to the body paragraph rather than competing with
+   it. No box / border treatment. */
+.cs-caption {
+  margin-top: var(--s-3);
+  font-size: 14px;            /* a notch below body 15px, above caption 12px */
+  font-style: italic;
+  line-height: var(--lh-normal);
+  color: var(--ink-55);
+  max-width: 64ch;
+}
+
+/* Pointer-list under a screenshot — replaces the in-image green caption
+   banners with proper HTML so type / colour can be re-themed later.
+   Strong enough to read as commentary on the screenshot, not fine-print.
+
+   Use as <ol class="cs-pointers"><li><b class="cs-pointer-num">01</b> ...
+   For a single un-numbered note, use <p class="cs-pointer-note">...</p>. */
+.cs-pointers,
+.cs-pointer-note {
+  margin: var(--s-4) 0 var(--s-2);
+  padding: var(--s-5) var(--s-6);
+  background: var(--bg-soft);
+  border-left: 2px solid var(--amber);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  max-width: 68ch;
+  font-size: var(--fs-body);                /* 15px — body text, not caption */
+  line-height: var(--lh-normal);
+  color: var(--ink-80);
+}
+.cs-pointers {
+  list-style: none;
+  display: grid;
+  gap: var(--s-3);
+}
+.cs-pointers li {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: var(--s-3);
+  align-items: baseline;
+}
+.cs-pointer-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+.cs-pointers li strong,
+.cs-pointer-note strong { color: var(--ink); font-weight: 500; }
 
 /* Pull-quote / callout */
 .cs-callout {

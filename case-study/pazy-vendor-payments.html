@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pazy Vendor Payments — Prateek Daswani</title>
+  <meta name="description" content="Case study: bringing visibility to ₹50Cr+ in vendor payments — replacing the Excel sheet finance teams quietly maintained on the side." />
+
+  <!-- Reuse the global design system from the main site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
+
+  <link rel="stylesheet" href="../styles/tokens.css?v=56" />
+  <link rel="stylesheet" href="../styles/base.css?v=56" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=56" />
+  <link rel="stylesheet" href="../styles/nav.css?v=56" />
+  <link rel="stylesheet" href="../styles/contact.css?v=56" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=57" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=56" />
+</head>
+<body>
+
+  <!-- Custom cursor (matches main site) -->
+  <div id="cdot" class="c-dot" aria-hidden="true"></div>
+  <div id="cring" class="c-ring" aria-hidden="true"></div>
+
+  <!-- Top nav (simplified — back to portfolio) -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">Prateek</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#ai">AI Playground</a></li>
+      </ul>
+      <span class="nav-sep" aria-hidden="true"></span>
+      <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
+    </div>
+  </nav>
+
+  <main class="cs-shell">
+    <div class="cs-wrap">
+
+      <!-- Side nav — scroll-spy highlights current section -->
+      <aside class="cs-sidenav">
+        <span class="cs-sidenav-label">On this page</span>
+        <ul class="cs-sidenav-list">
+          <li><a href="#overview" class="is-active">Overview</a></li>
+          <li><a href="#users">Users</a></li>
+          <li><a href="#problem">Problem</a></li>
+          <li><a href="#approach">Approach</a></li>
+          <li><a href="#solution">Solution</a></li>
+          <li><a href="#tradeoffs">Trade-offs</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#learnings">Learnings</a></li>
+        </ul>
+      </aside>
+
+      <article class="cs-main">
+
+        <a href="../index.html#work" class="cs-back">
+          <span class="cs-back-arrow">←</span> Back to work
+        </a>
+
+        <header>
+          <span class="cs-eyebrow">
+            <span class="cs-eyebrow-dot"></span>
+            Pazy &middot; B2B Fintech
+          </span>
+          <h1 class="cs-title">Bringing visibility to ₹50Cr+ in vendor payments.</h1>
+          <p class="cs-deck">
+            Finance teams at Pazy's customers were managing tens of crores in
+            invoices and vendor advances — but the system showed only fragments
+            of the picture. So they kept an Excel sheet on the side. We
+            replaced that Excel sheet, and ~70% of finance users started
+            opening the new overview <strong>every day</strong>.
+          </p>
+
+          <div class="cs-meta">
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Role</span>
+              <span class="cs-meta-value">Product Designer</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Team</span>
+              <span class="cs-meta-value">PM &middot; 1 Developer</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Timeline</span>
+              <span class="cs-meta-value">1 week</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Surface</span>
+              <span class="cs-meta-value">Web · Dashboard</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Company</span>
+              <span class="cs-meta-value">Pazy</span>
+            </div>
+          </div>
+
+          <img class="cs-hero-img"
+               src="../assets/case-study/vendor-payments/hero.jpg"
+               alt="Pazy vendor payments overview — invoices grouped by stage, with totals and advance settlement information visible at a glance." />
+        </header>
+
+        <!-- ──────────── Sections ──────────── -->
+
+        <section id="overview" class="cs-section">
+          <span class="cs-section-eyebrow">01 &middot; Overview</span>
+          <h2 class="cs-section-title">First, a quick word about Pazy.</h2>
+          <div class="cs-section-body">
+            <p>
+              Pazy is a B2B fintech platform that simplifies accounts payable
+              for mid-to-large Indian companies. Finance teams use it to
+              upload invoices, get them approved, manage their vendor list,
+              and run payments — all in one place.
+            </p>
+            <p>
+              Inside that workflow sits a quieter, messier reality:
+              <strong>vendor advances</strong>. Money paid to a vendor
+              <em>before</em> an invoice exists, against a future or
+              already-running engagement. Whether those advances ever get
+              settled — and against which invoices — is the kind of thing
+              accounts teams used to track in a spreadsheet, because the
+              system didn't.
+            </p>
+            <p>
+              I worked with the PM and one developer to design a unified
+              overview that surfaced both invoices and advances in one place,
+              shipped in <strong>one week</strong>.
+            </p>
+          </div>
+
+        </section>
+
+        <section id="users" class="cs-section">
+          <span class="cs-section-eyebrow">02 &middot; Users</span>
+          <h2 class="cs-section-title">Two finance roles, two reading speeds.</h2>
+          <div class="cs-section-body">
+            <p>
+              The same page is opened by two very different people inside
+              the customer's finance team. The redesign had to land for both:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>The finance manager</strong> — opens the overview
+                every morning. They process invoices, chase vendors, and
+                reconcile advances. The page has to be a working surface,
+                not just a report.
+              </li>
+              <li>
+                <strong>The finance head or CFO</strong> — checks the same
+                page weekly. They don't process; they want totals,
+                exceptions, and a quick read on whether the team is keeping
+                up. Readable at a glance is the bar.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="problem" class="cs-section">
+          <span class="cs-section-eyebrow">03 &middot; Problem</span>
+          <h2 class="cs-section-title">Two missing overviews, one root cause.</h2>
+          <div class="cs-section-body">
+            <p>
+              On the surface these looked like two different problems. Sitting
+              with finance managers, they were the same one — <strong>nowhere
+              in the product could you see the whole picture at a glance</strong>.
+              That gap showed up in two places: across invoices, and across
+              vendor advances.
+            </p>
+          </div>
+
+          <h3 class="cs-subhead">1 &middot; Invoices were scattered across stages</h3>
+          <div class="cs-section-body">
+            <p>
+              Invoices moved through several stages —
+              <em>uploaded → approved → ready to pay → paid</em> — and each
+              stage was its own tab. The data lived inside whichever tab the
+              finance manager happened to be on, so the obvious morning
+              question — <em>how much is sitting where right now?</em> —
+              had no single answer screen. You only got the picture by
+              clicking through every tab and holding the totals in your head.
+            </p>
+          </div>
+
+          <h3 class="cs-subhead">2 &middot; Advances had no surface at all</h3>
+          <div class="cs-section-body">
+            <p>
+              Vendor advances were even further behind. There was no view in
+              the product to answer the questions finance managers asked
+              about them every day:
+            </p>
+            <ul class="cs-list">
+              <li>Which advances are still outstanding, and against which vendors?</li>
+              <li>Which ones are unsettled and need a follow-up?</li>
+              <li>Are any tied to a specific PO that shouldn't auto-settle against unrelated invoices?</li>
+            </ul>
+            <p>
+              With no place inside Pazy to answer those questions, finance
+              managers had built their own — in Excel. Every advance and
+              every settlement was traced manually from a payment screenshot
+              into a spreadsheet row. It worked, the way doing things twice
+              always works. It was also where mistakes lived.
+            </p>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-01.avif"
+                 alt="A finance manager's Excel tracker — 'AP Tracker FY 25-26' — with manually maintained columns for vendor, advance, settlement and balance. The shadow system that existed because the product had no advance overview." />
+            <figcaption class="cs-caption">
+              The shadow system: an Excel "AP Tracker" finance managers kept
+              in parallel because Pazy had no place to view advances.
+              Every settlement was reconciled by eye.
+            </figcaption>
+          </figure>
+
+          <blockquote class="cs-callout">
+            "I'm running a ₹50Cr operation from a Google Sheet. The product
+            isn't telling me anything I can actually use to plan my day."
+            <br>— Finance manager, customer interview
+          </blockquote>
+
+          <div class="cs-section-body">
+            <p>
+              Different surfaces, same fix: each one needed to start with an
+              overview before going into the rows.
+            </p>
+          </div>
+        </section>
+
+        <section id="approach" class="cs-section">
+          <span class="cs-section-eyebrow">04 &middot; Approach</span>
+          <h2 class="cs-section-title">Design the page they'd open first thing every morning.</h2>
+          <div class="cs-section-body">
+            <p>
+              The brief wasn't "show more data." Pazy already had the data.
+              The brief was: <strong>what does a finance manager need to see
+              at a glance, before they decide what to do today?</strong>
+            </p>
+            <p>
+              I whiteboarded the information architecture with the PM —
+              starting from the questions in research, mapping each one to
+              where its data already lived in the system, and working out
+              what could be summarised vs. what needed to be drillable.
+            </p>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-02.avif"
+                 alt="Information architecture explorations — mapping the questions a finance manager asks to the screens that need to answer them." />
+            <figcaption class="cs-caption">
+              Mapping questions → screens. Most of the design time went into
+              deciding what surfaced where: overview vs. vendor list vs.
+              vendor detail vs. drill-down.
+            </figcaption>
+          </figure>
+
+          <div class="cs-section-body">
+            <p>
+              The hardest part wasn't the basic overview — it was the edge
+              cases. Three patterns kept tripping the simple version of the
+              design:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>One advance, multiple invoices.</strong> A single
+                ₹2L advance might have been split across three invoices over
+                a quarter. The overview had to show that linkage without
+                making the row unreadable.
+              </li>
+              <li>
+                <strong>PO-specific advances.</strong> Some advances are tied
+                to a particular purchase order and shouldn't auto-settle
+                against any other invoice. The system needed to respect that
+                constraint and surface it visibly.
+              </li>
+              <li>
+                <strong>Unsettled advances need follow-up.</strong> The user
+                isn't just looking — they're going to call the vendor. The
+                page had to make "needs follow-up" findable, not just truthful.
+              </li>
+            </ul>
+            <p>The principle I anchored on:</p>
+          </div>
+
+          <blockquote class="cs-callout">
+            Show the totals at the top. Make the exceptions findable.
+            Everything else, drill down.
+          </blockquote>
+        </section>
+
+        <section id="solution" class="cs-section">
+          <span class="cs-section-eyebrow">05 &middot; Solution</span>
+          <h2 class="cs-section-title">Two tabs, designed for two different questions.</h2>
+          <div class="cs-section-body">
+            <p>
+              The overview shipped as two paired tabs — same page, different
+              lens — so a finance manager could move between
+              "where are we on invoices?" and "where are we on advances?"
+              without losing context.
+            </p>
+          </div>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Invoice Overview tab</h3>
+          <div class="cs-section-body">
+            <p>
+              All invoices grouped by stage, with running totals at the top —
+              uploaded, approved, ready to pay, paid. Each stage is clickable
+              and filters the table below. The very first scan answers
+              "how much is moving today?" without opening anything.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-03.jpg"
+                 alt="Invoice Overview tab — totals across stages at the top, with the filtered invoice list below." />
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">01</b><span>Visually separated the 'in-progress' stages (Draft, Pending, For Payment) from the 'completed' stages (Partially Paid, Paid). The left-to-right layout represents the overall payment journey.</span></li>
+              <li><b class="cs-pointer-num">02</b><span>The total dues are displayed on the bottom sheet and automatically update based on the selected invoice filters.</span></li>
+            </ol>
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-04.jpg"
+                 alt="Invoice Overview drill-down — clicking a stage card filters the table, preserving context." />
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">03</b><span>Added a tooltip on hover of the currency icons, since each vendor can have invoices in multiple currencies. The tooltip displays a breakdown of amounts in other currencies.</span></li>
+              <li><b class="cs-pointer-num">04</b><span>Added a 'Group By' option that allows users to organize invoices by vendor or by initiator. The initiator refers to internal team members who upload invoices to the Pazy platform.</span></li>
+              <li><b class="cs-pointer-num">05</b><span>Partially paid invoices don't show the number of invoices because they remain in the 'For Payment' stage until fully paid, which would otherwise create conflicting invoice counts.</span></li>
+            </ol>
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Advance Overview tab</h3>
+          <div class="cs-section-body">
+            <p>
+              All vendor advances live on their own tab — request entry,
+              status totals, group-by, and the settlement linkage that used
+              to be invisible. Unsettled advances get sort priority because
+              that's the column the finance manager is about to take action
+              on.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-07.jpg"
+                 alt="Advance Overview tab — full layout with Request Advance, status totals, Group By, action column, and invoice linkage." />
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">01</b><span>Added a <strong>'Request Advance'</strong> button at the top, which allows users to request an advance on the Pazy platform. Each request goes through an approval process.</span></li>
+              <li><b class="cs-pointer-num">02</b><span>Overview of advance statuses showing the total number of advances and the corresponding amounts under each status.</span></li>
+              <li><b class="cs-pointer-num">03</b><span><strong>'Group By'</strong> option available for both status and vendor, allowing users to organize advances efficiently.</span></li>
+              <li><b class="cs-pointer-num">04</b><span><strong>Action column</strong> added to send reminder emails to vendors, prompting them to submit invoices to settle advances.</span></li>
+              <li><b class="cs-pointer-num">05</b><span><strong>'Unsettled Invoice'</strong> button indicates invoices present on the platform for which advances have not yet been settled.</span></li>
+              <li><b class="cs-pointer-num">06</b><span><strong>Invoice column</strong> displays the specific invoice against which each advance has been settled.</span></li>
+            </ol>
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-08.jpg"
+                 alt="Settlement tooltip — hovering an advance reveals the invoices it was applied to, with amounts." />
+            <p class="cs-pointer-note">
+              Added a <strong>hover tooltip</strong> for advances settled
+              against multiple invoices. The tooltip displays a breakdown
+              showing how much of the advance was applied to each invoice.
+            </p>
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-09.jpg"
+                 alt="Group By Status — same advance list re-organised into Unsettled, Partially Settled, and Settled groups." />
+            <p class="cs-pointer-note">
+              <strong>'Group By Status'</strong> screen displays advances
+              organized by their respective statuses.
+            </p>
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Vendor-level advance views</h3>
+          <div class="cs-section-body">
+            <p>
+              The advance information also surfaces at the vendor level — so
+              a manager can pivot from "all advances" to "this vendor's
+              history" without losing context. Same logic, different lens.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-05.jpg"
+                 alt="Vendor tab with new Vendor Advance column showing total advance and remaining balance per vendor." />
+            <p class="cs-pointer-note">
+              In the Vendor tab, which lists all vendors, I introduced a new
+              column called <strong>'Vendor Advance'</strong> that displays
+              the total advance amount and the remaining balance yet to be
+              settled.
+            </p>
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/vendor-payments/vp-06.jpg"
+                 alt="Vendor side panel — full vendor detail with an Advances table inside." />
+            <p class="cs-pointer-note">
+              Clicking on a vendor opens a detailed side panel, where I also
+              introduced an <strong>'Advances' table</strong> showing the
+              Advance ID, status, ERP sync, advance date, and amount.
+            </p>
+          </figure>
+        </section>
+
+        <section id="tradeoffs" class="cs-section">
+          <span class="cs-section-eyebrow">06 &middot; Trade-offs</span>
+          <h2 class="cs-section-title">A one-week brief means choosing what to leave on the wall.</h2>
+          <div class="cs-section-body">
+            <p>
+              Two deliberate cuts, both driven by the seven-day clock.
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Filters were minimal in v1.</strong> Power users
+                eventually wanted multi-vendor, date-range, and amount filters
+                stacked on the table. We shipped with stage and search only,
+                because the overview's first job was to be glanceable. Heavier
+                filtering moved into a follow-up release once the daily
+                behaviour was confirmed.
+              </li>
+              <li>
+                <strong>No exports in v1.</strong> Finance teams asked for
+                CSV / Excel export "just in case" — but every interview also
+                showed they were trying to <em>stop</em> using Excel. We bet
+                that adoption would tell us whether export was a real need or
+                a habit. It turned out to be a habit. Export came in v2,
+                quieter than the request implied.
+              </li>
+            </ul>
+            <p>
+              Some details on the settlement logic and customer-specific
+              rules are under NDA — happy to walk through the approach in
+              conversation.
+            </p>
+          </div>
+        </section>
+
+        <section id="impact" class="cs-section">
+          <span class="cs-section-eyebrow">07 &middot; Impact</span>
+          <h2 class="cs-section-title">The Excel sheet, finally retired.</h2>
+
+          <div class="cs-stats">
+            <div class="cs-stat">
+              <span class="cs-stat-num">~70%</span>
+              <span class="cs-stat-label">of finance users opened the overview daily, inside the first month</span>
+            </div>
+            <div class="cs-stat">
+              <span class="cs-stat-num">₹50Cr+</span>
+              <span class="cs-stat-label">in vendor payments now visible from a single page</span>
+            </div>
+          </div>
+
+          <div class="cs-section-body">
+            <p>
+              The clearest signal was qualitative. In a follow-up call a
+              finance manager said the line that mattered most:
+            </p>
+          </div>
+
+          <blockquote class="cs-callout">
+            "Finally, I don't need to maintain Excel sheets for advances.
+            Everything is in one place."
+          </blockquote>
+
+          <div class="cs-section-body">
+            <p>
+              Another customer summarised it more simply:
+              "The overview gives me exactly what I need to see at a glance."
+              Strong adoption indicated the page had become their primary
+              workspace — not a feature they'd visit, but the place they'd
+              open first.
+            </p>
+          </div>
+        </section>
+
+        <section id="learnings" class="cs-section">
+          <span class="cs-section-eyebrow">08 &middot; Learnings</span>
+          <h2 class="cs-section-title">What worked, and what I'd push harder on next time.</h2>
+          <div class="cs-section-body">
+            <p>
+              <strong>What worked:</strong> spending most of the design time
+              on edge cases instead of the happy path. The basic overview was
+              easy. PO-specific advances and one-to-many settlement linkage
+              were the parts that decided whether finance managers would
+              trust the page enough to retire their spreadsheet. We treated
+              those as design problems, not engineering footnotes — and that
+              changed the result.
+            </p>
+            <p>
+              <strong>What I'd push harder on:</strong>
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>The empty state for advances.</strong> A clean
+                customer with zero outstanding advances saw a flat,
+                nothing-to-see screen. With more time I'd have used that
+                space to surface gentle upcoming reminders — invoices nearing
+                due dates, vendors with payment-history flags — so the tab
+                kept earning its place even on a slow day.
+              </li>
+              <li>
+                <strong>Mobile considerations from day one.</strong> This
+                shipped web-only because that's where finance lives during
+                work hours. But CFOs and finance heads checked things on
+                phones too, late at night. A read-only mobile view of the
+                same totals would have been a small lift with outsized signal.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Footer / next-case nav -->
+        <footer class="cs-foot">
+          <a href="../index.html#work" class="cs-foot-link">
+            <small>← Back to</small> All work
+          </a>
+          <a href="#overview" class="cs-foot-link" style="text-align: right;">
+            <small>Top of</small> This case study
+          </a>
+        </footer>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="../scripts/cursor.js?v=56" defer></script>
+  <script src="../scripts/case-study.js?v=56" defer></script>
+
+</body>
+</html>

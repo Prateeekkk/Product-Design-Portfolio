@@ -4,6 +4,20 @@
    so the active link reflects what the reader is actually on. */
 
 (function () {
+
+  /* Tell the homepage loader to skip its intro animation when this user
+     navigates back. Two paths:
+       1) anchor click that targets index.html — set the flag before nav
+       2) browser back-button — set the flag now (any subsequent home
+          load this session should also skip) */
+  function setSkipLoader() {
+    try { sessionStorage.setItem('skipLoader', '1'); } catch (_) {}
+  }
+  document.querySelectorAll('a[href*="index.html"], a.cs-back, a.cs-foot-link[href*="index.html"]')
+    .forEach((a) => a.addEventListener('click', setSkipLoader));
+  // Also flag immediately so back-button works
+  setSkipLoader();
+
   const navLinks = Array.from(document.querySelectorAll('.cs-sidenav-list a[href^="#"]'));
   if (!navLinks.length) return;
 

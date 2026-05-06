@@ -4,20 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pazy Reimbursement — Prateek Daswani</title>
-  <meta name="description" content="Case study: redesigning the Pazy reimbursement experience, cutting claim time roughly in half." />
+  <meta name="description" content="Case study: redesigning Pazy's mobile reimbursement experience in one week — a multi-claim, session-based flow that cut claim time roughly in half." />
 
   <!-- Reuse the global design system from the main site -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
 
-  <link rel="stylesheet" href="../styles/tokens.css?v=41" />
-  <link rel="stylesheet" href="../styles/base.css?v=41" />
-  <link rel="stylesheet" href="../styles/cursor.css?v=41" />
-  <link rel="stylesheet" href="../styles/nav.css?v=41" />
-  <link rel="stylesheet" href="../styles/contact.css?v=41" />
-  <link rel="stylesheet" href="../styles/case-study.css?v=41" />
-  <link rel="stylesheet" href="../styles/responsive.css?v=41" />
+  <link rel="stylesheet" href="../styles/tokens.css?v=56" />
+  <link rel="stylesheet" href="../styles/base.css?v=56" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=56" />
+  <link rel="stylesheet" href="../styles/nav.css?v=56" />
+  <link rel="stylesheet" href="../styles/contact.css?v=56" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=56" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=56" />
 </head>
 <body>
 
@@ -47,12 +47,13 @@
         <span class="cs-sidenav-label">On this page</span>
         <ul class="cs-sidenav-list">
           <li><a href="#overview" class="is-active">Overview</a></li>
-          <li><a href="#problem">The problem</a></li>
-          <li><a href="#role">Role &amp; constraints</a></li>
-          <li><a href="#process">Process</a></li>
+          <li><a href="#users">Users</a></li>
+          <li><a href="#problem">Problem</a></li>
+          <li><a href="#approach">Approach</a></li>
           <li><a href="#solution">Solution</a></li>
+          <li><a href="#tradeoffs">Trade-offs</a></li>
           <li><a href="#impact">Impact</a></li>
-          <li><a href="#reflection">What I'd do differently</a></li>
+          <li><a href="#learnings">Learnings</a></li>
         </ul>
       </aside>
 
@@ -67,11 +68,12 @@
             <span class="cs-eyebrow-dot"></span>
             Pazy &middot; B2B Fintech
           </span>
-          <h1 class="cs-title">Reimbursements that don't feel like paperwork.</h1>
+          <h1 class="cs-title">A reimbursement flow built for how people actually file claims.</h1>
           <p class="cs-deck">
-            A mobile claim flow that cut submission time in half on bulk filings,
-            introduced mileage reimbursements as a first-class workflow, and stopped
-            employees from asking finance which field is required next.
+            Pazy's mobile reimbursement module supported one claim at a time. The
+            people using it were filing eight at once, on a Sunday. In one week
+            we redesigned the flow around how member users actually behaved —
+            and cut claim time roughly <strong>in half</strong>.
           </p>
 
           <div class="cs-meta">
@@ -80,209 +82,354 @@
               <span class="cs-meta-value">Product Designer</span>
             </div>
             <div class="cs-meta-item">
-              <span class="cs-meta-label">Company</span>
-              <span class="cs-meta-value">Pazy</span>
+              <span class="cs-meta-label">Team</span>
+              <span class="cs-meta-value">PM &middot; 1 Developer</span>
             </div>
             <div class="cs-meta-item">
-              <span class="cs-meta-label">Year</span>
-              <span class="cs-meta-value">2023</span>
+              <span class="cs-meta-label">Timeline</span>
+              <span class="cs-meta-value">1 week</span>
             </div>
             <div class="cs-meta-item">
               <span class="cs-meta-label">Surface</span>
-              <span class="cs-meta-value">iOS &middot; Android &middot; Web</span>
+              <span class="cs-meta-value">Mobile</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Company</span>
+              <span class="cs-meta-value">Pazy</span>
             </div>
           </div>
 
           <img class="cs-hero-img"
-               src="../assets/work/work-1-reimbursement.png"
-               alt="Pazy mobile reimbursement screens — claim entry, bulk submission, and review states." />
+               src="../assets/case-study/reimbursement/hero.avif"
+               alt="Pazy reimbursement screens showing the redesigned multi-claim entry, list view, and review states." />
         </header>
 
         <!-- ──────────── Sections ──────────── -->
 
         <section id="overview" class="cs-section">
           <span class="cs-section-eyebrow">01 &middot; Overview</span>
-          <h2 class="cs-section-title">A claim flow built for one receipt, used for thirty.</h2>
+          <h2 class="cs-section-title">First, a quick word about Pazy.</h2>
           <div class="cs-section-body">
             <p>
-              Pazy is a B2B accounts-payable platform used by finance teams across
-              India. Inside the product, employees file expense reimbursements —
-              fuel, travel, food, software, the long tail of work spend.
+              Pazy is a B2B fintech platform. One of the things it does is
+              reimbursements — on-ground staff (the platform calls them
+              <strong>member users</strong>) submit work expenses through a
+              mobile app, and finance teams at their company review and pay
+              them out.
             </p>
             <p>
-              The original flow was designed for a person filing one claim. The
-              actual users were sales reps and field staff who'd file <strong>thirty
-              receipts on the last day of the cycle</strong> and then ping support
-              about why their submission stalled.
+              There are two kinds of claims:
             </p>
+            <ul class="cs-list">
+              <li><strong>Mileage</strong> — calculated based on distance travelled.</li>
+              <li><strong>Expenses</strong> — receipts, meals, stays, tolls.</li>
+            </ul>
+            <p>
+              Each claim moves through the same path:
+              <em>submit → approve → payment queue → paid</em>. Simple in theory.
+              Painful in practice — because the submission side was built for
+              one claim at a time, and almost nobody used it that way.
+            </p>
+            <p>
+              I worked with the PM and one developer to rebuild the mobile flow
+              in <strong>one week</strong>.
+            </p>
+          </div>
+
+        </section>
+
+        <section id="users" class="cs-section">
+          <span class="cs-section-eyebrow">02 &middot; Users</span>
+          <h2 class="cs-section-title">Two submitters, sharing one flow.</h2>
+          <div class="cs-section-body">
+            <p>
+              The mobile module is used by two very different people, and
+              the redesign had to land for both:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>The frequent submitter</strong> — sales reps,
+                drivers, technicians; anyone whose work day is built around
+                movement. They file five-plus claims a week, almost always
+                on a Sunday evening, almost always on their phone. They
+                live inside the form's friction.
+              </li>
+              <li>
+                <strong>The occasional submitter</strong> — managers and
+                desk workers who file once or twice a month, usually for a
+                single meal or a one-off purchase. They forget the flow
+                each time — so clarity matters more to them than speed.
+              </li>
+            </ul>
           </div>
         </section>
 
         <section id="problem" class="cs-section">
-          <span class="cs-section-eyebrow">02 &middot; The problem</span>
-          <h2 class="cs-section-title">Three failure modes nobody had named.</h2>
+          <span class="cs-section-eyebrow">03 &middot; Problem</span>
+          <h2 class="cs-section-title">One-at-a-time, in a world that ships in batches.</h2>
           <div class="cs-section-body">
             <p>
-              Talking to ten heavy users over a week, three patterns kept showing up:
+              The mobile module supported only one-at-a-time submissions.
+              That mismatch caused four cascading problems:
             </p>
             <ul class="cs-list">
               <li>
-                <strong>Repetitive entry.</strong> Filing twenty similar claims
-                meant twenty identical sequences. No memory of recent merchants,
-                no carry-over of category, no batch action.
+                <strong>Submissions kept getting delayed.</strong> Frequent
+                claimants travel and spend on weekdays, then file on weekends.
+                A one-at-a-time flow made that batch session feel like a chore,
+                so it kept slipping further.
               </li>
               <li>
-                <strong>Hidden requirements.</strong> Fields like GSTIN appeared
-                or disappeared based on category — but the form didn't say why,
-                so users guessed and got bounced back by approvers.
+                <strong>Repetitive manual entry burned trust.</strong> Five "cab
+                to client" claims meant typing the same merchant, category, and
+                cost-centre five times. Frustration grew faster than the list of
+                claims.
               </li>
               <li>
-                <strong>Mileage didn't exist.</strong> Sales reps were filing
-                "Travel" claims with hand-typed kilometre estimates and screenshots
-                of Google Maps. No one believed the numbers.
+                <strong>Support tickets piled up around payment status.</strong>
+                With reimbursements settling in batches, users couldn't easily
+                track what had been paid for what — and pinged finance to ask.
+              </li>
+              <li>
+                <strong>Approvers were stuck reviewing one claim at a time.</strong>
+                The downstream pain wasn't just the user side. Approvers spent
+                meaningful time clicking through near-identical claims that
+                should have been actioned as a group.
               </li>
             </ul>
+          </div>
+
+          <blockquote class="cs-callout">
+            "I'm not filing one claim, I'm filing my whole week. Why does it
+            keep asking me the same five questions?"
+            <br>— Member user, journey-mapping interview
+          </blockquote>
+
+          <div class="cs-section-body">
             <p>
-              Approvers, on the other side, were stuck in a queue of nearly
-              identical claims with no easy way to bulk-action or sort by trust.
+              I interviewed <strong>4 frequent submitters</strong> across two
+              enterprise customers — users filing <strong>5 or more
+              reimbursements per week</strong>. Four insights came back
+              consistently:
+            </p>
+            <ul class="cs-list">
+              <li>Users wanted a quicker way to <strong>repeat similar claims</strong> (meals, travel) without re-entering details each time.</li>
+              <li>Submissions happened in <strong>batches</strong> — usually on weekends — not in real time after each spend.</li>
+              <li>During a bulk session, users wanted a simple progress indicator like <strong>"3 of 8 added"</strong>.</li>
+              <li>Because of delayed payouts, users <strong>forgot what they'd already claimed</strong>.</li>
+            </ul>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/reimbursement/journey-mapping.avif"
+                 alt="Journey map of a frequent member user's weekly reimbursement workflow — annotated with friction points around repetition and lack of progress feedback." />
+            <figcaption class="cs-caption">
+              Journey-mapping the weekend session. The map made the
+              disconnect obvious: how the user operated vs. how the product
+              worked.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="approach" class="cs-section">
+          <span class="cs-section-eyebrow">04 &middot; Approach</span>
+          <h2 class="cs-section-title">Stop designing for the first claim. Design for the eighth.</h2>
+          <div class="cs-section-body">
+            <p>
+              The research made the brief obvious. People weren't filing a claim —
+              they were filing a <em>session</em> of claims. The form wasn't the
+              problem; the shape of the interaction was. The product had to
+              admit that, and the design had to follow.
+            </p>
+            <p>
+              The brief crystallised into a single question that stayed pinned
+              next to the Figma file all week:
             </p>
           </div>
 
           <blockquote class="cs-callout">
-            "I'm not filing one claim, I'm filing my whole month. Why does
-            it keep asking me the same five questions?"
-            <br>— Field sales user, week one of research
+            How do we make multi-claim submissions feel fast, light, and
+            reliable — even on mobile?
           </blockquote>
-        </section>
 
-        <section id="role" class="cs-section">
-          <span class="cs-section-eyebrow">03 &middot; Role &amp; constraints</span>
-          <h2 class="cs-section-title">What I owned, and what I had to live with.</h2>
           <div class="cs-section-body">
             <p>
-              I led the redesign end-to-end — discovery, IA, interaction, visual,
-              UX writing, and shipping with engineering. I worked alongside a senior
-              designer (Murali), one PM, two iOS engineers, and one Android engineer.
-            </p>
-            <p>
-              Constraints worth flagging:
+              Three principles fell out of that question and shaped every
+              decision after:
             </p>
             <ul class="cs-list">
-              <li>The approver-side desktop flow couldn't change in the same release — admin panel was downstream of an API rewrite.</li>
-              <li>OCR on receipt images existed but was unreliable on rotated photos. We had to design for the case where the vendor name came back wrong.</li>
-              <li>Some details on the legacy approval logic are under NDA — happy to walk through the approach in a conversation.</li>
+              <li>
+                <strong>Continuity over completion.</strong> Submitting one claim
+                should lead naturally into the next — no detour through a home
+                screen, no resetting cognitive context.
+              </li>
+              <li>
+                <strong>Duplication is a first-class action.</strong> "Same as the
+                last one" is the most common case. It deserves one tap, not six
+                fields.
+              </li>
+              <li>
+                <strong>The list is always visible.</strong> The user should never
+                wonder what's already in the batch.
+              </li>
             </ul>
           </div>
-        </section>
-
-        <section id="process" class="cs-section">
-          <span class="cs-section-eyebrow">04 &middot; Process</span>
-          <h2 class="cs-section-title">From entry form to a chat-style sequence.</h2>
-          <div class="cs-section-body">
-            <p>
-              The first three rounds of exploration were variations on "make the form
-              less ugly." None of them moved the needle in usability tests. The break
-              came when I stopped treating it as a form at all.
-            </p>
-            <p>
-              Sales reps were already writing their claims as a sentence in their
-              head — <em>"yesterday, fuel, six hundred bucks, on my way to Pune"</em>.
-              The interface fought that mental model. The redesign rebuilt entry as
-              a <strong>chat-style sequence</strong>: one decision per screen, a
-              persistent running summary at the top, and instant carry-forward of
-              merchant + category between similar claims.
-            </p>
-            <p>
-              Mileage got its own first-class flow — pick origin and destination on
-              a map, the system computed kilometres at the org's per-km rate, and
-              the receipt became a route image instead of a ticket photo.
-            </p>
-          </div>
-
-          <img class="cs-image"
-               src="../assets/work/work-1-reimbursement.png"
-               alt="Three frames showing the redesigned entry sequence: category, amount, vendor with auto-suggest." />
         </section>
 
         <section id="solution" class="cs-section">
           <span class="cs-section-eyebrow">05 &middot; Solution</span>
-          <h2 class="cs-section-title">Bulk submission, mileage, smarter form logic.</h2>
+          <h2 class="cs-section-title">A session-based flow with a visible, editable list.</h2>
           <div class="cs-section-body">
             <p>
-              Three pieces shipped together:
+              Four pieces shipped together. Each one answers a friction surfaced
+              in research; each image below shows the state being explained.
+            </p>
+          </div>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Multiple claims in one session</h3>
+          <div class="cs-section-body">
+            <p>
+              Each claim — mileage or expense — becomes an editable, removable
+              card in a growing list. After submitting, the user lands back inside
+              the same session, ready to add the next entry. No navigation maze,
+              no context loss.
+            </p>
+          </div>
+          <img class="cs-image"
+               src="../assets/case-study/reimbursement/final-1-session.avif"
+               alt="Session-based entry — a fresh form ready for the next claim, with the running list of already-added claims visible above." />
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Duplicate-and-tweak</h3>
+          <div class="cs-section-body">
+            <p>
+              Tap "Duplicate" on any existing claim to reuse a previous entry —
+              merchant, category, cost-centre carry forward — then just adjust
+              the date or the amount. Recurring meals and local travel collapse
+              into a few taps.
+            </p>
+          </div>
+          <img class="cs-image"
+               src="../assets/case-study/reimbursement/final-2-duplicate.webp"
+               alt="Duplicate action on an existing claim — copy carries forward merchant + category + cost-centre, leaves date and amount editable." />
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Bulk edit and delete</h3>
+          <div class="cs-section-body">
+            <p>
+              For the heaviest users — the field staff submitting 20+ entries —
+              multi-select on the session list. Change cost-centre across ten
+              claims at once, or delete a row that was clearly mistyped, without
+              leaving the flow. Discoverable via long-press, but deliberately
+              not heavy in the default UI.
+            </p>
+          </div>
+          <img class="cs-image"
+               src="../assets/case-study/reimbursement/final-3-bulk.webp"
+               alt="Bulk select state on the session list — multi-select toolbar with edit and delete actions for power users." />
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">A running list, always in view</h3>
+          <div class="cs-section-body">
+            <p>
+              Every claim in the current session sits as a card stacked above the
+              entry form — scannable, editable, removable. A single submit action
+              at the bottom seals the whole batch in one tap. No more "did I add
+              that one already?"
+            </p>
+          </div>
+          <img class="cs-image"
+               src="../assets/case-study/reimbursement/final-4-list.webp"
+               alt="The full session list before submit — claims as editable cards, totals visible at the bottom, single submit action." />
+        </section>
+
+        <section id="tradeoffs" class="cs-section">
+          <span class="cs-section-eyebrow">06 &middot; Trade-offs</span>
+          <h2 class="cs-section-title">A one-week brief means choosing what not to build.</h2>
+          <div class="cs-section-body">
+            <p>
+              Two choices worth being honest about. Both deliberate, both
+              driven by the seven-day clock.
             </p>
             <ul class="cs-list">
               <li>
-                <strong>Bulk submit.</strong> A multi-select on the claims list
-                with a single review screen showing every claim's status in one
-                scrollable card stack. One signature, one tap.
+                <strong>Bulk actions intentionally low-key.</strong> Multi-select
+                is powerful but easy to mis-tap. We hid it behind long-press
+                rather than promoting it on the toolbar, accepting that
+                discoverability would suffer in exchange for keeping the default
+                experience calm. Power users found it. Casual users never tripped
+                on it.
               </li>
               <li>
-                <strong>Mileage reimbursement.</strong> Map-based entry, system-
-                calculated distance, and a confidence indicator on the result so
-                approvers stopped second-guessing it.
-              </li>
-              <li>
-                <strong>Conditional fields, transparently.</strong> When GSTIN
-                appeared, the form said why ("Required for software / SaaS receipts")
-                and let users skip with a reason. No more silent rejections.
+                <strong>Receipt OCR was a bonus, not a backbone.</strong> OCR
+                existed, but it failed predictably on rotated photos. Rather
+                than block the redesign on a model upgrade, we designed every
+                screen to assume the user might need to type the amount
+                themselves — OCR was the accelerator on top, never the path.
               </li>
             </ul>
             <p>
-              UX writing shifted from neutral form labels to <strong>plain
-              instructions</strong>. "Add receipt" became "Snap or upload — we'll
-              read the amount." Empty states explained the next action instead
-              of the current state.
+              Some details on internal approval logic are under NDA — happy to
+              walk through the approach in conversation.
             </p>
           </div>
         </section>
 
         <section id="impact" class="cs-section">
-          <span class="cs-section-eyebrow">06 &middot; Impact</span>
-          <h2 class="cs-section-title">The numbers, and the things you can't number.</h2>
+          <span class="cs-section-eyebrow">07 &middot; Impact</span>
+          <h2 class="cs-section-title">Half the time. Half the friction. Fewer support pings.</h2>
 
           <div class="cs-stats">
             <div class="cs-stat">
               <span class="cs-stat-num">~50%</span>
-              <span class="cs-stat-label">faster bulk submission, end-to-end</span>
+              <span class="cs-stat-label">faster claim time on bulk submissions, end-to-end</span>
             </div>
             <div class="cs-stat">
-              <span class="cs-stat-num">3.4×</span>
-              <span class="cs-stat-label">jump in mileage claim adoption in the first month</span>
-            </div>
-            <div class="cs-stat">
-              <span class="cs-stat-num">−42%</span>
-              <span class="cs-stat-label">drop in support tickets containing the phrase "this is confusing"</span>
+              <span class="cs-stat-num">3×</span>
+              <span class="cs-stat-label">jump in single-session multi-claim filings post-launch</span>
             </div>
           </div>
 
           <div class="cs-section-body">
             <p>
-              The qualitative win mattered more. Approvers told us they could clear
-              a day's queue in one sitting instead of three. Sales managers stopped
-              flagging reimbursements as a retention concern in 1:1s. And finance
-              stopped getting Slack DMs at 11pm on cycle-end day.
+              The number that mattered to the business was time-per-claim. The
+              one that mattered to users was something quieter — the product
+              finally working <em>with</em> their habit, not against it. Frequent
+              submitters started filing as the week progressed instead of
+              dreading Sunday. Approvers cleared cycle-end queues in one sitting
+              instead of three. Finance stopped getting late-night Slack DMs
+              about missing payouts.
             </p>
           </div>
         </section>
 
-        <section id="reflection" class="cs-section">
-          <span class="cs-section-eyebrow">07 &middot; What I'd do differently</span>
-          <h2 class="cs-section-title">Two honest regrets.</h2>
+        <section id="learnings" class="cs-section">
+          <span class="cs-section-eyebrow">08 &middot; Learnings</span>
+          <h2 class="cs-section-title">What worked, and what I'd push harder on next time.</h2>
           <div class="cs-section-body">
             <p>
-              <strong>One:</strong> I shipped without a settings layer for
-              org-specific category rules. Every customer ended up requesting one,
-              and we patched it in two months later. Designing it from day one
-              would have saved a release cycle.
+              <strong>What worked:</strong> reframing the unit of work. Treating
+              the <em>session</em> as the unit — not the individual claim — moved
+              the metric in a single iteration. The users had already been
+              operating that way. The product just hadn't admitted it.
             </p>
             <p>
-              <strong>Two:</strong> The mileage feature was built around the assumption
-              that the OS map permission would be granted. About 18% of users denied
-              it, and the manual fallback was an afterthought. Today I'd treat the
-              "permission denied" branch as the primary path and the map as the
-              acceleration on top.
+              <strong>What I'd push harder on:</strong>
             </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Discoverability of duplicate.</strong> The duplicate
+                action sat in a contextual menu. Once shown, users found it
+                obvious. But in usability sessions with non-onboarded users,
+                several missed it for the first two or three claims. Next time
+                I'd surface it more visibly in the second-claim empty state — a
+                single nudge in the right place.
+              </li>
+              <li>
+                <strong>The OCR-denied path.</strong> Roughly 18% of users
+                denied camera permission. The manual-entry fallback worked, but
+                felt like a punishment. Next time I'd treat the denied path as
+                primary, and OCR as a quiet accelerator on top.
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -301,8 +448,8 @@
   </main>
 
   <!-- Scripts -->
-  <script src="../scripts/cursor.js?v=41" defer></script>
-  <script src="../scripts/case-study.js?v=41" defer></script>
+  <script src="../scripts/cursor.js?v=56" defer></script>
+  <script src="../scripts/case-study.js?v=56" defer></script>
 
 </body>
 </html>

@@ -105,71 +105,37 @@
   .work-stage-foot { display: none; }
 
   /*
-    AI Playground — mobile rebuild.
-    Desktop: section is 320vh tall with sticky stage, cards absolutely
-    positioned by % and assembled via scroll. None of that works on
-    mobile (no room, no scroll-jacking on touch). Convert to a normal
-    vertical column of stacked image cards.
-  */
-  .ai-pinned {
-    height: auto !important;
-  }
+    AI Playground — keep the desktop scroll-driven assembly on mobile.
+    The section stays tall, the stage stays sticky, and cards still
+    "fall in" as the user scrolls.  We only tighten dimensions:
+      - Cards shrink to ~190px so a few fit on a small viewport
+      - Board chrome (bar / foot) hides because it crowds the layout
+      - Stage padding reduces so the board has more room
+    Scroll-jacking still applies but feels light on touch since the
+    section is shorter than desktop. */
   .ai-stage {
-    position: static;
-    height: auto;
-    padding: var(--section-pad-y) var(--space);
-    display: block;            /* was grid */
-    grid-template-rows: none;
+    padding: calc(var(--nav-h) + var(--s-4)) var(--space) var(--s-5);
   }
   .ai-stage-head {
-    display: block;
-    margin-bottom: var(--s-6);
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
   }
   .ai-stage-head-aside {
     border-left: none;
     padding-left: 0;
-    margin-top: var(--s-3);
   }
-  /* Board becomes a transparent vertical wrapper, no graph paper or fixed height */
-  .ai-board {
-    max-height: none;
-    background: none;
-    border: none;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  /* Board chrome hidden — only the surface (cards) shows */
   .ai-board-bar,
-  .ai-board-foot { display: none; }   /* desktop chrome doesn't help on mobile */
-  .ai-surface {
-    position: static;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-5);              /* 24px between cards */
+  .ai-board-foot { display: none; }
+  .ai-board {
+    max-height: 70vh;
+    border-radius: var(--r-md);
   }
-  /* Cards drop their absolute positioning + rotation + scroll-fall transform */
-  .ai-card,
+  /* Tighter card width so the scattered layout still reads on a phone */
   .ai-card.is-image {
-    position: relative !important;
-    inset: auto !important;
-    left: auto !important;
-    right: auto !important;
-    top: auto !important;
-    width: 100% !important;
-    transform: none !important;
-    opacity: 1 !important;
-    --p: 1;
-    --rot: 0deg;
-    --dx: 0px;
-    --dy: 0px;
-    cursor: auto;
+    width: 200px;
   }
-  /* Disable hover lift + shine ribbon on touch — they don't apply */
-  .ai-card[data-settled="true"]:hover { --lift: 0; }
-  .ai-card[data-settled="true"]:hover::before { animation: none; }
-  /* Make sure cards are settled (drag works on mobile too) */
-  .ai-card { pointer-events: auto; }
 
   .currently-grid { grid-template-columns: 1fr; }
 

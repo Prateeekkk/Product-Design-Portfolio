@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EmoCare Design System — Prateek Daswani</title>
+  <meta name="description" content="Case study: building a scalable design system for EmoCare — an emotional-support app for young adults. Tokens, components, accessibility — foundations before screens." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
+
+  <link rel="stylesheet" href="../styles/tokens.css?v=56" />
+  <link rel="stylesheet" href="../styles/base.css?v=56" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=56" />
+  <link rel="stylesheet" href="../styles/nav.css?v=56" />
+  <link rel="stylesheet" href="../styles/contact.css?v=56" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=56" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=56" />
+</head>
+<body class="cs-emocare">
+
+  <div id="cdot" class="c-dot" aria-hidden="true"></div>
+  <div id="cring" class="c-ring" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">Prateek</a>
+      <ul class="nav-links">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#ai">AI Playground</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+      <span class="nav-sep" aria-hidden="true"></span>
+      <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
+    </div>
+  </nav>
+
+  <main class="cs-shell">
+    <div class="cs-wrap">
+
+      <aside class="cs-sidenav">
+        <span class="cs-sidenav-label">On this page</span>
+        <ul class="cs-sidenav-list">
+          <li><a href="#overview" class="is-active">Overview</a></li>
+          <li><a href="#users">Users</a></li>
+          <li><a href="#problem">Problem</a></li>
+          <li><a href="#approach">Approach</a></li>
+          <li><a href="#solution">Solution</a></li>
+          <li><a href="#tradeoffs">Trade-offs</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#learnings">Learnings</a></li>
+        </ul>
+      </aside>
+
+      <article class="cs-main">
+
+        <a href="../index.html#work" class="cs-back">
+          <span class="cs-back-arrow">←</span> Back to work
+        </a>
+
+        <header>
+          <span class="cs-eyebrow">
+            <span class="cs-eyebrow-dot"></span>
+            EmoCare &middot; Health &amp; Wellness
+          </span>
+          <h1 class="cs-title">A design system for an emotional-support app.</h1>
+          <p class="cs-deck">
+            EmoCare is a <strong>personal exploration</strong> — not a shipped
+            product. I picked the emotional-support category because the
+            available apps tend to feel either cold or cartoonish, and I
+            wanted to see what a system anchored in <strong>trust + warmth +
+            accessibility</strong> would actually look like at the token
+            level.
+          </p>
+
+          <div class="cs-meta">
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Type</span>
+              <span class="cs-meta-value">Personal exploration</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Role</span>
+              <span class="cs-meta-value">Designer (solo)</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Category</span>
+              <span class="cs-meta-value">Health &amp; Wellness</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Timeline</span>
+              <span class="cs-meta-value">~2 weeks</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Surface</span>
+              <span class="cs-meta-value">Mobile &middot; Tokens &middot; Components</span>
+            </div>
+          </div>
+
+          <img class="cs-hero-img"
+               src="../assets/case-study/emocare/ds-1.avif"
+               alt="EmoCare design system — the visual foundations sheet showing typography, colour, spacing and components in one frame." />
+        </header>
+
+        <!-- ──────────── Sections ──────────── -->
+
+        <section id="overview" class="cs-section">
+          <span class="cs-section-eyebrow">01 &middot; Overview</span>
+          <h2 class="cs-section-title">A personal exploration, not a brief.</h2>
+          <div class="cs-section-body">
+            <p>
+              EmoCare is a <strong>self-initiated project</strong>. There was
+              no client, no roadmap, and no team waiting on it. I'd been
+              thinking about how mental-health apps tend to fall into one of
+              two visual traps — clinical and cold, or cartoonish and shallow
+              — and wanted to see what a tokenised system anchored in calm,
+              trustworthy UX would actually look like at the foundation
+              level.
+            </p>
+            <p>
+              The imagined product is a mobile app for young adults
+              navigating the early signs of stress, anxiety and burnout —
+              the kinds of feelings that don't always need a therapist, but
+              always benefit from somewhere quiet to land. The goal of the
+              <em>system</em> isn't to look beautiful in a file. It's to
+              disappear inside that hypothetical product, and let the product
+              feel like care.
+            </p>
+          </div>
+        </section>
+
+        <section id="users" class="cs-section">
+          <span class="cs-section-eyebrow">02 &middot; Users</span>
+          <h2 class="cs-section-title">Two audiences, one system.</h2>
+          <div class="cs-section-body">
+            <p>
+              A design system always has two readers. I designed for both:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>The person opening the app</strong> — a young adult
+                in a moment of stress. They don't want clinical jargon or
+                cartoon mascots. They want a calm surface that lets them
+                think. Every token decision had to support that mood.
+              </li>
+              <li>
+                <strong>The hypothetical product team</strong> — designers
+                and engineers who'd one day build on this system. They'd
+                need tokens, ready components, and clear documentation so
+                they could focus on flows, not re-debating padding.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="problem" class="cs-section">
+          <span class="cs-section-eyebrow">03 &middot; Problem</span>
+          <h2 class="cs-section-title">Mental-health apps pick the wrong side.</h2>
+          <div class="cs-section-body">
+            <p>
+              I started with a competitive sweep of the most-used apps in
+              this space. The pattern was hard to miss — most products land
+              in one of two failure modes:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Cold &amp; clinical</strong> — BetterHelp, 7 Cups,
+                Sanvello. Professional tone, but unwelcoming to someone
+                already in distress. Dense screens. Inconsistent UI.
+              </li>
+              <li>
+                <strong>Playful &amp; shallow</strong> — Wysa, some Replika
+                moments. Avatar-driven chat that swings cartoonish. Hard to
+                trust when the topic is real.
+              </li>
+              <li>
+                <strong>Beautiful but inflexible</strong> — Calm, Headspace.
+                Strong atmospheric visuals leaning heavily on
+                illustration; emotional warmth, but limited personalisation
+                and no underlying systematic structure.
+              </li>
+            </ul>
+            <p>
+              No one was hitting all three at once: a scalable system, a
+              visual language balancing trust + warmth, and accessibility
+              baked into the foundation rather than retrofitted on top.
+            </p>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-2.avif"
+                 alt="Competitive scan — apps in the mental-health space, mapped along a clinical / playful axis." />
+            <figcaption class="cs-caption">
+              Mapping the field. The gap was a system that felt human
+              without losing structure.
+            </figcaption>
+          </figure>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-3.avif"
+                 alt="Annotated screenshots from existing mental-health apps showing inconsistencies and friction." />
+            <figcaption class="cs-caption">
+              Annotated reference — what to keep, what to deliberately
+              avoid.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="approach" class="cs-section">
+          <span class="cs-section-eyebrow">04 &middot; Approach</span>
+          <h2 class="cs-section-title">Tokens before screens. Foundations before features.</h2>
+          <div class="cs-section-body">
+            <p>
+              Most teams build screens then retrofit a system. I wanted to
+              do the opposite — build the system first, then prove it by
+              dropping it onto screens at the very end. The whole project
+              was a two-week stress test of that idea.
+            </p>
+          </div>
+
+          <blockquote class="cs-callout">
+            Trustworthy without being clinical. Warm without being childish.
+            Accessible without friction.
+          </blockquote>
+
+          <div class="cs-section-body">
+            <p>
+              That single sentence stayed pinned to the cover frame of the
+              system. Three principles came out of it:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Soft, but never sweet.</strong> Generous corner radii
+                and spacing so the interface breathes — but kept restrained
+                so it doesn't tip into childish.
+              </li>
+              <li>
+                <strong>Tokens as the source of truth.</strong> Every colour,
+                spacing value, type style is a token — never a hard-coded
+                value. Theming, dark-mode and accessibility scale from
+                that.
+              </li>
+              <li>
+                <strong>Accessible by default.</strong> WCAG-aligned colour
+                contrast on the foundational palette, scalable type, focus
+                states baked into every interactive component.
+              </li>
+            </ul>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-4.avif"
+                 alt="Foundation principles sketch — soft, tokenised, accessible." />
+            <figcaption class="cs-caption">
+              The three principles, pinned next to the file all week.
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="solution" class="cs-section">
+          <span class="cs-section-eyebrow">05 &middot; Solution</span>
+          <h2 class="cs-section-title">Foundations, then components.</h2>
+          <div class="cs-section-body">
+            <p>
+              The system is structured in two layers: <strong>foundations</strong>
+              (the unopinionated primitives — type, colour, spacing, radius,
+              shadow, icons) and <strong>components</strong> (the opinionated
+              compositions built from them). The split is intentional — it
+              lets future themes change foundations without touching every
+              component.
+            </p>
+          </div>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Typography</h3>
+          <div class="cs-section-body">
+            <p>
+              A consistent set of text styles, each mapped to a token, with
+              guidance on hierarchy, usage and readability. One scale —
+              Display, H1–H4, Body, Caption — enforced across every screen
+              so headings always lead and bodies always feel readable.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-5.avif"
+                 alt="Typography scale — Display through caption, mapped to tokens with usage notes." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Spacing</h3>
+          <div class="cs-section-body">
+            <p>
+              An 8-px base scale (with 4-px micro adjustments where needed)
+              for layout and component composition. Same rhythm across
+              every surface — it's the quiet thing that makes the product
+              feel coherent.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-6.avif"
+                 alt="Spacing scale — 8px-base tokens for padding, gap, and margin." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Border radius</h3>
+          <div class="cs-section-body">
+            <p>
+              Corner treatments standardised across UI elements. Slightly
+              softer on average than typical fintech systems — it's a small
+              tonal lever that pulls the whole product warmer without
+              tipping it into childish.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-7.avif"
+                 alt="Border-radius scale — sm, md, lg, xl, pill — applied consistently across components." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Colours</h3>
+          <div class="cs-section-body">
+            <p>
+              A structured palette for backgrounds, text, borders and
+              interactive elements — every value defined as a token so
+              themes, dark-mode and accessibility variants can layer on top
+              without rewrites. WCAG-AA contrast verified on every text-on-
+              surface pairing.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-8.avif"
+                 alt="Colour palette — semantic tokens for surface, ink, accent, status, with WCAG contrast notes." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Shadows</h3>
+          <div class="cs-section-body">
+            <p>
+              Elevation levels that communicate hierarchy and focus —
+              cards, modals, popovers — without ever feeling material or
+              loud. Every shadow lands within a controlled ramp.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-9.avif"
+                 alt="Shadow / elevation scale — five steps from flat to overlay." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Icons</h3>
+          <div class="cs-section-body">
+            <p>
+              A unified set of symbols supporting navigation, actions and
+              status. Single stroke weight, consistent corner treatment.
+              Designed to read at 16, 20 and 24 px without losing legibility.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-10.avif"
+                 alt="Icon set — single-weight outline icons for navigation, actions, status." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Buttons</h3>
+          <div class="cs-section-body">
+            <p>
+              Standardised action components — variants, sizes and states —
+              that make hierarchy and intent obvious at a glance. Primary,
+              secondary, tertiary; default, hover, active, disabled, loading;
+              all baked into the same component.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-11.avif"
+                 alt="Button system — primary / secondary / tertiary across sizes and states." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Input fields</h3>
+          <div class="cs-section-body">
+            <p>
+              Text inputs with consistent structure across forms — clear
+              labels, helper text, validation, error states. Every field
+              gets its WCAG-aligned focus ring without a developer having to
+              remember to add it.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-12.avif"
+                 alt="Input fields — empty, focused, filled, error, disabled — across single-line and multi-line." />
+          </figure>
+
+          <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Selection controls</h3>
+          <div class="cs-section-body">
+            <p>
+              Checkboxes and radios with consistent interaction patterns —
+              sized for touch, visible focus state, accessible label
+              relationships. The unsexy components most systems forget to
+              get right.
+            </p>
+          </div>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-13.avif"
+                 alt="Checkboxes + radio buttons — every state and size." />
+          </figure>
+        </section>
+
+        <section id="tradeoffs" class="cs-section">
+          <span class="cs-section-eyebrow">06 &middot; Trade-offs</span>
+          <h2 class="cs-section-title">A two-week brief means picking your battles.</h2>
+          <div class="cs-section-body">
+            <p>
+              Two deliberate cuts:
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Dark-mode tokens stayed in v2.</strong> The light
+                theme palette had every WCAG pairing checked; building the
+                full dark variant alongside would have doubled the timeline.
+                We tokenised everything so dark could be added cleanly later
+                — but didn't ship it.
+              </li>
+              <li>
+                <strong>Animation tokens stayed minimal.</strong> Easings and
+                durations were defined as a small set of three. Specific
+                motion patterns (e.g. modal entrances, status transitions)
+                were left for the product team to define when they hit a
+                surface that needed them — instead of speculating up front.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="impact" class="cs-section">
+          <span class="cs-section-eyebrow">07 &middot; Impact</span>
+          <h2 class="cs-section-title">The system, applied.</h2>
+          <div class="cs-section-body">
+            <p>
+              The honest "impact" of a personal project isn't a metric — it's
+              whether the system survives contact with real screens. To test
+              it, I built a handful of screens directly on top of the
+              foundations: no overrides, no exceptions. Hierarchy reads.
+              Buttons feel the same on screen 4 as they do on screen 24.
+              Empty states lead the eye instead of crowding it. The system
+              held.
+            </p>
+          </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-14.webp"
+                 alt="EmoCare onboarding — system tokens applied to a real product screen." />
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-15.webp"
+                 alt="EmoCare home / today screen — calm hierarchy, generous spacing." />
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-16.webp"
+                 alt="EmoCare exercise / journaling flow — consistent typography and motion." />
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-17.avif"
+                 alt="EmoCare profile / settings — same components, different surface." />
+          </figure>
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/emocare/ds-18.webp"
+                 alt="EmoCare assembled — multiple screens shown side-by-side, demonstrating system coherence." />
+          </figure>
+        </section>
+
+        <section id="learnings" class="cs-section">
+          <span class="cs-section-eyebrow">08 &middot; Learnings</span>
+          <h2 class="cs-section-title">What worked, and what I'd push harder on next time.</h2>
+          <div class="cs-section-body">
+            <p>
+              <strong>What worked:</strong> the tokens-first bet. When I
+              finally got to the screens at the end, they came together
+              fast — assembling, not inventing. Hierarchy decisions stopped
+              being decisions; they were already in the file.
+            </p>
+            <p>
+              <strong>What I'd push harder on:</strong>
+            </p>
+            <ul class="cs-list">
+              <li>
+                <strong>Empty + error states.</strong> The system covered
+                the happy path well. The interesting work in mental-health
+                apps is what happens when a user doesn't know what to do
+                next — and we under-invested there in v1.
+              </li>
+              <li>
+                <strong>Dark mode from day one.</strong> Tokenising it for
+                later isn't the same as designing for it now. Choices like
+                shadow opacity and surface tint always benefit from being
+                resolved across both themes simultaneously.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <footer class="cs-foot">
+          <a href="../index.html#work" class="cs-foot-link">
+            <small>← Back to</small> All work
+          </a>
+          <a href="#overview" class="cs-foot-link" style="text-align: right;">
+            <small>Top of</small> This case study
+          </a>
+        </footer>
+
+      </article>
+    </div>
+  </main>
+
+  <script src="../scripts/cursor.js?v=56" defer></script>
+  <script src="../scripts/case-study.js?v=56" defer></script>
+
+</body>
+</html>

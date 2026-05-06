@@ -25,6 +25,26 @@
   const barEl  = document.querySelector('.loader-bar > span');
   if (!loader || !wordEl) return;
 
+  /* Skip the intro entirely if the user is returning from a case-study
+     page (or any page that set sessionStorage.skipLoader). Also skip if
+     the user has seen the loader once this session — second visit to
+     home in the same session shouldn't replay the welcome. */
+  let skip = false;
+  try {
+    if (sessionStorage.getItem('skipLoader') === '1' ||
+        sessionStorage.getItem('loaderSeen') === '1') {
+      skip = true;
+    }
+  } catch (_) { /* sessionStorage may be blocked — fall back to playing */ }
+
+  if (skip) {
+    loader.classList.add('is-fading', 'is-done');
+    document.body.classList.remove('loader-active');
+    try { sessionStorage.removeItem('skipLoader'); } catch (_) {}
+    return;
+  }
+  try { sessionStorage.setItem('loaderSeen', '1'); } catch (_) {}
+
   document.body.classList.add('loader-active');
 
   if (barEl) {
