@@ -53,7 +53,7 @@
           <li><a href="#solution">Solution</a></li>
           <li><a href="#tradeoffs">Trade-offs</a></li>
           <li><a href="#impact">Impact</a></li>
-          <li><a href="#learnings">Learnings</a></li>
+          <!-- <li><a href="#learnings">Learnings</a></li> -->
         </ul>
       </aside>
 
@@ -411,27 +411,27 @@
 
         <section id="tradeoffs" class="cs-section">
           <span class="cs-section-eyebrow">06 &middot; Trade-offs</span>
-          <h2 class="cs-section-title">A one-week brief means choosing what to leave on the wall.</h2>
+          <h2 class="cs-section-title">The call where the obvious answer wasn't the right one.</h2>
           <div class="cs-section-body">
             <p>
-              Two deliberate cuts, both driven by the seven-day clock.
+              One decision where the design could have gone the other way —
+              and the reasoning for landing where we did.
             </p>
             <ul class="cs-list">
               <li>
-                <strong>Filters were minimal in v1.</strong> Power users
-                eventually wanted multi-vendor, date-range, and amount filters
-                stacked on the table. We shipped with stage and search only,
-                because the overview's first job was to be glanceable. Heavier
-                filtering moved into a follow-up release once the daily
-                behaviour was confirmed.
-              </li>
-              <li>
-                <strong>No exports in v1.</strong> Finance teams asked for
-                CSV / Excel export "just in case" — but every interview also
-                showed they were trying to <em>stop</em> using Excel. We bet
-                that adoption would tell us whether export was a real need or
-                a habit. It turned out to be a habit. Export came in v2,
-                quieter than the request implied.
+                <strong>Where the act of settling lives.</strong> The
+                tempting move was to let finance managers settle an advance
+                directly from the Advance Overview — pick the row, choose
+                the invoice, done. We tested it and stepped back. Finance
+                managers' mental model was to settle <em>inside</em> the
+                invoice's detail page, because that's where they already
+                saw the full picture — advance amount, final payable,
+                attached PO, settlement history. Pulling the action up to
+                the overview would have stripped that context, and people
+                were still drilling in to verify before confirming. So we
+                kept the overview as a place to <em>see</em>, and left the
+                <em>act</em> of settlement inside the invoice detail.
+                Less clever, more honest to how they actually work.
               </li>
             </ul>
             <p>
@@ -480,6 +480,7 @@
           </div>
         </section>
 
+        <!-- Learnings section hidden for now — kept here for easy restore.
         <section id="learnings" class="cs-section">
           <span class="cs-section-eyebrow">08 &middot; Learnings</span>
           <h2 class="cs-section-title">What worked, and what I'd push harder on next time.</h2>
@@ -515,6 +516,7 @@
             </ul>
           </div>
         </section>
+        -->
 
         <!-- Footer / next-case nav -->
         <footer class="cs-foot">
