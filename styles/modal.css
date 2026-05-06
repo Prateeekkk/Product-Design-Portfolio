@@ -133,6 +133,35 @@
   color: var(--bg);
   border-bottom-right-radius: 6px;
 }
+
+/* Light-markdown inside AI replies — bullets + bold, kept tight. */
+.bubble.is-ai p { margin: 0 0 8px; }
+.bubble.is-ai p:last-child { margin-bottom: 0; }
+.bubble.is-ai ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0;
+  display: grid;
+  gap: 6px;
+}
+.bubble.is-ai ul:last-child { margin-bottom: 0; }
+.bubble.is-ai li {
+  position: relative;
+  padding-left: 14px;
+  line-height: 1.5;
+}
+.bubble.is-ai li::before {
+  content: '';
+  position: absolute;
+  left: 2px; top: 0.6em;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.bubble.is-ai strong {
+  color: var(--ink);
+  font-weight: 600;
+}
 .bubble.is-thinking {
   font-family: var(--font-serif); font-style: italic;
   background: transparent;

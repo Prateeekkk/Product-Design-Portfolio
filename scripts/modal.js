@@ -60,10 +60,64 @@
 
   /* --- Bubbles --- */
 
+  // Escape any HTML in raw text so we can safely inject our own markup.
+  function escapeHTML(s) {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  // Tiny, safe markdown renderer for AI replies.
+  // Supports: "- " / "* " bullets, **bold**. Everything else stays as text.
+  function renderLightMarkdown(raw) {
+    const lines = raw.replace(/\r\n/g, '\n').split('\n');
+    let html = '';
+    let inList = false;
+    let paraBuf = [];
+
+    function flushPara() {
+      if (paraBuf.length) {
+        html += '<p>' + paraBuf.join('<br>') + '</p>';
+        paraBuf = [];
+      }
+    }
+    function closeList() {
+      if (inList) { html += '</ul>'; inList = false; }
+    }
+
+    function inline(text) {
+      // Escape first, then promote **bold** spans.
+      return escapeHTML(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    for (const line of lines) {
+      const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+      if (bullet) {
+        flushPara();
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += '<li>' + inline(bullet[1]) + '</li>';
+      } else if (line.trim() === '') {
+        flushPara();
+        closeList();
+      } else {
+        closeList();
+        paraBuf.push(inline(line));
+      }
+    }
+    flushPara();
+    closeList();
+    return html;
+  }
+
   function appendBubble(text, who) {
     const b = document.createElement('div');
     b.className = 'bubble is-' + who;
-    b.textContent = text;
+    if (who === 'ai') {
+      b.innerHTML = renderLightMarkdown(text);
+    } else {
+      b.textContent = text;
+    }
     body.appendChild(b);
     body.scrollTop = body.scrollHeight;
     return b;
