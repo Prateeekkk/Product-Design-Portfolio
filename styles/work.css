@@ -93,7 +93,11 @@
 */
 .work-case {
   position: absolute;
-  inset: 0;
+  /* Top offset creates breathing room below the head divider; sides + bottom flush */
+  top: var(--s-7);
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: grid;
   grid-template-columns: 1.35fr 1fr;
   gap: var(--s-9);
@@ -131,7 +135,8 @@
   --intro: 1;
   position: relative;
   height: 100%;
-  max-height: 440px;
+  /* Reduced from 440 to restore bottom breathing after the top offset on .work-case */
+  max-height: 392px;
   /* Intro translation: at intro=0 the wrap sits centred on stage; at 1 it
      lands in its left grid column (+45% of own width). */
   transform: translateX(calc(45% * (1 - var(--intro))));
