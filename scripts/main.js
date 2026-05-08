@@ -49,4 +49,24 @@
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+
+  /*
+    Static-then-animated impact strip.
+    The marquee is held still on first paint so the four metrics read as
+    a calm, intentional row. The body picks up `.has-scrolled` after the
+    user has moved past the hero — at which point CSS turns the marquee
+    on (see styles/impact.css).
+  */
+  const SCROLL_TRIGGER = 80;   // px past the top before the strip animates
+  let scrollFlagged = false;
+  function flagScroll() {
+    if (scrollFlagged) return;
+    if (window.scrollY > SCROLL_TRIGGER) {
+      document.body.classList.add('has-scrolled');
+      scrollFlagged = true;
+      window.removeEventListener('scroll', flagScroll);
+    }
+  }
+  window.addEventListener('scroll', flagScroll, { passive: true });
+  flagScroll();
 })();

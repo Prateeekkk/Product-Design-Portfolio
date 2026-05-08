@@ -68,16 +68,21 @@
   border-radius: var(--r-lg);
   border: 1px solid var(--brd);
   background: var(--white);
+  /* Slightly deeper, layered shadow + a subtle inner highlight so the deck
+     reads more like real stacked cards (and stays readable on warm bg). */
   box-shadow:
-    0 24px 50px -28px rgba(17, 17, 17, 0.18),
-    0 6px 14px -8px rgba(17, 17, 17, 0.08);
+    0 32px 60px -32px rgba(17, 17, 17, 0.22),
+    0 12px 22px -10px rgba(17, 17, 17, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
   padding: var(--s-6);   /* 32px on all sides — 8px grid */
   display: flex;
   flex-direction: column;
   gap: var(--s-4);       /* 16px — was 18px */
   transform-origin: center bottom;
-  transition: transform .55s cubic-bezier(.5, 0, .25, 1),
-              box-shadow .35s ease;
+  /* Softer easing matched to the loader for a consistent feel; longer
+     duration on hover spread so the cards arrive instead of snap. */
+  transition: transform .65s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .4s  ease;
   z-index: calc(10 - var(--i));
   cursor: none;
   text-align: left;
@@ -86,6 +91,28 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   touch-action: none;
+}
+
+/*
+  Back-card visual recession — slight desaturation + reduced opacity so the
+  front card always reads as primary. Front card (i=0) stays at 1, mid (i=1)
+  steps down a little, back (i=2) further. Cleared on hover so all three
+  read clearly when the deck spreads.
+*/
+.exp-card[style*="--i: 1"] {
+  opacity: 0.92;
+  filter: saturate(0.92);
+}
+.exp-card[style*="--i: 2"] {
+  opacity: 0.82;
+  filter: saturate(0.86);
+}
+.exp-stack:hover .exp-card[style*="--i: 1"],
+.exp-stack:focus-within .exp-card[style*="--i: 1"],
+.exp-stack:hover .exp-card[style*="--i: 2"],
+.exp-stack:focus-within .exp-card[style*="--i: 2"] {
+  opacity: 1;
+  filter: none;
 }
 
 /*
@@ -119,20 +146,41 @@
   RIGHT (matching its default right-lean direction). Both back cards
   straighten almost to neutral so the content reads clearly.
 */
+/*
+  Hover spread — front card lifts in place, back cards swing outward.
+  Lighter horizontal spread (was ±340px → now ±300px) keeps cards readable
+  on smaller laptops without clipping; back cards keep a small lean rather
+  than snapping fully upright, so the stacked-deck metaphor still reads.
+*/
+/*
+  Spread state — applied on hover, focus, AND on `.is-previewing` (set by
+  scenes.js for ~1.2s when the section first enters the viewport, so all
+  three cards read at a glance before the deck reforms).
+*/
 .exp-stack:hover .exp-card[style*="--i: 0"],
-.exp-stack:focus-within .exp-card[style*="--i: 0"] {
-  transform: translate3d(var(--drag-x), var(--drag-y), 30px)
+.exp-stack:focus-within .exp-card[style*="--i: 0"],
+.exp-stack.is-previewing .exp-card[style*="--i: 0"] {
+  transform: translate3d(var(--drag-x), calc(-6px + var(--drag-y)), 40px)
              rotate(var(--drag-rot));
 }
 .exp-stack:hover .exp-card[style*="--i: 1"],
-.exp-stack:focus-within .exp-card[style*="--i: 1"] {
-  transform: translate3d(calc(-340px + var(--drag-x)), var(--drag-y), 12px)
-             rotate(calc(-4deg + var(--drag-rot)));
+.exp-stack:focus-within .exp-card[style*="--i: 1"],
+.exp-stack.is-previewing .exp-card[style*="--i: 1"] {
+  transform: translate3d(calc(-300px + var(--drag-x)), calc(-2px + var(--drag-y)), 16px)
+             rotate(calc(-3deg + var(--drag-rot)));
 }
 .exp-stack:hover .exp-card[style*="--i: 2"],
-.exp-stack:focus-within .exp-card[style*="--i: 2"] {
-  transform: translate3d(calc(340px + var(--drag-x)), var(--drag-y), 12px)
-             rotate(calc(4deg + var(--drag-rot)));
+.exp-stack:focus-within .exp-card[style*="--i: 2"],
+.exp-stack.is-previewing .exp-card[style*="--i: 2"] {
+  transform: translate3d(calc(300px + var(--drag-x)), calc(-2px + var(--drag-y)), 16px)
+             rotate(calc(3deg + var(--drag-rot)));
+}
+
+/* Recession reset also fires during preview so back cards read full-strength */
+.exp-stack.is-previewing .exp-card[style*="--i: 1"],
+.exp-stack.is-previewing .exp-card[style*="--i: 2"] {
+  opacity: 1;
+  filter: none;
 }
 
 /* Dragging the front card — instant follow + stronger lift shadow */
@@ -272,9 +320,131 @@
   font-size: var(--fs-h4);         /* 16px */
 }
 
+/* ────────────────────────────────────────────
+   Deck nav — visible cycle controls
+   Arrow buttons + named dots that surface the deck's three roles
+   without forcing the user to discover the drag interaction.
+─────────────────────────────────────────────── */
+.exp-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-4);
+  margin-top: var(--s-7);
+}
+
+.exp-nav-arrow {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--brd);
+  background: var(--white);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  transition: background .2s ease,
+              border-color .2s ease,
+              transform .2s var(--ease-out),
+              color .2s ease;
+}
+.exp-nav-arrow:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+.exp-nav-arrow:active { transform: translateY(0); }
+.exp-nav-arrow:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+/* Disabled state at deck boundaries (linear nav, non-looping) */
+.exp-nav-arrow.is-disabled,
+.exp-nav-arrow[disabled] {
+  opacity: 0.32;
+  pointer-events: none;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.exp-dots {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+}
+.exp-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-55);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  cursor: none;
+  transition: color .2s ease,
+              background .2s ease,
+              border-color .2s ease;
+}
+.exp-dot-mark {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--brd-mid);
+  transition: background .2s ease, transform .2s var(--ease-out);
+  flex-shrink: 0;
+}
+.exp-dot-label {
+  font-weight: 500;
+}
+.exp-dot:hover {
+  color: var(--ink);
+}
+.exp-dot:hover .exp-dot-mark {
+  background: var(--ink-55);
+}
+.exp-dot.is-active {
+  color: var(--ink);
+  background: var(--bg-soft);
+  border-color: var(--brd);
+}
+.exp-dot.is-active .exp-dot-mark {
+  background: var(--amber);
+  transform: scale(1.2);
+}
+.exp-dot:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/*
+  ─── ≤980 : tablet portrait + mobile ───
+  Convert the deck into a single-card carousel.
+
+  Only the card with --i:0 (the active one) is shown. Prev/next arrows +
+  named dots swap which card is active. No vertical stack, no looping.
+  This keeps the deck metaphor intact (one card front-and-center) while
+  staying touch-friendly.
+*/
 @media (max-width: 980px) {
   .experience-head { text-align: left; margin-bottom: var(--s-7); }
-  .exp-stack { height: auto; perspective: none; max-width: 100%; }
+
+  /* Stack acts as the carousel viewport — auto-sized to the active card. */
+  .exp-stack {
+    perspective: none;
+    max-width: 100%;
+    height: auto;
+    min-height: 380px;
+    position: relative;
+  }
+
+  /* All cards become flow-contained; non-active ones are hidden. */
   .exp-card,
   .exp-card[style*="--i: 0"],
   .exp-card[style*="--i: 1"],
@@ -284,8 +454,23 @@
     width: 100%;
     height: auto;
     transform: none !important;
-    margin-bottom: var(--s-4);   /* 16px — 8px grid */
+    filter: none !important;
+    opacity: 1;
+    margin: 0;
     padding: var(--s-5);          /* 24px */
+    display: none;
   }
-  .exp-card:last-child { margin-bottom: 0; }
+  /* The active card is the only one rendered. */
+  .exp-card[style*="--i: 0"] {
+    display: flex;
+  }
+
+  /*
+    Nav is essential on mobile (it's the only way to switch cards now).
+    Slightly more compact; hide the text labels on the dots so all three
+    fit comfortably on a phone-width row alongside the arrows.
+  */
+  .exp-nav { gap: var(--s-3); margin-top: var(--s-6); }
+  .exp-dot-label { display: none; }
+  .exp-dot { padding: 8px 10px; }
 }

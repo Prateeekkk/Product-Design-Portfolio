@@ -1,8 +1,8 @@
 /* Responsive adjustments. Loaded last so it can override section rules.
    Breakpoints (mobile-first reading, but written desktop-down here):
      ≤1100  : tablet / smaller laptop — reduce gutters, stack about layout
-     ≤980   : tablet portrait — already handled in section files (exp-stack)
-     ≤720   : mobile — un-pin scroll-jacked sections, vertical layout, smaller type
+     ≤980   : tablet portrait — un-pin Work, stack exp deck (handled in section files)
+     ≤720   : mobile — un-pin AI playground, hide nav resume, mobile typography
      ≤420   : small phone — tightest spacing + type adjustments
 */
 
@@ -18,6 +18,63 @@
     gap: var(--s-7);
   }
   .about-portrait { position: static; }
+}
+
+/* ─── ≤980 : tablet portrait / small laptop ───────────────────
+   At iPad-portrait widths the Work section's 1.35fr/1fr grid leaves
+   the info column too narrow (~190px), and scroll-jacking on touch
+   feels hostile. Un-pin Work at this breakpoint so it stacks naturally
+   (visual on top, info below). Matches the experience deck which
+   already stacks here. */
+@media (max-width: 980px) {
+  .work-pinned { height: auto !important; }
+  .work-stage {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: var(--s-9) var(--space);
+    grid-template-rows: auto auto;
+  }
+  .work-stage-head { grid-template-columns: 1fr; }
+  .work-progress { display: none; }
+  .work-cases {
+    height: auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-8);
+    margin-top: var(--s-7);
+  }
+  .work-case {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    filter: none;
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    align-items: start;
+  }
+  .work-case[data-state] { opacity: 1; transform: none; filter: none; }
+  .work-case[data-state="current"] .work-info > * {
+    animation: none; opacity: 1; transform: none;
+  }
+  .work-visual-wrap {
+    max-height: none;
+    transform: none !important;
+    aspect-ratio: 16 / 10;
+    height: auto;
+  }
+  .work-visual {
+    clip-path: inset(0 0 0 0) !important;
+    -webkit-clip-path: inset(0 0 0 0) !important;
+  }
+  .work-info {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .work-stage-foot { display: none; }
 }
 
 /* ─── ≤720 : mobile ─────────────────────────────────────────── */
@@ -55,6 +112,20 @@
 
   .nav-links { display: none; }
   .nav-sep   { display: none; }
+
+  /*
+    Mobile nav: only logo + AI CTA fit comfortably on a phone-width row.
+    Resume is hidden here (it's a Drive link best opened on desktop and is
+    still reachable via the footer LinkedIn / contact). The AI CTA is the
+    modern-workflow signal, so it stays — slightly compacted.
+  */
+  .nav-resume { display: none; }
+  .nav-cta {
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .nav-cta-label { font-size: 12px; }
 
   .section { padding: var(--section-pad-y) var(--space); }
 
@@ -185,11 +256,65 @@
     --fs-h3:      clamp(16px, 4.6vw, 19px);
   }
 
-  /* Keep CTA label visible — it's the primary action on mobile */
-  .nav-cta-label  { display: inline; font-size: 11px; }
-  .nav-resume     { padding: var(--s-1) var(--s-2); }
-  .nav-resume-arrow { display: none; }   /* tighten resume button */
+  /* Final shrink of CTA on tiny phones — keep dot + label, narrow padding */
+  .nav-cta { padding: 5px 9px; font-size: 11.5px; gap: 5px; }
+  .nav-cta-label { font-size: 11.5px; }
 
   /* Modal already full-bleed at ≤720; sharpen the corners on smallest phones */
   .modal { border-radius: 12px 12px 0 0; }
+}
+
+/*
+  ─── Mobile typography & spacing normalizers ───
+  On mobile the homepage and case-study sections were using a mix of
+  hard-coded body sizes (13.5, 14.5, 15.5 px) inherited from desktop
+  layouts. Force everything to a single 14.5 px body baseline so the
+  reading rhythm is consistent across pages, regardless of section.
+  Eyebrows, titles and captions still scale via their own tokens.
+*/
+@media (max-width: 720px) {
+  /* Body-text baseline — all paragraph-style copy on mobile */
+  .subtext,
+  .about-narrative p,
+  .beliefs-list li,
+  .currently-item dd,
+  .ai-flow-lede,
+  .ai-flow-step-body,
+  .ai-flow-cta-text p,
+  .work-info-line,
+  .cs-section-body p,
+  .cs-section-body li,
+  .cs-list li,
+  .cs-deck {
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+  /* Slightly tighter for callouts & figcaption (kept feeling like meta) */
+  .cs-callout {
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  .cs-caption {
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+
+  /* Section vertical rhythm — unify spacing between sections.
+     Many sections were mixing var(--s-7..s-9) for their head margins;
+     normalize to a single 48px below the section header on mobile. */
+  .ai-flow-head,
+  .experience-head,
+  .testimonials-head,
+  .about-head,
+  .work-stage-head {
+    margin-bottom: var(--s-7) !important;   /* 48px — overrides inline desktop margin */
+  }
+
+  /* Case-study section spacing: consistent vertical rhythm between sections */
+  .cs-section {
+    margin-top: var(--s-8);      /* 64px */
+  }
+  .cs-section-title {
+    margin-bottom: var(--s-5);   /* 24px */
+  }
 }

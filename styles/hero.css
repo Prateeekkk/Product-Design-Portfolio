@@ -29,13 +29,20 @@
   position: relative;
 }
 
-/* Soft warm halo behind the headline. */
+/*
+  Soft warm halo behind the headline.
+  width is clamped to viewport so it never pushes the document wider than
+  the screen on mobile (a fixed 720px halo would otherwise blow out the
+  visualViewport on phones, knocking fixed elements like the nav and
+  modals past the right edge).
+*/
 .hero-left::before {
   content: '';
   position: absolute;
   top: -80px; left: 50%;
   transform: translateX(-50%);
-  width: 720px; height: 520px;
+  width: min(720px, 100vw);
+  height: 520px;
   background: radial-gradient(ellipse, rgba(255,252,240,0.65) 0%, transparent 68%);
   pointer-events: none;
   z-index: 0;

@@ -9,13 +9,41 @@
   z-index: 999;
   background: var(--ink);
   pointer-events: auto;
-  transition: opacity .9s cubic-bezier(.4, 0, .2, 1);
-  will-change: opacity;
+  /* Softer, slightly longer ease for a more premium dissolve.
+     The canvas eases out with a tiny scale settle + brief blur so the
+     handover into the homepage feels intentional, not abrupt. */
+  transition:
+    opacity   1.05s cubic-bezier(.22, 1, .36, 1),
+    transform 1.05s cubic-bezier(.22, 1, .36, 1),
+    filter    .9s   ease;
+  will-change: opacity, transform, filter;
+  transform-origin: center 58%;
 }
+
+/*
+  Subtle ambient glow under the greeting — adds depth to the dark canvas
+  without competing with the word. Fades out on `.is-fading`.
+*/
+.loader::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 60vmax; height: 60vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at center,
+    rgba(255, 248, 230, 0.06) 0%,
+    rgba(255, 248, 230, 0.02) 32%,
+    transparent 60%);
+  pointer-events: none;
+  transition: opacity .6s ease;
+}
+.loader.is-fading::before { opacity: 0; }
 
 /* When fading out, the entire loader gently dissolves to transparent. */
 .loader.is-fading {
   opacity: 0;
+  transform: scale(1.015);
+  filter: blur(2px);
   pointer-events: none;
 }
 

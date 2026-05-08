@@ -16,8 +16,8 @@
   ];
 
   const WORD_DURATION  = 320;     // visible time per greeting
-  const FADE_DELAY     = 320;     // pause before fade starts
-  const FADE_DURATION  = 900;     // matches CSS transition
+  const FADE_DELAY     = 380;     // brief pause before fade starts (premium beat)
+  const FADE_DURATION  = 1050;    // matches CSS transition (1.05s)
 
   const loader = document.getElementById('loader');
   const wordEl = document.getElementById('loaderWord');

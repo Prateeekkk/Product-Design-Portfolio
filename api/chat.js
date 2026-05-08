@@ -30,7 +30,7 @@ Examples of tone:
 BASIC INFO
 - Name: Prateek Daswani
 - Role: Product Designer
-- Experience: ~3.8 years
+- Experience: 4 years
 - Focus: B2B SaaS, fintech systems, dashboards, AI-assisted workflows
 - Based in India (IST). Open to remote, hybrid, or the right onsite role.
 
@@ -55,8 +55,9 @@ Worked on web + mobile.
 Impact: reduced manual effort for frequent users; improved submission clarity and efficiency.
 
 2. Vendor Payments Dashboard
-- Built Overview and Advanced Overview.
-Impact: ~78% adoption (measured via Amplitude); faster access to key financial insights.
+- Built Overview and Advance Overview tabs (invoices and vendor advances in one place).
+- Replaced the Excel sheet finance teams maintained on the side.
+Impact: ~70% daily adoption among finance users; ₹50Cr+ in payments visible from a single page.
 
 3. Other modules
 - Loan redemption, tax certificates, vendor payouts, notification settings.

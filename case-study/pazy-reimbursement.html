@@ -4,20 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pazy Reimbursement — Prateek Daswani</title>
-  <meta name="description" content="Case study: redesigning Pazy's mobile reimbursement experience in one week — a multi-claim, session-based flow that cut claim time roughly in half." />
+  <meta name="description" content="Case study: redesigning Pazy's mobile reimbursement experience — a multi-claim, session-based flow that cut claim time roughly in half. Designed in ~2 weeks; adoption measured ~1 month post-launch." />
 
   <!-- Reuse the global design system from the main site -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
 
-  <link rel="stylesheet" href="../styles/tokens.css?v=56" />
-  <link rel="stylesheet" href="../styles/base.css?v=56" />
-  <link rel="stylesheet" href="../styles/cursor.css?v=56" />
-  <link rel="stylesheet" href="../styles/nav.css?v=56" />
-  <link rel="stylesheet" href="../styles/contact.css?v=56" />
-  <link rel="stylesheet" href="../styles/case-study.css?v=56" />
-  <link rel="stylesheet" href="../styles/responsive.css?v=56" />
+  <link rel="stylesheet" href="../styles/tokens.css?v=66" />
+  <link rel="stylesheet" href="../styles/base.css?v=66" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=66" />
+  <link rel="stylesheet" href="../styles/nav.css?v=66" />
+  <link rel="stylesheet" href="../styles/contact.css?v=66" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=66" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=66" />
 </head>
 <body>
 
@@ -25,16 +25,23 @@
   <div id="cdot" class="c-dot" aria-hidden="true"></div>
   <div id="cring" class="c-ring" aria-hidden="true"></div>
 
-  <!-- Top nav (simplified — back to portfolio) -->
+  <!-- Top nav — mirrors the homepage nav for consistency.
+       The "Resume" slot is replaced by "Back to portfolio" since case
+       studies are sub-pages; the AI CTA is preserved so the workflow
+       differentiator is reachable from anywhere. -->
   <nav class="nav">
     <div class="nav-inner">
       <a href="../index.html" class="nav-logo">Prateek</a>
+
       <ul class="nav-links">
         <li><a href="../index.html#work" class="active">Work</a></li>
         <li><a href="../index.html#about">About</a></li>
         <li><a href="../index.html#ai">AI Playground</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
       </ul>
+
       <span class="nav-sep" aria-hidden="true"></span>
+
       <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
     </div>
   </nav>
@@ -71,8 +78,8 @@
           <h1 class="cs-title">A reimbursement flow built for how people actually file claims.</h1>
           <p class="cs-deck">
             Pazy's mobile reimbursement module supported one claim at a time. The
-            people using it were filing eight at once, on a Sunday. In one week
-            we redesigned the flow around how member users actually behaved —
+            people using it were filing eight at once, on a Sunday. We
+            redesigned the flow around how member users actually behaved —
             and cut claim time roughly <strong>in half</strong>.
           </p>
 
@@ -82,20 +89,12 @@
               <span class="cs-meta-value">Product Designer</span>
             </div>
             <div class="cs-meta-item">
-              <span class="cs-meta-label">Team</span>
-              <span class="cs-meta-value">PM &middot; 1 Developer</span>
-            </div>
-            <div class="cs-meta-item">
               <span class="cs-meta-label">Timeline</span>
-              <span class="cs-meta-value">1 week</span>
+              <span class="cs-meta-value">~2 weeks · adoption measured 1 month later</span>
             </div>
             <div class="cs-meta-item">
               <span class="cs-meta-label">Surface</span>
               <span class="cs-meta-value">Mobile</span>
-            </div>
-            <div class="cs-meta-item">
-              <span class="cs-meta-label">Company</span>
-              <span class="cs-meta-value">Pazy</span>
             </div>
           </div>
 
@@ -131,8 +130,10 @@
               one claim at a time, and almost nobody used it that way.
             </p>
             <p>
-              I worked with the PM and one developer to rebuild the mobile flow
-              in <strong>one week</strong>.
+              I worked with the PM and one developer on this. Design + reviews
+              took roughly <strong>two weeks</strong>; the impact numbers below
+              were captured about <strong>a month after launch</strong>, once
+              the flow had a few real billing cycles behind it.
             </p>
           </div>
 
@@ -193,17 +194,6 @@
               <li>Because of delayed payouts, users <strong>forgot what they'd already claimed</strong>.</li>
             </ul>
           </div>
-
-          <figure>
-            <img class="cs-image"
-                 src="../assets/case-study/reimbursement/journey-mapping.avif"
-                 alt="Journey map of a frequent member user's weekly reimbursement workflow — annotated with friction points around repetition and lack of progress feedback." />
-            <figcaption class="cs-caption">
-              Journey-mapping the weekend session. The map made the
-              disconnect obvious: how the user operated vs. how the product
-              worked.
-            </figcaption>
-          </figure>
         </section>
 
         <section id="users" class="cs-section">
@@ -230,6 +220,17 @@
               </li>
             </ul>
           </div>
+
+          <figure>
+            <img class="cs-image"
+                 src="../assets/case-study/reimbursement/journey-mapping.avif"
+                 alt="Journey map of a frequent member user's weekly reimbursement workflow — annotated with friction points around repetition and lack of progress feedback." />
+            <figcaption class="cs-caption">
+              Journey-mapping the frequent submitter's weekend session.
+              The map made the disconnect obvious: how the user operated
+              vs. how the product worked.
+            </figcaption>
+          </figure>
         </section>
 
         <section id="approach" class="cs-section">
@@ -310,7 +311,7 @@
             </p>
           </div>
           <img class="cs-image"
-               src="../assets/case-study/reimbursement/final-2-duplicate.webp"
+               src="../assets/case-study/reimbursement/final-3-bulk.webp"
                alt="Duplicate action on an existing claim — copy carries forward merchant + category + cost-centre, leaves date and amount editable." />
 
           <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">Bulk edit and delete</h3>
@@ -324,7 +325,7 @@
             </p>
           </div>
           <img class="cs-image"
-               src="../assets/case-study/reimbursement/final-3-bulk.webp"
+               src="../assets/case-study/reimbursement/final-2-duplicate.webp"
                alt="Bulk select state on the session list — multi-select toolbar with edit and delete actions for power users." />
 
           <h3 class="cs-section-body" style="font-family: var(--font-serif); font-size: var(--fs-h3); color: var(--ink); margin: var(--s-7) 0 var(--s-4);">A running list, always in view</h3>
@@ -343,11 +344,11 @@
 
         <section id="tradeoffs" class="cs-section">
           <span class="cs-section-eyebrow">06 &middot; Trade-offs</span>
-          <h2 class="cs-section-title">A one-week brief means choosing what not to build.</h2>
+          <h2 class="cs-section-title">A short brief means choosing what not to build.</h2>
           <div class="cs-section-body">
             <p>
               Two choices worth being honest about. Both deliberate, both
-              driven by the seven-day clock.
+              driven by a tight design window.
             </p>
             <ul class="cs-list">
               <li>
@@ -366,10 +367,6 @@
                 themselves — OCR was the accelerator on top, never the path.
               </li>
             </ul>
-            <p>
-              Some details on internal approval logic are under NDA — happy to
-              walk through the approach in conversation.
-            </p>
           </div>
         </section>
 
@@ -384,7 +381,7 @@
             </div>
             <div class="cs-stat">
               <span class="cs-stat-num">3×</span>
-              <span class="cs-stat-label">jump in single-session multi-claim filings post-launch</span>
+              <span class="cs-stat-label">jump in single-session multi-claim filings, ~1 month post-launch</span>
             </div>
           </div>
 
@@ -451,8 +448,8 @@
   </main>
 
   <!-- Scripts -->
-  <script src="../scripts/cursor.js?v=56" defer></script>
-  <script src="../scripts/case-study.js?v=56" defer></script>
+  <script src="../scripts/cursor.js?v=66" defer></script>
+  <script src="../scripts/case-study.js?v=66" defer></script>
 
 </body>
 </html>

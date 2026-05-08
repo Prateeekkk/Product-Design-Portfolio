@@ -128,20 +128,104 @@
     });
   }
 
-  /* ---------- Drag for Experience stack — drag front card to reorder ---------- */
+  /* ---------- Experience stack — drag, click-nav, auto-preview ----------
+     Linear (non-looping) navigation. `currentIdx` runs 0 → N-1 over the
+     three cards in their natural order (Eximpe, Pazy, Mongoosh). Prev/next
+     advance by ±1, clamped at the boundaries — and the prev button is
+     disabled at the first card, next at the last. This makes the deck
+     read as a finite carousel instead of an infinite cycle.
+
+     Internally we still rebuild `order` so the front card is `currentIdx`
+     and the rest sit behind it in stable left-to-right sequence — that
+     way the deck-stacked desktop view continues to fan out correctly.
+  */
   function dragExpStack(stackSelector) {
     const stack = document.querySelector(stackSelector);
     if (!stack) return;
     const cards = Array.from(stack.querySelectorAll('.exp-card'));
     if (!cards.length) return;
 
-    // Order array — current ordering of cards (front=0 → back=N-1)
-    let order = cards.map((c, i) => i);
+    let order = cards.map((c, i) => i);   // [front, ...behind]
+    let currentIdx = 0;                   // 0..N-1 (linear position)
+
     function applyOrder() {
       order.forEach((cardIndex, position) => {
         cards[cardIndex].style.setProperty('--i', String(position));
       });
+      syncNav();
     }
+
+    /* Place the active card at the front, others behind in original order. */
+    function rebuildOrder() {
+      order = [currentIdx];
+      for (let i = 0; i < cards.length; i++) {
+        if (i !== currentIdx) order.push(i);
+      }
+      applyOrder();
+    }
+
+    /* ── Visible nav: arrows + named dots ──
+       The dots use original card indices (Eximpe=0, Pazy=1, Mongoosh=2)
+       so jumping is direct and unambiguous. */
+    const prevBtn = document.querySelector('[data-exp-prev]');
+    const nextBtn = document.querySelector('[data-exp-next]');
+    const dots    = Array.from(document.querySelectorAll('[data-exp-jump]'));
+
+    function syncNav() {
+      dots.forEach((dot) => {
+        const target = parseInt(dot.dataset.expJump, 10);
+        dot.classList.toggle('is-active', target === currentIdx);
+      });
+      if (prevBtn) {
+        prevBtn.classList.toggle('is-disabled', currentIdx === 0);
+        prevBtn.toggleAttribute('disabled', currentIdx === 0);
+      }
+      if (nextBtn) {
+        nextBtn.classList.toggle('is-disabled', currentIdx === cards.length - 1);
+        nextBtn.toggleAttribute('disabled', currentIdx === cards.length - 1);
+      }
+    }
+
+    function setIdx(newIdx) {
+      const clamped = Math.max(0, Math.min(cards.length - 1, newIdx));
+      if (clamped === currentIdx) return;
+      currentIdx = clamped;
+      rebuildOrder();
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => setIdx(currentIdx - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => setIdx(currentIdx + 1));
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const target = parseInt(dot.dataset.expJump, 10);
+        if (!isNaN(target)) setIdx(target);
+      });
+    });
+
+    /* ── Auto-preview on viewport entry ──
+       The first time the stack scrolls into view, briefly add
+       `.is-previewing` so all three cards fan open — then collapse back
+       to the deck. Recruiters scanning fast see all three companies at a
+       glance without needing to discover the drag/click interaction. */
+    if ('IntersectionObserver' in window) {
+      let previewed = false;
+      const PREVIEW_HOLD = 1300;   // ms cards stay spread
+      const PREVIEW_DELAY = 320;   // ms after entry before opening
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !previewed) {
+            previewed = true;
+            setTimeout(() => {
+              stack.classList.add('is-previewing');
+              setTimeout(() => stack.classList.remove('is-previewing'), PREVIEW_HOLD);
+            }, PREVIEW_DELAY);
+            io.unobserve(stack);
+          }
+        });
+      }, { threshold: 0.35 });
+      io.observe(stack);
+    }
+
     applyOrder();
 
     cards.forEach((card, cardIndex) => {
@@ -212,14 +296,24 @@
           card.style.setProperty('--drag-rot', exitRot + 'deg');
 
           setTimeout(() => {
-            // Reset drag offsets BEFORE reordering so the back card lands
-            // directly in its slot without a visual snap.
+            // Reset drag offsets BEFORE the index change so the new front
+            // card lands directly in its slot without a visual snap.
             card.style.setProperty('--drag-x', '0px');
             card.style.setProperty('--drag-y', '0px');
             card.style.setProperty('--drag-rot', '0deg');
-            const front = order.shift();
-            order.push(front);
-            applyOrder();
+            // Linear (non-looping) advance: drag-up/left = previous,
+            // drag-down/right = next. At boundaries the deck snaps back
+            // instead of wrapping — matches the prev/next button behavior.
+            const goNext = (dx > 0 || dy > 0);
+            const target = goNext ? currentIdx + 1 : currentIdx - 1;
+            const clamped = Math.max(0, Math.min(cards.length - 1, target));
+            if (clamped === currentIdx) {
+              // At boundary — just rebuild to reset the drag offsets cleanly
+              applyOrder();
+            } else {
+              currentIdx = clamped;
+              rebuildOrder();
+            }
             setTimeout(() => card.classList.remove('is-cycling'), 50);
           }, 320);
         } else {

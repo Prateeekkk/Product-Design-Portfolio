@@ -1,4 +1,234 @@
 /*
+  ─────────────────────────────────────────────────
+  AI in my workflow — NEW (replaces the experimental playground)
+  ─────────────────────────────────────────────────
+  Four-step grid that explains how AI fits into Prateek's design loop:
+    01 Frame · 02 Prototype · 03 Stress-test · 04 Hand off
+  Each step is a card with a numeric stamp, a short body, and the tools
+  used. The whole block scrolls naturally — no scroll-jacking, no drag.
+*/
+
+.ai-flow {
+  position: relative;
+  padding: var(--section-pad-y) var(--space);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.ai-flow-head {
+  display: block;
+  margin-bottom: var(--s-9);
+  max-width: 720px;
+}
+.ai-flow-head .eyebrow { margin-bottom: var(--s-5); }
+.ai-flow-head .section-title { margin-top: var(--s-3); }
+.ai-flow-lede {
+  margin-top: var(--s-4);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-loose);
+  color: var(--ink-55);
+  max-width: 580px;
+}
+
+/* Four-up grid on desktop, 2-up on tablet, single column on mobile */
+.ai-flow-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-5);
+  margin: 0;
+  padding: 0;
+}
+
+.ai-flow-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  box-shadow:
+    0 24px 40px -28px rgba(17, 17, 17, 0.14),
+    0 4px 10px -6px rgba(17, 17, 17, 0.06);
+  transition: transform .35s var(--ease-out),
+              box-shadow .35s ease,
+              border-color .25s ease;
+}
+.ai-flow-step:hover {
+  transform: translateY(-3px);
+  border-color: var(--brd-mid);
+  box-shadow:
+    0 36px 56px -28px rgba(17, 17, 17, 0.20),
+    0 8px 18px -6px rgba(17, 17, 17, 0.10);
+}
+
+.ai-flow-step-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--brd);
+}
+.ai-flow-step-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  color: var(--amber);
+  line-height: 1;
+}
+.ai-flow-step-tag {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+}
+
+.ai-flow-step-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: var(--s-1) 0 0;
+}
+
+.ai-flow-step-body {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-80);
+  margin: 0;
+  flex-grow: 1;
+}
+
+.ai-flow-step-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--brd);
+  margin-top: var(--s-3);
+}
+.ai-flow-step-tool {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 500;
+  padding: 3px 9px;
+  border: 1px solid var(--brd);
+  border-radius: var(--r-pill);
+  background: var(--bg-soft);
+}
+.ai-flow-step-meta {
+  width: 100%;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-55);
+  margin-top: var(--s-2);
+}
+
+/* Bottom CTA — "Talk to my AI" entry that anchors the section */
+.ai-flow-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+  margin-top: var(--s-9);
+  padding: var(--s-6);
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+}
+.ai-flow-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  max-width: 520px;
+}
+.ai-flow-cta-eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+}
+.ai-flow-cta-text p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-80);
+}
+
+.ai-flow-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--bg);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--r-pill);
+  cursor: none;
+  transition: transform .25s var(--ease-out),
+              background .25s ease;
+  white-space: nowrap;
+}
+.ai-flow-cta-btn:hover {
+  transform: translateY(-1px);
+  background: #2a2a28;
+}
+.ai-flow-cta-btn-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgba(82, 168, 122, 0.18);
+}
+.ai-flow-cta-btn-arrow {
+  font-size: 12px;
+  transition: transform .25s var(--ease-out);
+}
+.ai-flow-cta-btn:hover .ai-flow-cta-btn-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Responsive collapse */
+@media (max-width: 1100px) {
+  .ai-flow-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .ai-flow-grid { grid-template-columns: 1fr; gap: var(--s-4); }
+  .ai-flow-step { padding: var(--s-5); }
+  .ai-flow-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding: var(--s-5);
+  }
+  .ai-flow-cta-btn { align-self: stretch; justify-content: center; }
+}
+
+/* Hide the legacy scattered playground entirely (kept in HTML for restore) */
+.ai-pinned-legacy { display: none !important; }
+
+/*
+  ─────────────────────────────────────────────────
+  LEGACY — original scattered draggable playground.
+  Preserved below for easy restore. Not rendered (parent uses
+  .ai-pinned-legacy → display:none).
+  ─────────────────────────────────────────────────
+*/
+
+/*
   AI Playground — scattered, scroll-assembled, draggable cards on a board.
 
   Cards are absolutely positioned at intentional but slightly varied

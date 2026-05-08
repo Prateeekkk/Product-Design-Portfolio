@@ -30,16 +30,49 @@
   background: linear-gradient(270deg, var(--bg-soft) 0%, transparent 100%);
 }
 
+/*
+  Desktop ≥1101px: STATIC.   Four metrics centred, no animation, calm.
+  Mobile / tablet ≤1100px: CAROUSEL marquee — there isn't space for the
+  four items on a single static row, so the strip becomes a continuous
+  horizontal carousel that the user can scan as it scrolls past.
+
+  `.impact` has `overflow: hidden` so the duplicated track gets clipped
+  to the viewport without affecting document scroll width.
+*/
+
+/* DEFAULT (mobile + tablet, ≤1100px) — carousel marquee. */
 .impact-track {
   display: flex;
   align-items: center;
   gap: 0;
   width: max-content;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  margin: 0;
   animation: impact-marquee 42s linear infinite;
 }
 
 .impact:hover .impact-track {
   animation-play-state: paused;
+}
+
+/* DESKTOP (≥1101px) — static row, no animation, four items centred. */
+@media (min-width: 1101px) {
+  .impact-track {
+    width: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    animation: none;
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+  /* On desktop the duplicate marquee group is redundant — hide it so the
+     centred row reads cleanly as four. The mobile carousel state above
+     keeps both groups so the loop has something to scroll into. */
+  .impact-track > .impact-item:nth-of-type(n + 5),
+  .impact-track > .impact-sep:nth-of-type(n + 5) {
+    display: none;
+  }
 }
 
 /* Each item is a fixed-width column so spacing is even and rhythmic */
