@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eximpe — Transaction Monitoring &amp; Reconciliation — Prateek Daswani</title>
+  <meta name="description" content="Case study: building the operational surfaces — Transaction Monitoring System, reconciliation, and internal ops dashboards — for Eximpe, a cross-border payments platform. Designed close to implementation with an AI-assisted prototyping loop." />
+
+  <!-- Google Analytics (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMX8DPNZTF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KMX8DPNZTF');
+  </script>
+
+  <!-- Reuse the global design system from the main site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
+
+  <link rel="stylesheet" href="../styles/tokens.css?v=83" />
+  <link rel="stylesheet" href="../styles/base.css?v=83" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=83" />
+  <link rel="stylesheet" href="../styles/nav.css?v=83" />
+  <link rel="stylesheet" href="../styles/contact.css?v=83" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=83" />
+  <link rel="stylesheet" href="../styles/ai-playground.css?v=83" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=83" />
+
+  <!-- Page-specific styles for the abstracted demo visuals.
+       Everything here is NDA-safe — no real Eximpe screens, fictitious
+       transaction IDs and vendors. -->
+  <style>
+    /* Generic ops-card frame — wraps every demo */
+    .cs-demo {
+      width: 100%;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--white);
+      box-shadow:
+        0 24px 50px -32px rgba(13,13,11,.18),
+        0 4px 10px -6px rgba(13,13,11,.06);
+      position: relative;
+    }
+    .cs-demo-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--brd);
+      background: var(--bg-soft);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .cs-demo-bar i {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--brd-mid);
+    }
+    .cs-demo-bar i:first-child { background: var(--green); }
+    .cs-demo-body { padding: 18px 22px; }
+    .cs-demo-tag {
+      margin-left: auto;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 11.5px;
+      color: var(--ink-25);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* TMS overview header — KPI tiles + filter row */
+    .tms-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .tms-kpi {
+      padding: 12px 14px;
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      background: var(--bg-soft);
+    }
+    .tms-kpi b {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      display: block;
+      line-height: 1.1;
+    }
+    .tms-kpi span {
+      display: block;
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      margin-top: 4px;
+    }
+    .tms-kpi.is-warn b { color: #a26a25; }
+    .tms-kpi.is-fail b { color: #a73838; }
+
+    /* Transaction table */
+    .tms-table { width: 100%; font-size: 11.5px; }
+    .tms-table-head,
+    .tms-table-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr 1fr 0.9fr 0.9fr;
+      gap: 8px;
+      padding: 9px 10px;
+      align-items: center;
+    }
+    .tms-table-head {
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-55);
+      font-weight: 500;
+      font-size: 9.5px;
+    }
+    .tms-table-row {
+      border: 1px solid var(--brd);
+      border-top: none;
+      color: var(--ink-80);
+    }
+    .tms-table-row:last-child { border-radius: 0 0 6px 6px; }
+
+    .tms-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid transparent;
+      justify-self: start;
+    }
+    .tms-pill.is-paid     { background: rgba(82,168,122,.12);  color: #3e8a5c; border-color: rgba(82,168,122,.24); }
+    .tms-pill.is-pending  { background: rgba(214,142,50,.12);  color: #a26a25; border-color: rgba(214,142,50,.26); }
+    .tms-pill.is-mismatch { background: rgba(214,142,50,.14);  color: #a26a25; border-color: rgba(214,142,50,.28); }
+    .tms-pill.is-failed   { background: rgba(200,70,70,.12);   color: #a73838; border-color: rgba(200,70,70,.26); }
+    .tms-pill.is-dup      { background: rgba(140,110,200,.14); color: #6a4fa6; border-color: rgba(140,110,200,.28); }
+
+    /* Reconciliation 3-column board */
+    .recon-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .recon-col {
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      background: var(--bg-soft);
+      padding: 10px;
+    }
+    .recon-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .recon-col-head b {
+      font-family: var(--font-serif);
+      font-size: 12px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      text-transform: none;
+      font-weight: 500;
+    }
+    .recon-card {
+      background: var(--white);
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--ink-80);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px 8px;
+    }
+    .recon-card:last-child { margin-bottom: 0; }
+    .recon-card b {
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .recon-card em {
+      font-style: normal;
+      font-size: 9.5px;
+      color: var(--ink-55);
+      grid-column: 1 / -1;
+      letter-spacing: 0.02em;
+    }
+    .recon-card.is-warn { border-color: rgba(214,142,50,.4); background: rgba(255,250,238,.6); }
+    .recon-card.is-fail { border-color: rgba(200,70,70,.35); background: rgba(255,247,247,.7); }
+
+    /* Drawer / detail-panel mock */
+    .ops-drawer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+    .ops-drawer-section {
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .ops-drawer-section h4 {
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin: 0 0 8px;
+    }
+    .ops-drawer-section dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 11px; }
+    .ops-drawer-section dt { color: var(--ink-55); }
+    .ops-drawer-section dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .ops-drawer-section dd.is-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10.5px; }
+
+    .ops-drawer-timeline {
+      grid-column: 1 / -1;
+    }
+    .ops-drawer-timeline ol {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 6px;
+      font-size: 11px; color: var(--ink-80);
+    }
+    .ops-drawer-timeline li {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+    }
+    .ops-drawer-timeline time {
+      font-size: 10px;
+      color: var(--ink-25);
+      letter-spacing: 0.02em;
+    }
+
+    /* Token / handoff strip — consistent with .demo-impl-tokens */
+    .ops-tokens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 16px;
+    }
+    .ops-tokens li {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+      padding: 6px 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-radius: 4px;
+      align-items: center;
+      font-size: 10.5px;
+    }
+    .ops-tokens li b {
+      font-weight: 500;
+      color: var(--ink-55);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+    .ops-tokens li span {
+      color: var(--ink);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 10px;
+    }
+
+    /* Side-by-side compare blocks for "before / after" */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .compare-col {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-md);
+      background: var(--bg-soft);
+      padding: 14px;
+    }
+    .compare-col h4 {
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      margin: 0 0 8px;
+      font-weight: 500;
+    }
+    .compare-col p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ink-80);
+      line-height: 1.55;
+    }
+    .compare-col.is-after h4 { color: var(--amber); }
+
+    @media (max-width: 720px) {
+      .tms-kpis { grid-template-columns: repeat(2, 1fr); }
+      .tms-table-head, .tms-table-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 10.5px;
+      }
+      .tms-table-head > span:nth-child(4),
+      .tms-table-head > span:nth-child(5),
+      .tms-table-row  > span:nth-child(4),
+      .tms-table-row  > span:nth-child(5) { display: none; }
+      .recon-board { grid-template-columns: 1fr; }
+      .ops-drawer { grid-template-columns: 1fr; }
+      .ops-tokens { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .real-tms-tabs { gap: 4px; overflow-x: auto; }
+      .real-tms-cols { grid-template-columns: 1.4fr 1fr 0.8fr; }
+      .real-tms-cols > *:nth-child(4),
+      .real-tms-cols > *:nth-child(5),
+      .real-tms-cols > *:nth-child(6) { display: none; }
+      .iterations-grid { grid-template-columns: 1fr; }
+    }
+
+    /*
+      Real-TMS recreation — matches the production design.
+      NDA-safe: fictitious merchant names, demo transaction IDs.
+      All values made up; visual structure mirrors the shipped UI.
+    */
+    .real-tms {
+      width: 100%;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 50px -32px rgba(13,13,11,.18), 0 4px 10px -6px rgba(13,13,11,.05);
+    }
+    .real-tms-chrome {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: #fff; border-bottom: 1px solid var(--brd);
+    }
+    .real-tms-chrome i { width: 7px; height: 7px; border-radius: 50%; background: #DDD; }
+    .real-tms-chrome i:first-child { background: #E48A6A; }
+    .real-tms-url {
+      flex: 1; margin-left: 12px;
+      font-size: 10.5px; color: var(--ink-25);
+      letter-spacing: 0.02em;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    .real-tms-user {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10.5px; color: var(--ink-80);
+    }
+    .real-tms-user-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 9.5px; font-weight: 600;
+    }
+    .real-tms-user-role { color: var(--ink-55); font-size: 9.5px; }
+
+    /* Page header */
+    .real-tms-head {
+      padding: 16px 18px 0;
+      background: #fff;
+    }
+    .real-tms-h1 {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin: 0 0 2px;
+    }
+    .real-tms-sub {
+      font-size: 11.5px;
+      color: var(--ink-55);
+      margin: 0 0 12px;
+    }
+
+    /* Tabs */
+    .real-tms-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--brd);
+      padding: 0;
+      background: #fff;
+    }
+    .real-tms-tab {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 14px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-55);
+      border-bottom: 2px solid transparent;
+      cursor: default;
+      white-space: nowrap;
+      letter-spacing: -0.002em;
+    }
+    .real-tms-tab.is-active {
+      color: #0F766E; /* teal-700 */
+      border-bottom-color: #0F766E;
+    }
+    .real-tms-tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 16px;
+      padding: 0 5px;
+      border-radius: 8px;
+      background: rgba(13,13,11,0.06);
+      color: var(--ink-80);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+    .real-tms-tab.is-active .real-tms-tab-count {
+      background: rgba(15, 118, 110, 0.12);
+      color: #0F766E;
+    }
+
+    /* Filter toolbar */
+    .real-tms-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 18px;
+      background: #fff;
+      border-bottom: 1px solid var(--brd);
+      flex-wrap: wrap;
+    }
+    .real-tms-search {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--ink-25);
+      min-width: 220px;
+    }
+    .real-tms-search::before {
+      content: '⌕';
+      font-size: 12px;
+      color: var(--ink-25);
+    }
+    .real-tms-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 9px;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--ink-80);
+      font-weight: 500;
+    }
+    .real-tms-chip.is-active {
+      background: rgba(15, 118, 110, 0.08);
+      border-color: rgba(15, 118, 110, 0.30);
+      color: #0F766E;
+    }
+    .real-tms-chip-caret {
+      font-size: 9px;
+      color: var(--ink-55);
+    }
+
+    /* Table */
+    .real-tms-cols {
+      display: grid;
+      grid-template-columns: 1.3fr 1.6fr 0.9fr 0.9fr 1.1fr 0.7fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .real-tms-table-head {
+      padding: 9px 18px;
+      background: #FAFAF8;
+      border-bottom: 1px solid var(--brd);
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .real-tms-row {
+      padding: 11px 18px;
+      background: #fff;
+      border-bottom: 1px solid #F0EFE9;
+      font-size: 11.5px;
+      color: var(--ink);
+      cursor: default;
+    }
+    .real-tms-row:last-child { border-bottom: none; }
+    .real-tms-row:hover { background: #FAFAF8; }
+    .real-tms-row.is-escalated { background: rgba(99, 102, 241, 0.04); }
+    .real-tms-row.is-clarification { background: rgba(14, 165, 233, 0.04); }
+    .real-tms-row .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 10.5px;
+      color: var(--ink);
+    }
+    .real-tms-row .sub {
+      display: block;
+      font-size: 9.5px;
+      color: var(--ink-55);
+      margin-top: 1px;
+    }
+    .real-tms-row .amt {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+
+    /* Status pills (match the real palette: orange flagged, indigo escalated, teal cleared, red rejected) */
+    .real-tms-pill {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .real-tms-pill.is-flagged       { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+    .real-tms-pill.is-clarification { background: #F0F9FF; color: #0369A1; border-color: #BAE6FD; }
+    .real-tms-pill.is-escalated     { background: #EEF2FF; color: #4338CA; border-color: #C7D2FE; }
+    .real-tms-pill.is-po-review     { background: #FAF5FF; color: #7E22CE; border-color: #E9D5FF; }
+    .real-tms-pill.is-cleared       { background: #ECFDF5; color: #047857; border-color: #A7F3D0; }
+    .real-tms-pill.is-rejected      { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+    .real-tms-pill.is-pending       { background: #FFFBEB; color: #B45309; border-color: #FDE68A; }
+
+    /* Rule / FRM badges (match real design: orange box with rule count) */
+    .real-tms-rules {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: #C2410C;
+      font-weight: 500;
+    }
+    .real-tms-rules::before {
+      content: '⚠';
+      font-size: 9px;
+    }
+    .real-tms-frm {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: #B91C1C;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+    .real-tms-frm::before {
+      content: '◆';
+      font-size: 8px;
+    }
+
+    /* SLA cell colors */
+    .real-tms-sla { color: var(--ink-80); font-variant-numeric: tabular-nums; }
+    .real-tms-sla.is-warn { color: #B45309; font-weight: 500; }
+    .real-tms-sla.is-breach { color: #B91C1C; font-weight: 500; }
+
+    /* Detail drawer */
+    .real-tms-detail {
+      padding: 18px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      border-top: 1px solid var(--brd);
+    }
+    .real-tms-detail-panel {
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .real-tms-detail-h {
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .real-tms-detail-rule {
+      display: grid;
+      grid-template-columns: 60px 1fr auto;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #F0EFE9;
+      font-size: 11px;
+      align-items: center;
+    }
+    .real-tms-detail-rule:last-child { border-bottom: none; }
+    .real-tms-detail-rule b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: #C2410C;
+      font-weight: 500;
+      font-size: 10.5px;
+    }
+    .real-tms-detail-rule span {
+      color: var(--ink-80);
+      line-height: 1.4;
+    }
+    .real-tms-detail-rule em {
+      font-style: normal;
+      font-size: 10px;
+      color: var(--ink-55);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .real-tms-actions {
+      display: flex; gap: 6px;
+      padding-top: 12px; border-top: 1px solid var(--brd);
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .real-tms-btn {
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid var(--brd);
+      background: #fff;
+      color: var(--ink);
+      cursor: default;
+    }
+    .real-tms-btn.is-approve { background: #047857; color: #fff; border-color: #047857; }
+    .real-tms-btn.is-reject  { background: #B91C1C; color: #fff; border-color: #B91C1C; }
+    .real-tms-btn.is-escalate { background: #4338CA; color: #fff; border-color: #4338CA; }
+    .real-tms-btn.is-check    { background: #0369A1; color: #fff; border-color: #0369A1; }
+
+    /*
+      Iterations grid — rejected design directions with sketch + reason.
+      Each card shows a small mock of the rejected approach and the
+      reason it was rejected.
+    */
+    .iterations-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: var(--s-5);
+    }
+    @media (max-width: 720px) {
+      .iterations-grid { grid-template-columns: 1fr !important; }
+      .iteration-sketch { height: 140px; }
+    }
+    .iteration {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: var(--bg-soft);
+      overflow: hidden;
+    }
+    .iteration-sketch {
+      height: 160px;
+      background: #fff;
+      border-bottom: 1px solid var(--brd);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .iteration-body {
+      padding: 14px 16px;
+    }
+    .iteration-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .iteration-tag::before {
+      content: '✕';
+      color: #B91C1C;
+      font-size: 11px;
+    }
+    .iteration-title {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin: 0 0 6px;
+    }
+    .iteration-body p {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--ink-80);
+      line-height: 1.55;
+    }
+    .iteration-body p strong { color: var(--ink); font-weight: 500; }
+
+    /* Iteration sketch — V1: single mega-table (rainbow rows) */
+    .sketch-rainbow {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sketch-rainbow > i {
+      flex: 1;
+      border-radius: 3px;
+      display: block;
+    }
+    .sketch-rainbow > i:nth-child(1) { background: #FFF7ED; border: 1px solid #FED7AA; }
+    .sketch-rainbow > i:nth-child(2) { background: #ECFDF5; border: 1px solid #A7F3D0; }
+    .sketch-rainbow > i:nth-child(3) { background: #EEF2FF; border: 1px solid #C7D2FE; }
+    .sketch-rainbow > i:nth-child(4) { background: #FEF2F2; border: 1px solid #FECACA; }
+    .sketch-rainbow > i:nth-child(5) { background: #FFFBEB; border: 1px solid #FDE68A; }
+    .sketch-rainbow > i:nth-child(6) { background: #FAF5FF; border: 1px solid #E9D5FF; }
+
+    /* Iteration sketch — V2: inline approve/reject in row */
+    .sketch-inline {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; gap: 6px;
+      justify-content: center;
+    }
+    .sketch-inline-row {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 8px;
+      padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+    }
+    .sketch-inline-row .label {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .sketch-inline-row .label b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 9.5px; color: var(--ink); font-weight: 500;
+    }
+    .sketch-inline-row .label em {
+      font-style: normal; font-size: 9px; color: var(--ink-55);
+    }
+    .sketch-inline-row .btns {
+      display: flex; gap: 4px;
+    }
+    .sketch-inline-row .btns span {
+      padding: 3px 7px; border-radius: 3px;
+      font-size: 8.5px; font-weight: 500;
+    }
+    .sketch-inline-row .btns .a { background: #047857; color: #fff; }
+    .sketch-inline-row .btns .r { background: #B91C1C; color: #fff; }
+
+    /* Iteration sketch — V3: rules as count only */
+    .sketch-count {
+      display: flex; flex-direction: column; gap: 6px;
+      width: 100%;
+    }
+    .sketch-count-row {
+      display: grid; grid-template-columns: 1.2fr 1fr 0.5fr; gap: 8px;
+      align-items: center; padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+      font-size: 9.5px; color: var(--ink-80);
+    }
+    .sketch-count-row .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 2px 6px; border-radius: 3px;
+      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
+      font-size: 9.5px; font-weight: 500;
+    }
+    .sketch-count-row b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--ink); font-weight: 500;
+    }
+
+    /* Iteration sketch — V4: separate rule chips */
+    .sketch-chips {
+      display: flex; flex-direction: column; gap: 6px; width: 100%;
+    }
+    .sketch-chips-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+      font-size: 9.5px;
+    }
+    .sketch-chips-row b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--ink); font-weight: 500; font-size: 9.5px;
+    }
+    .sketch-chips-row .chips {
+      display: inline-flex; gap: 4px; margin-left: auto; flex-wrap: wrap;
+    }
+    .sketch-chips-row .chips span {
+      padding: 1px 6px; border-radius: 99px;
+      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
+      font-size: 8.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor (matches main site) -->
+  <div id="cdot" class="c-dot" aria-hidden="true"></div>
+  <div id="cring" class="c-ring" aria-hidden="true"></div>
+
+  <!-- Top nav — mirrors the homepage nav for consistency.
+       The "Resume" slot is replaced by "Back to portfolio" since case
+       studies are sub-pages. -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">Prateek</a>
+
+      <ul class="nav-links">
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#ai">AI Playground</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+
+      <span class="nav-sep" aria-hidden="true"></span>
+
+      <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
+    </div>
+  </nav>
+
+  <main class="cs-shell">
+    <div class="cs-wrap">
+
+      <aside class="cs-sidenav">
+        <span class="cs-sidenav-label">On this page</span>
+        <ul class="cs-sidenav-list">
+          <li><a href="#overview" class="is-active">Context</a></li>
+          <li><a href="#problem">Problem</a></li>
+          <li><a href="#constraints">Constraints</a></li>
+          <li><a href="#approach">Approach</a></li>
+          <li><a href="#solution">Solution</a></li>
+          <li><a href="#iterations">Iterations</a></li>
+          <li><a href="#edge-cases">Edge cases</a></li>
+          <li><a href="#impact">Impact</a></li>
+          <li><a href="#learnings">Learnings</a></li>
+        </ul>
+      </aside>
+
+      <article class="cs-main">
+
+        <a href="../index.html#work" class="cs-back">
+          <span class="cs-back-arrow">←</span> Back to work
+        </a>
+
+        <header>
+          <span class="cs-eyebrow">
+            <span class="cs-eyebrow-dot"></span>
+            Eximpe &middot; Cross-border Payments
+          </span>
+          <h1 class="cs-title">Bringing transaction monitoring and reconciliation in-house.</h1>
+          <p class="cs-deck">
+            Eximpe was renting these two capabilities from an external
+            payments partner — paying a commission on every transaction
+            and inheriting somebody else's ops UX. An RBI approval
+            unlocked building both surfaces ourselves. I owned the design
+            end-to-end, prototyped in working code with AI, and shipped
+            to engineering.
+          </p>
+
+          <div class="cs-meta">
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Role</span>
+              <span class="cs-meta-value">Product Designer · research → design → prototype → ship</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Timeline</span>
+              <span class="cs-meta-value">~1–2 weeks per surface · shipped, pre-adoption</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Surface</span>
+              <span class="cs-meta-value">Web · internal Eximpe ops team</span>
+            </div>
+          </div>
+
+          <!-- Hero visual — recreation of the Action Required queue.
+               Matches the shipped TMS design (tabs, rule badges, SLA
+               colours, action set). All data is demo / fictitious. -->
+          <figure style="margin-top: var(--s-7);">
+            <div class="real-tms">
+              <div class="real-tms-chrome">
+                <i></i><i></i><i></i>
+                <span class="real-tms-url">eximpe.com/compliance/tms</span>
+                <span class="real-tms-user">
+                  <span class="real-tms-user-avatar">PS</span>
+                  <span>
+                    Priya Sharma
+                    <span class="real-tms-user-role">· Compliance Officer</span>
+                  </span>
+                </span>
+              </div>
+
+              <div class="real-tms-head">
+                <h3 class="real-tms-h1">Transaction Monitoring</h3>
+                <p class="real-tms-sub">Compliance queue — flagged transactions awaiting review.</p>
+
+                <div class="real-tms-tabs">
+                  <span class="real-tms-tab is-active">
+                    Action Required <span class="real-tms-tab-count">6</span>
+                  </span>
+                  <span class="real-tms-tab">
+                    Escalation Queue <span class="real-tms-tab-count">2</span>
+                  </span>
+                  <span class="real-tms-tab">Cases</span>
+                  <span class="real-tms-tab">Cleared Payments</span>
+                  <span class="real-tms-tab">Refunded</span>
+                </div>
+              </div>
+
+              <div class="real-tms-toolbar">
+                <span class="real-tms-search">Search by merchant, txn ID, customer…</span>
+                <span class="real-tms-chip is-active">Last 7 days <span class="real-tms-chip-caret">▾</span></span>
+                <span class="real-tms-chip">Violation: All <span class="real-tms-chip-caret">▾</span></span>
+                <span class="real-tms-chip">Time in queue <span class="real-tms-chip-caret">▾</span></span>
+                <span class="real-tms-chip">Payment method <span class="real-tms-chip-caret">▾</span></span>
+                <span class="real-tms-chip">Merchant <span class="real-tms-chip-caret">▾</span></span>
+              </div>
+
+              <div class="real-tms-cols real-tms-table-head">
+                <span>Transaction</span>
+                <span>Merchant</span>
+                <span>Amount</span>
+                <span>Method</span>
+                <span>Violations</span>
+                <span>Queue</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row">
+                <span>
+                  <span class="mono">TXN-2026-001847</span>
+                  <span class="sub">11 Mar · 14:32</span>
+                </span>
+                <span>
+                  Aditya Birla Textiles
+                  <span class="sub">SM-4821 · PSP submerchant</span>
+                </span>
+                <span class="amt">₹2,85,000</span>
+                <span>Wire Transfer</span>
+                <span>
+                  <span class="real-tms-rules">2 rules</span>
+                </span>
+                <span class="real-tms-sla">3h 47m</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row">
+                <span>
+                  <span class="mono">TXN-2026-001823</span>
+                  <span class="sub">11 Mar · 11:15</span>
+                </span>
+                <span>
+                  Sunrise Exports Ltd.
+                  <span class="sub">MR-9034 · Direct merchant</span>
+                </span>
+                <span class="amt">₹18,75,000</span>
+                <span>SWIFT</span>
+                <span>
+                  <span class="real-tms-rules">2 rules</span>
+                </span>
+                <span class="real-tms-sla">6h 22m</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row">
+                <span>
+                  <span class="mono">TXN-2026-001799</span>
+                  <span class="sub">11 Mar · 09:48</span>
+                </span>
+                <span>
+                  Tata International Trading
+                  <span class="sub">SM-3372 · PSP submerchant</span>
+                </span>
+                <span class="amt">₹5,20,000</span>
+                <span>UPI</span>
+                <span>
+                  <span class="real-tms-rules">2 rules</span>
+                </span>
+                <span class="real-tms-sla">7h 55m</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row is-clarification">
+                <span>
+                  <span class="mono">TXN-2026-001756</span>
+                  <span class="sub">10 Mar · 22:11</span>
+                </span>
+                <span>
+                  Indo-Gulf Commodities
+                  <span class="sub">MR-7821 · Direct merchant</span>
+                </span>
+                <span class="amt">₹9,40,000</span>
+                <span>Credit Card</span>
+                <span>
+                  <span class="real-tms-rules">1 rule</span><span class="real-tms-frm">FRM</span>
+                </span>
+                <span class="real-tms-sla is-warn">20h 30m</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row">
+                <span>
+                  <span class="mono">TXN-2026-001734</span>
+                  <span class="sub">10 Mar · 16:30</span>
+                </span>
+                <span>
+                  Mahindra Logistics Sub
+                  <span class="sub">SM-6641 · PSP submerchant</span>
+                </span>
+                <span class="amt">₹3,15,000</span>
+                <span>NEFT</span>
+                <span>
+                  <span class="real-tms-rules">1 rule</span>
+                </span>
+                <span class="real-tms-sla is-warn">1d 2h</span>
+              </div>
+
+              <div class="real-tms-cols real-tms-row">
+                <span>
+                  <span class="mono">TXN-2026-001721</span>
+                  <span class="sub">10 Mar · 09:22</span>
+                </span>
+                <span>
+                  Reliance Trade International
+                  <span class="sub">MR-2209 · Direct merchant</span>
+                </span>
+                <span class="amt">₹77,80,000</span>
+                <span>Wire Transfer</span>
+                <span>
+                  <span class="real-tms-rules">3 rules</span>
+                </span>
+                <span class="real-tms-sla is-breach">1d 9h</span>
+              </div>
+            </div>
+            <figcaption class="cs-caption">
+              The Action Required queue — Compliance Officer view.
+              Layout, status palette, rule and FRM badges, SLA colours,
+              and the action set are all from the shipped design.
+              Merchants, transaction IDs and amounts are demo data;
+              the production system is under NDA.
+            </figcaption>
+          </figure>
+        </header>
+
+        <!-- ──────────── Sections ──────────── -->
+
+        <section id="overview" class="cs-section">
+          <span class="cs-section-eyebrow">01 &middot; Context</span>
+          <h2 class="cs-section-title">AML compliance for a cross-border payments licensee.</h2>
+          <div class="cs-section-body">
+            <p>
+              Eximpe is RBI-licensed under <strong>PA-CB</strong>, routing
+              inward remittances from Indian buyers to international
+              merchants. Under <strong>PMLA</strong> and <strong>FEMA</strong>,
+              every transaction comes with compliance obligations —
+              including filing STRs with FIU-IND when warranted.
+            </p>
+            <ol class="cs-list">
+              <li><strong>TMS.</strong> 27 AML rules + an FRM layer flag transactions for human review. A four-role chain — Compliance Officer → Senior CO → Principal Officer — decides each one.</li>
+              <li><strong>Reconciliation.</strong> Cleared transactions match against the PA-PG partner's settlement file. Mismatches hold for ops.</li>
+            </ol>
+            <p>
+              TMS is the compliance gate before Recon. Most of the
+              design work — and the harder problem — sat in TMS.
+            </p>
+          </div>
+        </section>
+
+        <section id="problem" class="cs-section">
+          <span class="cs-section-eyebrow">02 &middot; Problem</span>
+          <h2 class="cs-section-title">We were renting the most important parts of the stack.</h2>
+          <div class="cs-section-body">
+            <p>
+              Eximpe ran TMS and Recon through an external payments
+              partner. Two consequences: a commission on every
+              transaction, and an ops UX we couldn't shape — partner's
+              conventions, partner's data model, partner's queues.
+            </p>
+            <p>
+              An <strong>RBI approval</strong> unlocked owning the
+              stack. The mandate: build both in-house, migrate ops off
+              the partner, stop paying the commission.
+            </p>
+          </div>
+
+          <blockquote class="cs-callout">
+            The design problem wasn't "what should this screen look
+            like." It was: the first version had to feel <em>more
+            trustworthy</em> than the tool ops was already using — not
+            just equivalent.
+          </blockquote>
+        </section>
+
+        <section id="constraints" class="cs-section">
+          <span class="cs-section-eyebrow">03 &middot; Constraints</span>
+          <h2 class="cs-section-title">Three real constraints.</h2>
+          <div class="cs-section-body">
+            <ul class="cs-list">
+              <li><strong>No users to interview.</strong> Internal-only product, no live ops team yet. Designed from stakeholder context + industry pattern, not interview transcripts.</li>
+              <li><strong>Heavy NDA scope.</strong> Real screens, customer data and partner identifiers stayed internal. The case study explains decisions, not pixels.</li>
+              <li><strong>~1–2 weeks per surface.</strong> Tight cycle: research → design → prototype → handoff. I prototyped in working code (with AI), not static screens.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="approach" class="cs-section">
+          <span class="cs-section-eyebrow">04 &middot; Approach</span>
+          <h2 class="cs-section-title">Designing without users — and shipping fast anyway.</h2>
+          <div class="cs-section-body">
+            <p>How do you design for an ops team that doesn't exist yet? Triangulate, instead of waiting:</p>
+            <ul class="cs-list">
+              <li><strong>Pattern research with Perplexity.</strong> Stripe Radar, Razorpay, public bank-recon UX — read as a literature review, not a copy source.</li>
+              <li><strong>Stakeholder calls instead of user interviews.</strong> Ops, finance and engineering had all lived inside the partner dashboard. Three calls gave me the vocabulary and the must-have actions.</li>
+              <li><strong>Prototype as the validation surface.</strong> Layout in Figma, working frontend in Claude Code. Stakeholders reviewed in a real browser — exposing empty / loading / "I clicked but nothing happened" states Figma can't show.</li>
+              <li><strong>Ship to the engineering repo, not a Figma link.</strong> The prototype became a frontend scaffold engineering extended. Handoff was a PR review.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="solution" class="cs-section">
+          <span class="cs-section-eyebrow">05 &middot; Solution</span>
+          <h2 class="cs-section-title">Two surfaces, designed to be operated in sequence.</h2>
+          <div class="cs-section-body">
+            <p>
+              The early product decision I argued for:
+              <strong>ship TMS before Recon, not in parallel.</strong>
+              Recon can't reconcile what TMS hasn't cleared. Shipping
+              both at once gives ops two new tools and trust in neither.
+              Both surfaces share the same layout, status palette and
+              vocabulary — one model to learn, reused.
+            </p>
+          </div>
+
+          <h3 class="cs-subhead">1 &middot; Transaction Monitoring (TMS)</h3>
+          <div class="cs-section-body">
+            <p>
+              First surface in the flow. Every transaction is screened
+              for fraud, risk and policy before it can move downstream.
+              KPI tiles answer <em>where are we today?</em>; the table
+              is the working surface — filterable, selectable, drill-downable.
+            </p>
+          </div>
+          <figure>
+            <div class="cs-demo">
+              <div class="cs-demo-bar">
+                <i></i><i></i><i></i>
+                <span style="margin-left: 6px;">TMS · Today's view</span>
+                <span class="cs-demo-tag">representative</span>
+              </div>
+              <div class="cs-demo-body">
+                <div class="tms-kpis">
+                  <div class="tms-kpi"><b>4,820</b><span>Transactions</span></div>
+                  <div class="tms-kpi"><b>$ 18.4M</b><span>Volume</span></div>
+                  <div class="tms-kpi is-warn"><b>112</b><span>Review queue</span></div>
+                  <div class="tms-kpi is-fail"><b>14</b><span>Flagged</span></div>
+                </div>
+                <div class="tms-table">
+                  <div class="tms-table-head">
+                    <span>Reference</span>
+                    <span>Counter-party</span>
+                    <span>Amount</span>
+                    <span>Currency</span>
+                    <span>Status</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48211</span><span>Pioneer Trading Ltd.</span><span>$ 24,800</span><span>USD → INR</span>
+                    <span class="tms-pill is-paid">Settled</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48212</span><span>Northbay Logistics</span><span>$ 9,420</span><span>USD → INR</span>
+                    <span class="tms-pill is-pending">Pending</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48214</span><span>Halmark Imports</span><span>€ 14,200</span><span>EUR → INR</span>
+                    <span class="tms-pill is-mismatch">Mismatch</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">01</b><span>KPI tiles answer "where are we today?" Review and Flagged use status colour so the eye lands there first.</span></li>
+              <li><b class="cs-pointer-num">02</b><span>One 5-state palette across TMS and Recon (Settled · Pending · Mismatch · Duplicate · Failed) — no context-switching downstream.</span></li>
+              <li><b class="cs-pointer-num">03</b><span>Currency shows the route (USD → INR), not just the symbol. The FX rail is the story for a cross-border product.</span></li>
+            </ol>
+          </figure>
+
+          <h3 class="cs-subhead">2 &middot; Reconciliation</h3>
+          <div class="cs-section-body">
+            <p>
+              Downstream of TMS. Eximpe's record matches against the
+              bank's record line-for-line. Most pairs auto-match into
+              <em>Matched</em>. The operator's day is the other two
+              columns: <em>Needs review</em> (drift, partial captures,
+              timing) and <em>Flagged</em> (stop, decide).
+            </p>
+          </div>
+          <figure>
+            <div class="cs-demo">
+              <div class="cs-demo-bar">
+                <i></i><i></i><i></i>
+                <span style="margin-left: 6px;">Reconciliation · Apr cycle</span>
+                <span class="cs-demo-tag">representative</span>
+              </div>
+              <div class="cs-demo-body">
+                <div class="recon-board">
+                  <div class="recon-col">
+                    <div class="recon-col-head"><b>Matched</b><span>982</span></div>
+                    <div class="recon-card"><span>INV-2041</span><b>$ 12,400</b><em>Pioneer Trading · matched 09:14</em></div>
+                    <div class="recon-card"><span>INV-2042</span><b>$ 8,200</b><em>Northbay · matched 09:18</em></div>
+                    <div class="recon-card"><span>INV-2043</span><b>$ 4,600</b><em>Sentinel · matched 09:22</em></div>
+                  </div>
+                  <div class="recon-col">
+                    <div class="recon-col-head"><b>Needs review</b><span>112</span></div>
+                    <div class="recon-card is-warn"><span>INV-2044</span><b>$ 14,200</b><em>amount drift · 0.3%</em></div>
+                    <div class="recon-card is-warn"><span>INV-2045</span><b>$ 9,400</b><em>partial capture · 2 of 3</em></div>
+                    <div class="recon-card is-warn"><span>INV-2046</span><b>$ 6,200</b><em>timing drift · T+1</em></div>
+                  </div>
+                  <div class="recon-col">
+                    <div class="recon-col-head"><b>Flagged</b><span>14</span></div>
+                    <div class="recon-card is-fail"><span>INV-2047</span><b>$ 24,800</b><em>duplicate ref · TXN-48211</em></div>
+                    <div class="recon-card is-fail"><span>INV-2048</span><b>$ 6,400</b><em>FX failure · partner timeout</em></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">01</b><span>Three columns, decreasing cardinality, increasing attention. Most rows live in Matched; the day is the other two.</span></li>
+              <li><b class="cs-pointer-num">02</b><span>Reason is on the card — "amount drift · 0.3%", "partial capture · 2 of 3" — so the operator doesn't open a row to know what's wrong.</span></li>
+              <li><b class="cs-pointer-num">03</b><span>Flagged links the offending sibling reference inline. Duplicate rows show their twin without a search.</span></li>
+            </ol>
+          </figure>
+
+          <h3 class="cs-subhead">3 &middot; Transaction detail (shared drawer)</h3>
+          <div class="cs-section-body">
+            <p>
+              Shared by both surfaces. Organised around the four
+              questions an operator asks: <em>what is it · what state
+              · what's happened · what next</em>. One component to
+              learn, one for engineering to maintain.
+            </p>
+          </div>
+          <figure>
+            <div class="cs-demo">
+              <div class="cs-demo-bar">
+                <i></i><i></i><i></i>
+                <span style="margin-left: 6px;">TXN-48214 · drawer view</span>
+                <span class="cs-demo-tag">representative</span>
+              </div>
+              <div class="ops-drawer">
+                <div class="ops-drawer-section">
+                  <h4>Transaction</h4>
+                  <dl>
+                    <dt>Reference</dt><dd class="is-mono">TXN-48214</dd>
+                    <dt>Counter-party</dt><dd>Halmark Imports</dd>
+                    <dt>Amount</dt><dd>€ 14,200.00</dd>
+                    <dt>Route</dt><dd>EUR → INR</dd>
+                  </dl>
+                </div>
+                <div class="ops-drawer-section">
+                  <h4>State</h4>
+                  <dl>
+                    <dt>Status</dt><dd><span class="tms-pill is-mismatch">Mismatch</span></dd>
+                    <dt>Reason</dt><dd>Amount drift · 0.4%</dd>
+                    <dt>Bank ref</dt><dd class="is-mono">BANK-AX-9981</dd>
+                    <dt>Owner</dt><dd>Ops · A. Krishnan</dd>
+                  </dl>
+                </div>
+                <div class="ops-drawer-section ops-drawer-timeline">
+                  <h4>Timeline</h4>
+                  <ol>
+                    <li><time>09:14</time><span>Initiated · Halmark Imports → INR account</span></li>
+                    <li><time>09:18</time><span>Partner accepted · routed via FX corridor 04</span></li>
+                    <li><time>09:42</time><span>Bank statement received · amount drift detected</span></li>
+                    <li><time>09:42</time><span>Auto-flagged · moved to <em>Needs review</em></span></li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+            <ol class="cs-pointers">
+              <li><b class="cs-pointer-num">01</b><span>Transaction + State read together as the at-a-glance summary — "do I need to act?" before scrolling.</span></li>
+              <li><b class="cs-pointer-num">02</b><span>Timeline is the source of truth. Every state change is timestamped; handoffs link the drawer with full context.</span></li>
+              <li><b class="cs-pointer-num">03</b><span>References are monospaced — searchable, copyable, easy to call out in Slack.</span></li>
+            </ol>
+          </figure>
+        </section>
+
+        <section id="iterations" class="cs-section">
+          <span class="cs-section-eyebrow">06 &middot; Iterations</span>
+          <h2 class="cs-section-title">What I tried before this — and why it didn't ship.</h2>
+          <div class="cs-section-body">
+            <p>
+              The shipped TMS is the fourth or fifth shape this surface
+              took. Most rejected directions look reasonable in
+              isolation — they fail when you sit a Compliance Officer
+              in front of them.
+            </p>
+          </div>
+
+          <div class="iterations-grid">
+
+            <!-- Iteration 01 — single mega-table for all roles -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-rainbow">
+                  <i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Rejected</span>
+                <h3 class="iteration-title">Single table for every status.</h3>
+                <p>
+                  One filterable table with every status and role-based
+                  filters. <strong>Broke under use:</strong> each role
+                  had a different action set, so the row menu became
+                  "show buttons your role can click." Replaced with
+                  role-scoped tabs (Action Required, Escalation Queue,
+                  PO Queue) — each user sees only their own queue.
+                </p>
+              </div>
+            </div>
+
+            <!-- Iteration 02 — inline action buttons in the row -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-inline">
+                  <div class="sketch-inline-row">
+                    <div class="label">
+                      <b>TXN-2026-001847</b>
+                      <em>Aditya Birla Textiles · ₹2,85,000</em>
+                    </div>
+                    <div class="btns">
+                      <span class="a">Approve</span>
+                      <span class="r">Reject</span>
+                    </div>
+                  </div>
+                  <div class="sketch-inline-row">
+                    <div class="label">
+                      <b>TXN-2026-001721</b>
+                      <em>Reliance Trade Intl. · ₹77,80,000</em>
+                    </div>
+                    <div class="btns">
+                      <span class="a">Approve</span>
+                      <span class="r">Reject</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Rejected</span>
+                <h3 class="iteration-title">Inline approve / reject in every row.</h3>
+                <p>
+                  Looked "fast." Three problems: every action needs a
+                  <strong>mandatory note</strong> for the audit trail
+                  (so the button opened a modal anyway); a one-click
+                  approve on ₹77,80,000 is one slipped finger from a
+                  compliance incident; approving without the rules
+                  context is exactly what PMLA expects officers not to
+                  do. Final: row → drawer → confirm modal + note + reason.
+                </p>
+              </div>
+            </div>
+
+            <!-- Iteration 03 — rules shown as count only -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-count">
+                  <div class="sketch-count-row">
+                    <b>TXN-…01847</b>
+                    <span>Aditya Birla</span>
+                    <span class="num">2</span>
+                  </div>
+                  <div class="sketch-count-row">
+                    <b>TXN-…01721</b>
+                    <span>Reliance Trade</span>
+                    <span class="num">3</span>
+                  </div>
+                  <div class="sketch-count-row">
+                    <b>TXN-…01756</b>
+                    <span>Indo-Gulf</span>
+                    <span class="num">1</span>
+                  </div>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Rejected</span>
+                <h3 class="iteration-title">Rules shown as a count only.</h3>
+                <p>
+                  Clean. Compact. <strong>Useless.</strong> The
+                  officer's first question is never <em>how many</em> —
+                  it's <em>which ones</em>. Forcing rows open to find
+                  out broke scan-flow. Replaced with the orange badge
+                  that surfaces rule IDs on hover. Density stayed,
+                  signal came back.
+                </p>
+              </div>
+            </div>
+
+            <!-- Iteration 04 — separate rule chips per rule -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-chips">
+                  <div class="sketch-chips-row">
+                    <b>TXN-…01847</b>
+                    <div class="chips">
+                      <span>RUL01</span><span>RUL05</span>
+                    </div>
+                  </div>
+                  <div class="sketch-chips-row">
+                    <b>TXN-…01721</b>
+                    <div class="chips">
+                      <span>RUL04</span><span>RUL16</span><span>RUL27</span>
+                    </div>
+                  </div>
+                  <div class="sketch-chips-row">
+                    <b>TXN-…01799</b>
+                    <div class="chips">
+                      <span>RUL07</span><span>RUL09</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Rejected</span>
+                <h3 class="iteration-title">One chip per rule, inline in the row.</h3>
+                <p>
+                  Solved the "which rules?" problem, broke layout. Rows
+                  now had variable width, and with merchants firing 3–4
+                  rules the Violations column dominated — orange turned
+                  into noise. Settled on a single aggregate badge with
+                  rule IDs on hover. One token, same info, predictable
+                  layout.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          <blockquote class="cs-callout">
+            Every "obvious" iteration failed at a test that wasn't
+            visible in the Figma file. Working prototypes — not mocks
+            — surfaced those tests early.
+          </blockquote>
+        </section>
+
+        <section id="edge-cases" class="cs-section">
+          <span class="cs-section-eyebrow">07 &middot; Edge cases</span>
+          <h2 class="cs-section-title">The job is the failure modes.</h2>
+          <div class="cs-section-body">
+            <p>
+              Clean transactions need a number, not a surface. The
+              surface is for the ones that don't fit. Five edge cases
+              shaped almost every screen:
+            </p>
+            <ul class="cs-list">
+              <li><strong>Amount mismatch.</strong> Drift sits on the card itself (<em>amount drift · 0.3%</em>) — operator doesn't open the drawer to find out it's just a fee. Resolution: accept, escalate, investigate.</li>
+              <li><strong>Duplicate transactions.</strong> Sibling reference linked inline. Operator confirms, doesn't search.</li>
+              <li><strong>FX failure.</strong> Pill names the corridor (<em>Failed · FX</em>), not just "Failed." "Failed" with no reason was the most-cited complaint about the previous tool.</li>
+              <li><strong>Timing drift.</strong> Late settlement file → row visibly stuck instead of quietly aging.</li>
+              <li><strong>Manual override.</strong> Lives in the drawer with a mandatory reason; timeline records it so the audit trail stays honest.
+              </li>
+            </ul>
+          </div>
+
+          <figure>
+            <div class="cs-demo">
+              <div class="cs-demo-bar">
+                <i></i><i></i><i></i>
+                <span style="margin-left: 6px;">Edge-case row states · close-up</span>
+                <span class="cs-demo-tag">representative</span>
+              </div>
+              <div class="cs-demo-body">
+                <div class="tms-table">
+                  <div class="tms-table-head">
+                    <span>Reference</span>
+                    <span>Counter-party</span>
+                    <span>Amount</span>
+                    <span>Currency</span>
+                    <span>Status</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48214</span><span>Halmark Imports</span><span>€ 14,200</span><span>EUR → INR</span>
+                    <span class="tms-pill is-mismatch">Mismatch</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48213</span><span>Pioneer Trading Ltd.</span><span>$ 24,800</span><span>USD → INR</span>
+                    <span class="tms-pill is-dup">Duplicate</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48218</span><span>Sentinel &amp; Co.</span><span>$ 19,400</span><span>USD → INR</span>
+                    <span class="tms-pill is-pending">Partial · 2/3</span>
+                  </div>
+                  <div class="tms-table-row">
+                    <span>TXN-48215</span><span>Sentinel &amp; Co.</span><span>$ 6,400</span><span>USD → INR</span>
+                    <span class="tms-pill is-failed">Failed · FX</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="cs-pointer-note">
+              Each pill carries enough context to tell the operator
+              <em>why</em>, not just <em>what</em>. "Failed · FX" names
+              the corridor; generic "Failed" was the most-cited
+              complaint about the previous tool.
+            </p>
+          </figure>
+        </section>
+
+        <section id="impact" class="cs-section">
+          <span class="cs-section-eyebrow">08 &middot; Impact</span>
+          <h2 class="cs-section-title">Shipped — and honest about where it sits today.</h2>
+          <div class="cs-section-body">
+            <p>
+              Both surfaces are in production. Migration off the partner
+              is staged, so I don't have defendable adoption numbers
+              yet. I won't fabricate them. What I <em>can</em> defend:
+            </p>
+            <ul class="cs-list">
+              <li><strong>The external dependency is replaceable.</strong> Once ops migrates, the per-transaction commission goes away and Eximpe owns the ops UX end-to-end.</li>
+              <li><strong>One shared vocabulary across both surfaces.</strong> Same palette, drawer and state transitions — no context-switching between TMS and Recon.</li>
+              <li><strong>Design shipped as working code, not screens.</strong> Engineering reviewed PRs, not Figma links. Components landed with tokens, states and copy already wired.</li>
+            </ul>
+            <p>
+              <strong>Watching post-rollout:</strong> time-to-first-recon-completion,
+              auto-resolve rate, and "missing column" requests — the
+              canary for whether the data model is right.
+            </p>
+          </div>
+        </section>
+
+        <section id="learnings" class="cs-section">
+          <span class="cs-section-eyebrow">09 &middot; Learnings</span>
+          <h2 class="cs-section-title">Three things this project actually taught me.</h2>
+          <div class="cs-section-body">
+            <ul class="cs-list">
+              <li><strong>"No users to interview" is a method problem, not a blocker.</strong> Pattern research + stakeholder triangulation + working prototype got me a defendable brief in days. The discipline: name which decisions are still hypotheses so post-rollout you know what to revisit.</li>
+              <li><strong>AI as design medium ≠ AI doing the design.</strong> Claude Code compiled my decisions; Perplexity surfaced patterns. The wrong calls still showed up at code-fidelity — just faster than in Figma. Tooling shortens the loop; it doesn't replace judgement.</li>
+              <li><strong>Sequencing was a product decision, not a schedule one.</strong> Recon can't reconcile what TMS hasn't verified. Two half-built surfaces ops doesn't trust is worse than one full surface they adopt.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Footer / next-case nav -->
+        <footer class="cs-foot">
+          <a href="../index.html#work" class="cs-foot-link">
+            <small>← Back to</small> All work
+          </a>
+          <a href="#overview" class="cs-foot-link" style="text-align: right;">
+            <small>Top of</small> This case study
+          </a>
+        </footer>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="../scripts/cursor.js?v=83" defer></script>
+  <script src="../scripts/case-study.js?v=83" defer></script>
+
+</body>
+</html>

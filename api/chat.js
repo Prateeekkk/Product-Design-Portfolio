@@ -65,10 +65,12 @@ Focus: designing structured financial workflows.
 
 [Eximpe — Cross-border Payments]  (CURRENT ROLE)
 
-1. Transaction Monitoring System
-- Designed a system to track all transactions.
-- Focus on fraud detection and validation.
-Impact: improved visibility; faster issue detection; reduced manual monitoring effort.
+1. Transaction Monitoring System (TMS)
+- 0 → 1 design for the operational surfaces ops uses every day: monitoring, drilldowns, edge-case queues.
+- Replaced four-tab workflow (DB queries + partner portals + Slack + spreadsheet) with one workspace.
+- Edge cases (mismatch, duplicate, partial capture, FX failure, role-locked rows) treated as first-class states, not footnotes.
+- Designed close to implementation — moved from static Figma to working HTML prototypes, AI-assisted.
+Impact: faster iteration cycle (~2× on operational flows); cleaner handoffs; ops retired their parallel spreadsheet system.
 
 2. Reconciliation Dashboard
 - Designed matching flows between bank data and internal records.
