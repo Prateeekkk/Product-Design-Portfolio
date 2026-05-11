@@ -69,31 +69,4 @@
   }
   window.addEventListener('scroll', flagScroll, { passive: true });
   flagScroll();
-
-  /*
-    Workflow cells — viewport-triggered activation.
-    Each `.workflow-cell` gets an `.is-active` class the first time it
-    crosses ~30% of the viewport. CSS animations are paused by default
-    and only run once `.is-active` is set, so each demo plays its
-    progressive reveal exactly once when the user actually sees it
-    (instead of looping invisibly from page load). One-shot — observer
-    detaches after activation.
-  */
-  if ('IntersectionObserver' in window) {
-    const cells = document.querySelectorAll('.workflow-cell');
-    if (cells.length) {
-      const cellIO = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-active');
-            cellIO.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.3, rootMargin: '0px 0px -8% 0px' });
-      cells.forEach((c) => cellIO.observe(c));
-    }
-  } else {
-    // Fallback: just activate everything immediately if IO is unsupported.
-    document.querySelectorAll('.workflow-cell').forEach((c) => c.classList.add('is-active'));
-  }
 })();
