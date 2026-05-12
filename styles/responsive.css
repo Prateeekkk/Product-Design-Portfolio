@@ -318,3 +318,17 @@
     margin-bottom: var(--s-5);   /* 24px */
   }
 }
+
+/* ─── ≥1440 : large desktop ───────────────────────────────────
+   On wide / tall monitors, full-viewport sections leave the
+   content floating in oceans of empty space. Cap the 100vh
+   surfaces to content-friendly heights so the page breathes
+   without becoming a void. */
+@media (min-width: 1440px) {
+  .hero {
+    min-height: min(100vh, 820px);
+  }
+  .work-stage {
+    height: min(100vh, 820px);
+  }
+}
