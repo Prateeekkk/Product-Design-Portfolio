@@ -165,6 +165,33 @@ After a chat with you, the visitor should feel:
 
 Now answer as Prateek's AI — talking about him, not as him.`;
 
+/*
+  Conversation logging — console.log so it shows up in Vercel's
+  Logs tab. To read: Vercel dashboard → project → Logs → filter by
+  "[CHAT]" or by the /api/chat route. Free tier keeps logs ~24h.
+
+  Anonymous session id (IP + UTC date → SHA-256 → 8 hex) groups
+  multi-turn chats from the same visitor without storing the raw IP.
+*/
+async function logConversation({ req, userMessage, aiReply }) {
+  let sessionId = 'anon';
+  try {
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+    const day = new Date().toISOString().slice(0, 10);
+    const enc = new TextEncoder().encode(`${ip}|${day}`);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    sessionId = Array.from(new Uint8Array(buf)).slice(0, 4).map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch { /* fall back to 'anon' */ }
+
+  // Single log line per chat turn. Searchable by "[CHAT]" in Vercel Logs.
+  console.log('[CHAT]', JSON.stringify({
+    sid: sessionId,
+    ts: new Date().toISOString(),
+    q: userMessage.slice(0, 1000),
+    a: aiReply.slice(0, 1000)
+  }));
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -216,6 +243,11 @@ export default async function handler(req, res) {
     const data = await upstream.json();
     const reply = data?.choices?.[0]?.message?.content?.trim() || '';
     if (!reply) return res.status(502).json({ error: 'Empty reply.' });
+
+    // Log the Q&A pair to a webhook if configured. Awaited but
+    // try/catch'd inside so a failed log never breaks the response.
+    const lastUser = history[history.length - 1]?.content || '';
+    await logConversation({ req, userMessage: lastUser, aiReply: reply });
 
     return res.status(200).json({ reply });
   } catch (err) {
