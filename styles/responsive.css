@@ -73,6 +73,7 @@
   .work-info {
     opacity: 1 !important;
     transform: none !important;
+    pointer-events: auto !important;
   }
   .work-stage-foot { display: none; }
 }
