@@ -426,7 +426,7 @@
           <h2 class="cs-section-title">The call where the obvious answer wasn't the right one.</h2>
           <div class="cs-section-body">
             <p>
-              One decision where the design could have gone the other way —
+              Two decisions where the design could have gone the other way —
               and the reasoning for landing where we did.
             </p>
             <ul class="cs-list">
@@ -444,6 +444,17 @@
                 kept the overview as a place to <em>see</em>, and left the
                 <em>act</em> of settlement inside the invoice detail.
                 Less clever, more honest to how they actually work.
+              </li>
+              <li>
+                <strong>FIFO as a stopgap for PO-linked advances.</strong>
+                For PO-specific invoices there was no way yet to map an
+                advance to a particular invoice — that mapping was being
+                built in parallel. In the meantime we cut advances against
+                invoices on a <strong>FIFO</strong> basis (oldest advance
+                first) and made the deduction explicit on the invoice — the
+                user could see which advance(s) the amount was being pulled
+                from. Imperfect, but auditable, and removed in the next
+                release.
               </li>
             </ul>
           </div>
