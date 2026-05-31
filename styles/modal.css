@@ -282,3 +282,107 @@
   color: var(--ink-55);
   text-transform: none;
 }
+
+/* ============================================================
+   Floating ask-bar — replaces the nav "Talk to my AI" CTA.
+   Styled like a chat composer (Claude / ChatGPT) sitting sticky
+   at the bottom of the viewport. Tapping it opens the existing
+   AI modal via [data-modal-open="ai"].
+   ============================================================ */
+.ask-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 999px;
+  box-shadow:
+    0 18px 36px -18px rgba(13,13,11,.18),
+    0 6px 14px -8px rgba(13,13,11,.10),
+    0 2px 4px -2px rgba(13,13,11,.06);
+  z-index: 85;            /* below modal (which sits at 110+) but above page content */
+  cursor: pointer;
+  transition: transform .25s var(--ease-out, ease-out),
+              box-shadow .25s var(--ease-out, ease-out),
+              opacity .2s ease-out;
+  /* iOS safe-area + room for the home indicator */
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.ask-bar:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow:
+    0 22px 44px -16px rgba(13,13,11,.22),
+    0 8px 18px -8px rgba(13,13,11,.12),
+    0 2px 4px -2px rgba(13,13,11,.06);
+}
+.ask-bar:active { transform: translateX(-50%) translateY(0); }
+.ask-bar:focus-visible {
+  outline: 2px solid var(--amber, #c08a3a);
+  outline-offset: 3px;
+}
+.ask-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px 12px 18px;
+}
+.ask-bar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(192, 138, 58, 0.12);
+  color: #c08a3a;
+  flex: 0 0 22px;
+}
+.ask-bar-icon svg { display: block; }
+.ask-bar-text {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink-55);
+  line-height: 1.3;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ask-bar-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--ink, #1a1816);
+  color: var(--white, #fff);
+  flex: 0 0 32px;
+  transition: background .2s ease;
+}
+.ask-bar:hover .ask-bar-cta { background: #2a2a2a; }
+.ask-bar-cta svg { display: block; }
+
+/* When the AI modal is open, hide the bar so it doesn't fight
+   for attention with the modal composer. */
+body.is-ai-open .ask-bar {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(8px);
+}
+
+/* Body gets bottom padding on pages that host the ask-bar so
+   the floating composer doesn't sit on top of footer content. */
+body:has(.ask-bar) { padding-bottom: 88px; }
+
+/* Mobile: tighter padding, smaller hit-target adjustments */
+@media (max-width: 720px) {
+  .ask-bar {
+    width: calc(100vw - 24px);
+  }
+  .ask-bar-inner { padding: 10px 6px 10px 14px; gap: 10px; }
+  .ask-bar-text { font-size: 13px; }
+  .ask-bar-cta { width: 30px; height: 30px; flex-basis: 30px; }
+  body:has(.ask-bar) { padding-bottom: 76px; }
+}

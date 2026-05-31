@@ -1,21 +1,28 @@
 /* Nav behaviours:
-   - Hover label-swap on the "Talk to my AI" CTA.
+   - Mobile hamburger menu toggle.
    - Active link tracking based on which section is in view. */
 
 (function () {
-  const cta   = document.getElementById('navCta');
-  const label = cta ? cta.querySelector('.nav-cta-label') : null;
-
-  if (cta && label) {
-    function swap(text) {
-      label.style.opacity = '0';
-      setTimeout(() => {
-        label.textContent = text;
-        label.style.opacity = '1';
-      }, 140);
-    }
-    cta.addEventListener('mouseenter', () => swap('ask me anything ↗'));
-    cta.addEventListener('mouseleave', () => swap('Talk to my AI'));
+  // Mobile menu toggle
+  const toggle = document.getElementById('navToggle');
+  const menu   = document.getElementById('navMenu');
+  if (toggle && menu) {
+    const setOpen = (open) => {
+      menu.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+    // Close after picking a destination.
+    menu.querySelectorAll('[data-nav-mobile-link]').forEach((a) => {
+      a.addEventListener('click', () => setOpen(false));
+    });
+    // Esc closes the menu.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
   }
 
   // Active-section observer

@@ -113,7 +113,7 @@
   flex-direction: column;
   gap: 14px;
   align-self: start;             /* hard top-align inside the row */
-  padding-top: var(--s-7);       /* breathe down from the top edge */
+  padding-top: 0;                /* top edge lines up with the image */
   opacity: 0;
   transform: translateX(30px);
   transition: opacity .35s ease, transform .4s var(--ease-out);
@@ -358,6 +358,11 @@
   gap: 0;
 }
 .work-jump {
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;

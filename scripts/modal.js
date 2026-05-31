@@ -15,6 +15,15 @@
   const micBtn   = modal.querySelector('.composer-btn.is-mic');
   const chips    = modal.querySelectorAll('.prompt-chip');
 
+  // Grounding context. On case-study pages an element marked [data-ai-source]
+  // holds the article; we pass its readable text to the API so the AI answers
+  // strictly from this case study (no made-up answers). Empty on the homepage,
+  // where the AI runs in general-portfolio mode.
+  const sourceEl = document.querySelector('[data-ai-source]');
+  const pageContext = sourceEl
+    ? (sourceEl.innerText || sourceEl.textContent || '').replace(/\n{3,}/g, '\n\n').trim().slice(0, 24000)
+    : '';
+
   // Conversation memory for the current session. Resets when the page reloads.
   const conversation = [];
   let pending = false;
@@ -22,6 +31,7 @@
   function open() {
     modal.classList.add('is-open');
     backdrop.classList.add('is-open');
+    document.body.classList.add('is-ai-open');
     document.body.style.overflow = 'hidden';
     setTimeout(() => input && input.focus(), 240);
   }
@@ -29,6 +39,7 @@
   function close() {
     modal.classList.remove('is-open');
     backdrop.classList.remove('is-open');
+    document.body.classList.remove('is-ai-open');
     document.body.style.overflow = '';
   }
 
@@ -141,7 +152,7 @@
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: conversation })
+        body: JSON.stringify({ messages: conversation, context: pageContext })
       });
 
       if (!res.ok) {
@@ -220,27 +231,19 @@
     });
   });
 
-  // Mic button — UI-only toggle. Tries Web Speech API if available.
+  // Mic button — real voice input via the Web Speech API.
+  // Hidden entirely on browsers that don't support it (no fake demo).
   if (micBtn) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognizer = null;
     let recording = false;
 
-    micBtn.addEventListener('click', () => {
-      if (!SR) {
-        micBtn.classList.toggle('is-recording');
-        if (micBtn.classList.contains('is-recording')) {
-          input.placeholder = 'Listening… (demo)';
-          setTimeout(() => {
-            micBtn.classList.remove('is-recording');
-            input.placeholder = 'Ask anything…';
-            input.value = "Tell me about your work";
-            input.focus();
-          }, 1600);
-        }
-        return;
-      }
+    if (!SR) {
+      micBtn.style.display = 'none';
+      return;
+    }
 
+    micBtn.addEventListener('click', () => {
       if (!recognizer) {
         recognizer = new SR();
         recognizer.continuous = false;

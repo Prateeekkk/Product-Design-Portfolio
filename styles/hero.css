@@ -4,6 +4,10 @@
   min-height: 100vh;
   padding-left: var(--space);
   padding-right: var(--space);
+  /* Reserve room at the bottom for the floating ask-bar so the hero-foot
+     strip lifts above it instead of being overlapped (border-box keeps the
+     hero within 100vh). Matches the 88px the body reserves site-wide. */
+  padding-bottom: 88px;
   display: flex;
   flex-direction: column;
 }

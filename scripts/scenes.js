@@ -6,7 +6,7 @@
                       case + --reveal on every case via clip-path slider.
   - registerAssembly: scattered cards that fall in as you scroll (AI).
   - dragCards:        pointer drag on AI cards.
-  - dragExpStack:     drag-to-reorder on Experience stack.
+  - initExpStack:     click-nav + auto-preview on Experience stack.
   - parallaxPortrait: subtle scroll-driven tilt for the about portrait.
 */
 
@@ -128,7 +128,7 @@
     });
   }
 
-  /* ---------- Experience stack — drag, click-nav, auto-preview ----------
+  /* ---------- Experience stack — click-nav + auto-preview ----------
      Linear (non-looping) navigation. `currentIdx` runs 0 → N-1 over the
      three cards in their natural order (Eximpe, Pazy, Mongoosh). Prev/next
      advance by ±1, clamped at the boundaries — and the prev button is
@@ -139,7 +139,7 @@
      and the rest sit behind it in stable left-to-right sequence — that
      way the deck-stacked desktop view continues to fan out correctly.
   */
-  function dragExpStack(stackSelector) {
+  function initExpStack(stackSelector) {
     const stack = document.querySelector(stackSelector);
     if (!stack) return;
     const cards = Array.from(stack.querySelectorAll('.exp-card'));
@@ -206,7 +206,7 @@
        The first time the stack scrolls into view, briefly add
        `.is-previewing` so all three cards fan open — then collapse back
        to the deck. Recruiters scanning fast see all three companies at a
-       glance without needing to discover the drag/click interaction. */
+       glance without needing to click through the deck nav. */
     if ('IntersectionObserver' in window) {
       let previewed = false;
       const PREVIEW_HOLD = 1300;   // ms cards stay spread
@@ -227,108 +227,6 @@
     }
 
     applyOrder();
-
-    cards.forEach((card, cardIndex) => {
-      let dragging = false;
-      let sx = 0, sy = 0;
-      let dx = 0, dy = 0;
-
-      function down(e) {
-        // Only the front card (position 0 in order) drags-to-reorder.
-        const position = order.indexOf(cardIndex);
-        if (position !== 0) return;
-        dragging = true;
-        sx = e.clientX; sy = e.clientY;
-        card.classList.add('is-grabbing');
-        card.style.setProperty('--drag-x', '0px');
-        card.style.setProperty('--drag-y', '0px');
-        card.style.setProperty('--grab-scale', '1.025');
-        try { card.setPointerCapture(e.pointerId); } catch (_) {}
-        e.preventDefault();
-      }
-      function move(e) {
-        if (!dragging) return;
-        // Prevent text selection / scroll while dragging in any direction
-        e.preventDefault();
-        dx = e.clientX - sx;
-        dy = e.clientY - sy;
-        card.style.setProperty('--drag-x', dx + 'px');
-        card.style.setProperty('--drag-y', dy + 'px');
-        // small rotational drift tied to horizontal motion for tactile feel
-        const tilt = Math.max(-8, Math.min(8, dx * 0.04));
-        card.style.setProperty('--drag-rot', tilt + 'deg');
-      }
-      function up() {
-        if (!dragging) return;
-        dragging = false;
-        card.classList.remove('is-grabbing');
-        card.style.setProperty('--grab-scale', '1');
-
-        // Cycle to back if the card was dragged in ANY direction past the
-        // threshold (left, right, or down). Small drags snap back.
-        const THRESHOLD = 80;
-        const dist = Math.max(Math.abs(dx), Math.abs(dy));
-
-        if (dist > THRESHOLD) {
-          // Animated cycle — card flies further in the direction of drag,
-          // tilts, then swaps to the back of the stack.
-          card.classList.add('is-cycling');
-
-          let exitX, exitY, exitRot;
-          if (Math.abs(dx) > Math.abs(dy)) {
-            // Horizontal-dominant drag → exit horizontally
-            exitX = dx > 0
-              ? Math.max(520, dx + 240)
-              : Math.min(-520, dx - 240);
-            exitY = dy * 0.4;
-            exitRot = dx > 0 ? 14 : -14;
-          } else {
-            // Vertical-dominant drag → exit vertically
-            exitY = dy > 0
-              ? Math.max(360, dy + 200)
-              : Math.min(-360, dy - 200);
-            exitX = dx * 0.4;
-            exitRot = dx > 0 ? 8 : -8;
-          }
-
-          card.style.setProperty('--drag-x',   exitX   + 'px');
-          card.style.setProperty('--drag-y',   exitY   + 'px');
-          card.style.setProperty('--drag-rot', exitRot + 'deg');
-
-          setTimeout(() => {
-            // Reset drag offsets BEFORE the index change so the new front
-            // card lands directly in its slot without a visual snap.
-            card.style.setProperty('--drag-x', '0px');
-            card.style.setProperty('--drag-y', '0px');
-            card.style.setProperty('--drag-rot', '0deg');
-            // Linear (non-looping) advance: drag-up/left = previous,
-            // drag-down/right = next. At boundaries the deck snaps back
-            // instead of wrapping — matches the prev/next button behavior.
-            const goNext = (dx > 0 || dy > 0);
-            const target = goNext ? currentIdx + 1 : currentIdx - 1;
-            const clamped = Math.max(0, Math.min(cards.length - 1, target));
-            if (clamped === currentIdx) {
-              // At boundary — just rebuild to reset the drag offsets cleanly
-              applyOrder();
-            } else {
-              currentIdx = clamped;
-              rebuildOrder();
-            }
-            setTimeout(() => card.classList.remove('is-cycling'), 50);
-          }, 320);
-        } else {
-          // Snap-back — smooth return to original position.
-          card.style.setProperty('--drag-x', '0px');
-          card.style.setProperty('--drag-y', '0px');
-          card.style.setProperty('--drag-rot', '0deg');
-        }
-        dx = 0; dy = 0;
-      }
-      card.addEventListener('pointerdown',   down);
-      card.addEventListener('pointermove',   move);
-      card.addEventListener('pointerup',     up);
-      card.addEventListener('pointercancel', up);
-    });
   }
 
   /* ---------- Shine activation — start CSS loop on viewport entry ---------- */
@@ -534,7 +432,7 @@
     to:   0.92,
   });
   dragCards('.ai-card');
-  dragExpStack('.exp-stack');
+  initExpStack('.exp-stack');
   parallaxPortrait();
   activateShineOnEnter();
 

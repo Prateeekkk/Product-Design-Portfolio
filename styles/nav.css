@@ -98,38 +98,61 @@
   transform: translate(2px, -2px);
 }
 
-/* Talk-to-my-AI CTA */
-.nav-cta {
-  display: inline-flex; align-items: center; gap: 8px;
+/* Mobile menu toggle (hamburger) — hidden on desktop, shown ≤720px. */
+.nav-toggle {
+  display: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
   flex-shrink: 0;
-  font-size: 12.5px; font-weight: 500;
-  color: var(--ink);
-  border: 1px solid var(--brd-mid);
+  width: 36px; height: 36px;
+  padding: 8px;
   border-radius: 8px;
-  padding: 7px 14px;
-  transition: background .2s ease, border-color .2s ease, color .2s ease;
-  white-space: nowrap;
-}
-.nav-cta:hover {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--bg);
-}
-
-.nav-cta-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-  animation: blink 2.5s ease-in-out infinite;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
   transition: background .2s ease;
 }
-.nav-cta:hover .nav-cta-dot { background: var(--green-soft); }
-
-.nav-cta-label {
-  transition: opacity .14s ease;
+.nav-toggle:hover { background: rgba(13,13,11,0.05); }
+.nav-toggle span {
+  display: block;
+  height: 1.5px;
+  width: 100%;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform .25s var(--ease-out), opacity .2s ease;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
 }
 
-/* Keyframes used by both the pill dot and the CTA dot. */
+/* Mobile dropdown menu — frosted panel under the nav bar. */
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  padding: var(--s-3) var(--space) var(--s-5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+}
+.nav-mobile.is-open { display: flex; }
+.nav-mobile a {
+  font-size: 16px;
+  color: var(--ink-55);
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--brd);
+  transition: color .18s ease;
+}
+.nav-mobile a:last-child { border-bottom: 0; }
+.nav-mobile a:hover { color: var(--ink); }
+
+/* Keyframes used by the hero pill dot, AI playground, and modal dots. */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.3; }

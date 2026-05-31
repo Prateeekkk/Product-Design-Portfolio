@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eximpe — Transaction Monitoring System (TMS) — Prateek Daswani</title>
+  <meta name="description" content="Case study: building the in-house Transaction Monitoring System (TMS) for Eximpe, a cross-border payments platform. Designed close to implementation with an AI-assisted prototyping loop." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Eximpe TMS — Case study by Prateek Daswani" />
+  <meta property="og:description" content="Designing the in-house Transaction Monitoring System for Eximpe — a cross-border payments compliance workflow." />
+  <meta property="og:image" content="../assets/case-study/eximpe/01-review-queue.png" />
+  <meta property="og:url" content="https://prateekdaswani.com/case-study/eximpe-transaction-monitoring.html" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Eximpe TMS — Case study" />
+  <meta name="twitter:description" content="Designing the in-house Transaction Monitoring System for Eximpe." />
+  <meta name="twitter:image" content="../assets/case-study/eximpe/01-review-queue.png" />
+
+  <link rel="apple-touch-icon" href="../favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+
+  <!-- Google Analytics (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMX8DPNZTF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KMX8DPNZTF');
+  </script>
+
+  <!-- Reuse the global design system from the main site -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
+
+  <link rel="stylesheet" href="../styles/tokens.css?v=86" />
+  <link rel="stylesheet" href="../styles/base.css?v=86" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=86" />
+  <link rel="stylesheet" href="../styles/nav.css?v=86" />
+  <link rel="stylesheet" href="../styles/contact.css?v=86" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=86" />
+  <link rel="stylesheet" href="../styles/ai-playground.css?v=86" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=86" />
+  <link rel="stylesheet" href="../styles/modal.css?v=86" />
+
+  <!-- Page-specific styles for the abstracted demo visuals.
+       Everything here is NDA-safe — no real Eximpe screens, fictitious
+       transaction IDs and vendors. -->
+  <style>
+    /* Generic ops-card frame — wraps every demo */
+    .cs-demo {
+      width: 100%;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--white);
+      box-shadow:
+        0 24px 50px -32px rgba(13,13,11,.18),
+        0 4px 10px -6px rgba(13,13,11,.06);
+      position: relative;
+    }
+    .cs-demo-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--brd);
+      background: var(--bg-soft);
+      font-size: 10.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .cs-demo-bar i {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--brd-mid);
+    }
+    .cs-demo-bar i:first-child { background: var(--green); }
+    .cs-demo-body { padding: 18px 22px; }
+    .cs-demo-tag {
+      margin-left: auto;
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 11.5px;
+      color: var(--ink-25);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* TMS overview header — KPI tiles + filter row */
+    .tms-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .tms-kpi {
+      padding: 12px 14px;
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      background: var(--bg-soft);
+    }
+    .tms-kpi b {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      display: block;
+      line-height: 1.1;
+    }
+    .tms-kpi span {
+      display: block;
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      margin-top: 4px;
+    }
+    .tms-kpi.is-warn b { color: #a26a25; }
+    .tms-kpi.is-fail b { color: #a73838; }
+
+    /* Transaction table */
+    .tms-table { width: 100%; font-size: 11.5px; }
+    .tms-table-head,
+    .tms-table-row {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr 1fr 0.9fr 0.9fr;
+      gap: 8px;
+      padding: 9px 10px;
+      align-items: center;
+    }
+    .tms-table-head {
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--ink-55);
+      font-weight: 500;
+      font-size: 9.5px;
+    }
+    .tms-table-row {
+      border: 1px solid var(--brd);
+      border-top: none;
+      color: var(--ink-80);
+    }
+    .tms-table-row:last-child { border-radius: 0 0 6px 6px; }
+
+    .tms-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 99px;
+      border: 1px solid transparent;
+      justify-self: start;
+    }
+    .tms-pill.is-paid     { background: rgba(82,168,122,.12);  color: #3e8a5c; border-color: rgba(82,168,122,.24); }
+    .tms-pill.is-pending  { background: rgba(214,142,50,.12);  color: #a26a25; border-color: rgba(214,142,50,.26); }
+    .tms-pill.is-mismatch { background: rgba(214,142,50,.14);  color: #a26a25; border-color: rgba(214,142,50,.28); }
+    .tms-pill.is-failed   { background: rgba(200,70,70,.12);   color: #a73838; border-color: rgba(200,70,70,.26); }
+    .tms-pill.is-dup      { background: rgba(140,110,200,.14); color: #6a4fa6; border-color: rgba(140,110,200,.28); }
+
+    /* Reconciliation 3-column board */
+    .recon-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .recon-col {
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      background: var(--bg-soft);
+      padding: 10px;
+    }
+    .recon-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .recon-col-head b {
+      font-family: var(--font-serif);
+      font-size: 12px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      text-transform: none;
+      font-weight: 500;
+    }
+    .recon-card {
+      background: var(--white);
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--ink-80);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px 8px;
+    }
+    .recon-card:last-child { margin-bottom: 0; }
+    .recon-card b {
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .recon-card em {
+      font-style: normal;
+      font-size: 9.5px;
+      color: var(--ink-55);
+      grid-column: 1 / -1;
+      letter-spacing: 0.02em;
+    }
+    .recon-card.is-warn { border-color: rgba(214,142,50,.4); background: rgba(255,250,238,.6); }
+    .recon-card.is-fail { border-color: rgba(200,70,70,.35); background: rgba(255,247,247,.7); }
+
+    /* Drawer / detail-panel mock */
+    .ops-drawer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 14px;
+    }
+    .ops-drawer-section {
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .ops-drawer-section h4 {
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin: 0 0 8px;
+    }
+    .ops-drawer-section dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 11px; }
+    .ops-drawer-section dt { color: var(--ink-55); }
+    .ops-drawer-section dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .ops-drawer-section dd.is-mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10.5px; }
+
+    .ops-drawer-timeline {
+      grid-column: 1 / -1;
+    }
+    .ops-drawer-timeline ol {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 6px;
+      font-size: 11px; color: var(--ink-80);
+    }
+    .ops-drawer-timeline li {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+    }
+    .ops-drawer-timeline time {
+      font-size: 10px;
+      color: var(--ink-25);
+      letter-spacing: 0.02em;
+    }
+
+    /* Token / handoff strip — consistent with .demo-impl-tokens */
+    .ops-tokens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 16px;
+    }
+    .ops-tokens li {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 10px;
+      padding: 6px 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--brd);
+      border-radius: 4px;
+      align-items: center;
+      font-size: 10.5px;
+    }
+    .ops-tokens li b {
+      font-weight: 500;
+      color: var(--ink-55);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 9.5px;
+    }
+    .ops-tokens li span {
+      color: var(--ink);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 10px;
+    }
+
+    /* Side-by-side compare blocks for "before / after" */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .compare-col {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-md);
+      background: var(--bg-soft);
+      padding: 14px;
+    }
+    .compare-col h4 {
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      margin: 0 0 8px;
+      font-weight: 500;
+    }
+    .compare-col p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--ink-80);
+      line-height: 1.55;
+    }
+    .compare-col.is-after h4 { color: var(--amber); }
+
+    @media (max-width: 720px) {
+      .tms-kpis { grid-template-columns: repeat(2, 1fr); }
+      .tms-table-head, .tms-table-row {
+        grid-template-columns: 1fr 1fr 1fr;
+        font-size: 10.5px;
+      }
+      .tms-table-head > span:nth-child(4),
+      .tms-table-head > span:nth-child(5),
+      .tms-table-row  > span:nth-child(4),
+      .tms-table-row  > span:nth-child(5) { display: none; }
+      .recon-board { grid-template-columns: 1fr; }
+      .ops-drawer { grid-template-columns: 1fr; }
+      .ops-tokens { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .real-tms-tabs { gap: 4px; overflow-x: auto; }
+      .real-tms-cols { grid-template-columns: 1.4fr 1fr 0.8fr; }
+      .real-tms-cols > *:nth-child(4),
+      .real-tms-cols > *:nth-child(5),
+      .real-tms-cols > *:nth-child(6) { display: none; }
+      .iterations-grid { grid-template-columns: 1fr; }
+    }
+
+    /*
+      Real-TMS recreation — matches the production design.
+      NDA-safe: fictitious merchant names, demo transaction IDs.
+      All values made up; visual structure mirrors the shipped UI.
+    */
+    .real-tms {
+      width: 100%;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: 0 24px 50px -32px rgba(13,13,11,.18), 0 4px 10px -6px rgba(13,13,11,.05);
+    }
+    .real-tms-chrome {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: #fff; border-bottom: 1px solid var(--brd);
+    }
+    .real-tms-chrome i { width: 7px; height: 7px; border-radius: 50%; background: #DDD; }
+    .real-tms-chrome i:first-child { background: #E48A6A; }
+    .real-tms-url {
+      flex: 1; margin-left: 12px;
+      font-size: 10.5px; color: var(--ink-25);
+      letter-spacing: 0.02em;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    .real-tms-user {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10.5px; color: var(--ink-80);
+    }
+    .real-tms-user-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 9.5px; font-weight: 600;
+    }
+    .real-tms-user-role { color: var(--ink-55); font-size: 9.5px; }
+
+    /* Page header */
+    .real-tms-head {
+      padding: 16px 18px 0;
+      background: #fff;
+    }
+    .real-tms-h1 {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      margin: 0 0 2px;
+    }
+    .real-tms-sub {
+      font-size: 11.5px;
+      color: var(--ink-55);
+      margin: 0 0 12px;
+    }
+
+    /* Tabs */
+    .real-tms-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--brd);
+      padding: 0;
+      background: #fff;
+    }
+    .real-tms-tab {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 14px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-55);
+      border-bottom: 2px solid transparent;
+      cursor: default;
+      white-space: nowrap;
+      letter-spacing: -0.002em;
+    }
+    .real-tms-tab.is-active {
+      color: #0F766E; /* teal-700 */
+      border-bottom-color: #0F766E;
+    }
+    .real-tms-tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 16px;
+      padding: 0 5px;
+      border-radius: 8px;
+      background: rgba(13,13,11,0.06);
+      color: var(--ink-80);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+    .real-tms-tab.is-active .real-tms-tab-count {
+      background: rgba(15, 118, 110, 0.12);
+      color: #0F766E;
+    }
+
+    /* Filter toolbar */
+    .real-tms-toolbar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 18px;
+      background: #fff;
+      border-bottom: 1px solid var(--brd);
+      flex-wrap: wrap;
+    }
+    .real-tms-search {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--ink-25);
+      min-width: 220px;
+    }
+    .real-tms-search::before {
+      content: '⌕';
+      font-size: 12px;
+      color: var(--ink-25);
+    }
+    .real-tms-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 9px;
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--ink-80);
+      font-weight: 500;
+    }
+    .real-tms-chip.is-active {
+      background: rgba(15, 118, 110, 0.08);
+      border-color: rgba(15, 118, 110, 0.30);
+      color: #0F766E;
+    }
+    .real-tms-chip-caret {
+      font-size: 9px;
+      color: var(--ink-55);
+    }
+
+    /* Table */
+    .real-tms-cols {
+      display: grid;
+      grid-template-columns: 1.3fr 1.6fr 0.9fr 0.9fr 1.1fr 0.7fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .real-tms-table-head {
+      padding: 9px 18px;
+      background: #FAFAF8;
+      border-bottom: 1px solid var(--brd);
+      font-size: 9.5px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .real-tms-row {
+      padding: 11px 18px;
+      background: #fff;
+      border-bottom: 1px solid #F0EFE9;
+      font-size: 11.5px;
+      color: var(--ink);
+      cursor: default;
+    }
+    .real-tms-row:last-child { border-bottom: none; }
+    .real-tms-row:hover { background: #FAFAF8; }
+    .real-tms-row.is-escalated { background: rgba(99, 102, 241, 0.04); }
+    .real-tms-row.is-clarification { background: rgba(14, 165, 233, 0.04); }
+    .real-tms-row .mono {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 10.5px;
+      color: var(--ink);
+    }
+    .real-tms-row .sub {
+      display: block;
+      font-size: 9.5px;
+      color: var(--ink-55);
+      margin-top: 1px;
+    }
+    .real-tms-row .amt {
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+
+    /* Status pills (match the real palette: orange flagged, indigo escalated, teal cleared, red rejected) */
+    .real-tms-pill {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .real-tms-pill.is-flagged       { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+    .real-tms-pill.is-clarification { background: #F0F9FF; color: #0369A1; border-color: #BAE6FD; }
+    .real-tms-pill.is-escalated     { background: #EEF2FF; color: #4338CA; border-color: #C7D2FE; }
+    .real-tms-pill.is-po-review     { background: #FAF5FF; color: #7E22CE; border-color: #E9D5FF; }
+    .real-tms-pill.is-cleared       { background: #ECFDF5; color: #047857; border-color: #A7F3D0; }
+    .real-tms-pill.is-rejected      { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+    .real-tms-pill.is-pending       { background: #FFFBEB; color: #B45309; border-color: #FDE68A; }
+
+    /* Rule / FRM badges (match real design: orange box with rule count) */
+    .real-tms-rules {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: #C2410C;
+      font-weight: 500;
+    }
+    .real-tms-rules::before {
+      content: '⚠︎';
+      font-size: 9px;
+    }
+    .real-tms-frm {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: #B91C1C;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+    .real-tms-frm::before {
+      content: '◆';
+      font-size: 8px;
+    }
+
+    /* SLA cell colors */
+    .real-tms-sla { color: var(--ink-80); font-variant-numeric: tabular-nums; }
+    .real-tms-sla.is-warn { color: #B45309; font-weight: 500; }
+    .real-tms-sla.is-breach { color: #B91C1C; font-weight: 500; }
+
+    /* Detail drawer */
+    .real-tms-detail {
+      padding: 18px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      border-top: 1px solid var(--brd);
+    }
+    .real-tms-detail-panel {
+      background: #FAFAF8;
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .real-tms-detail-h {
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .real-tms-detail-rule {
+      display: grid;
+      grid-template-columns: 60px 1fr auto;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #F0EFE9;
+      font-size: 11px;
+      align-items: center;
+    }
+    .real-tms-detail-rule:last-child { border-bottom: none; }
+    .real-tms-detail-rule b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: #C2410C;
+      font-weight: 500;
+      font-size: 10.5px;
+    }
+    .real-tms-detail-rule span {
+      color: var(--ink-80);
+      line-height: 1.4;
+    }
+    .real-tms-detail-rule em {
+      font-style: normal;
+      font-size: 10px;
+      color: var(--ink-55);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .real-tms-actions {
+      display: flex; gap: 6px;
+      padding-top: 12px; border-top: 1px solid var(--brd);
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .real-tms-btn {
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid var(--brd);
+      background: #fff;
+      color: var(--ink);
+      cursor: default;
+    }
+    .real-tms-btn.is-approve { background: #047857; color: #fff; border-color: #047857; }
+    .real-tms-btn.is-reject  { background: #B91C1C; color: #fff; border-color: #B91C1C; }
+    .real-tms-btn.is-escalate { background: #4338CA; color: #fff; border-color: #4338CA; }
+    .real-tms-btn.is-check    { background: #0369A1; color: #fff; border-color: #0369A1; }
+
+    /*
+      Iterations grid — rejected design directions with sketch + reason.
+      Each card shows a small mock of the rejected approach and the
+      reason it was rejected.
+    */
+    .iterations-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-5);
+      margin-top: var(--s-5);
+    }
+    /* Stacked iteration card: sketch left, body right (desktop).
+       On mobile the sketch sits above the body. */
+    .iteration {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: var(--bg-soft);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(280px, 38%) 1fr;
+      align-items: stretch;
+    }
+    @media (max-width: 720px) {
+      .iteration { grid-template-columns: 1fr; }
+      .iteration-sketch { height: 160px !important; }
+    }
+    .iteration-sketch {
+      background: #fff;
+      border-right: 1px solid var(--brd);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+    }
+    @media (max-width: 720px) {
+      .iteration-sketch {
+        border-right: none;
+        border-bottom: 1px solid var(--brd);
+      }
+    }
+    .iteration-body {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .iteration-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .iteration-tag::before {
+      content: '✕';
+      color: #B91C1C;
+      font-size: 11px;
+    }
+    .iteration-title {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin: 0 0 6px;
+    }
+    .iteration-body p {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--ink-80);
+      line-height: 1.55;
+    }
+    .iteration-body p strong { color: var(--ink); font-weight: 500; }
+
+    /* Iteration flow — 3-stop "first instinct / where it broke /
+       the reframe" structure inside each iteration body.
+       Small left-aligned amber label + one-line body. Scannable. */
+    .iteration-flow {
+      margin: 10px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .iteration-step {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 14px;
+      align-items: baseline;
+    }
+    @media (max-width: 720px) {
+      .iteration-step { grid-template-columns: 1fr; gap: 4px; }
+    }
+    .iteration-step dt {
+      font-family: var(--font-sans);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C08A3A;
+      font-weight: 500;
+      margin: 0;
+      padding-top: 2px;
+    }
+    .iteration-step dd {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-80);
+    }
+    .iteration-step dd b { color: var(--ink); font-weight: 500; }
+    .iteration-step dd em { color: var(--ink-55); font-style: italic; }
+    .iteration-principle {
+      margin: 14px 0 0;
+      padding: 10px 0 0;
+      border-top: 1px solid var(--brd);
+      font-family: var(--font-serif);
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--ink);
+      font-style: italic;
+    }
+    .iteration-principle em { color: #C08A3A; }
+
+    /* Iteration sketch — V1: single mega-table (rainbow rows) */
+    .sketch-rainbow {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sketch-rainbow > i {
+      flex: 1;
+      border-radius: 3px;
+      display: block;
+    }
+    .sketch-rainbow > i:nth-child(1) { background: #FFF7ED; border: 1px solid #FED7AA; }
+    .sketch-rainbow > i:nth-child(2) { background: #ECFDF5; border: 1px solid #A7F3D0; }
+    .sketch-rainbow > i:nth-child(3) { background: #EEF2FF; border: 1px solid #C7D2FE; }
+    .sketch-rainbow > i:nth-child(4) { background: #FEF2F2; border: 1px solid #FECACA; }
+    .sketch-rainbow > i:nth-child(5) { background: #FFFBEB; border: 1px solid #FDE68A; }
+    .sketch-rainbow > i:nth-child(6) { background: #FAF5FF; border: 1px solid #E9D5FF; }
+
+    /* Iteration sketch — V2: inline approve/reject in row */
+    .sketch-inline {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; gap: 6px;
+      justify-content: center;
+    }
+    .sketch-inline-row {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 8px;
+      padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+    }
+    .sketch-inline-row .label {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .sketch-inline-row .label b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 9.5px; color: var(--ink); font-weight: 500;
+    }
+    .sketch-inline-row .label em {
+      font-style: normal; font-size: 9px; color: var(--ink-55);
+    }
+    .sketch-inline-row .btns {
+      display: flex; gap: 4px;
+    }
+    .sketch-inline-row .btns span {
+      padding: 3px 7px; border-radius: 3px;
+      font-size: 8.5px; font-weight: 500;
+    }
+    .sketch-inline-row .btns .a { background: #047857; color: #fff; }
+    .sketch-inline-row .btns .r { background: #B91C1C; color: #fff; }
+
+    /* Iteration sketch — V3: rules as count only */
+    .sketch-count {
+      display: flex; flex-direction: column; gap: 6px;
+      width: 100%;
+    }
+    .sketch-count-row {
+      display: grid; grid-template-columns: 1.2fr 1fr 0.5fr; gap: 8px;
+      align-items: center; padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+      font-size: 9.5px; color: var(--ink-80);
+    }
+    .sketch-count-row .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 2px 6px; border-radius: 3px;
+      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
+      font-size: 9.5px; font-weight: 500;
+    }
+    .sketch-count-row b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--ink); font-weight: 500;
+    }
+
+    /* Iteration sketch — V4: separate rule chips */
+    .sketch-chips {
+      display: flex; flex-direction: column; gap: 6px; width: 100%;
+    }
+    .sketch-chips-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: #FAFAF8; border: 1px solid var(--brd); border-radius: 4px;
+      font-size: 9.5px;
+    }
+    .sketch-chips-row b {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: var(--ink); font-weight: 500; font-size: 9.5px;
+    }
+    .sketch-chips-row .chips {
+      display: inline-flex; gap: 4px; margin-left: auto; flex-wrap: wrap;
+    }
+    .sketch-chips-row .chips span {
+      padding: 1px 6px; border-radius: 99px;
+      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
+      font-size: 8.5px;
+    }
+
+    /* Iteration sketch — Settings extraction.
+       Left: settings nested inside TMS (the rejected shape).
+       Right: settings extracted as a shared org-level area, with
+       TMS / Recon / Risk all reading from it. */
+    .sketch-nest {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; width: 100%; padding: 4px;
+    }
+    .sketch-nest-outer {
+      flex: 0 0 38%;
+      border: 1px dashed #B45309;
+      border-radius: 6px;
+      padding: 8px 10px 10px;
+      background: #FFF7ED;
+      position: relative;
+    }
+    .sketch-nest-tag {
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: #B45309;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .sketch-nest-inner {
+      border: 1px solid #B45309;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: #fff;
+    }
+    .sketch-nest-tag-inner {
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+      color: #1a1816;
+    }
+    .sketch-nest-arrow {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      color: #6b6960;
+      line-height: 1;
+    }
+    .sketch-nest-after {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid #047857;
+      border-radius: 6px;
+      background: #ECFDF5;
+      position: relative;
+    }
+    .sketch-nest-mod {
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+      font-weight: 600;
+      padding: 6px 4px;
+      background: #fff;
+      border: 1px solid #A7F3D0;
+      border-radius: 4px;
+      text-align: center;
+      color: #047857;
+    }
+    .sketch-nest-settings {
+      grid-column: 1 / -1;
+      font-family: var(--font-sans);
+      font-size: 9px;
+      font-weight: 600;
+      padding: 6px;
+      background: #047857;
+      color: #fff;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Iteration sketch — Cases tab as work queue, not archive.
+       Left: 5-row Cases tab with resolved ones muted.
+       Right: cleaner 2-row Cases tab + a separate STR register pill.
+       Communicates "presence in a surface" vs "persistence in the system." */
+    .sketch-queue {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; width: 100%; padding: 4px;
+    }
+    .sketch-queue-rows {
+      flex: 0 0 38%;
+      display: flex; flex-direction: column; gap: 3px;
+      padding: 6px;
+      background: #fff;
+      border: 1px solid var(--brd);
+      border-radius: 4px;
+    }
+    .sketch-queue-rows.is-before {
+      border-color: #B45309;
+      background: #FFF7ED;
+    }
+    .sketch-queue-rows span {
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+      color: #1a1816;
+      padding: 3px 5px;
+      background: #fff;
+      border-radius: 2px;
+      border: 1px solid #E8E3D5;
+    }
+    .sketch-queue-rows span.muted {
+      color: #8a8780;
+      background: #F5EFE3;
+      border-style: dashed;
+    }
+    .sketch-queue-arrow {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      color: #6b6960;
+      line-height: 1;
+    }
+    .sketch-queue-after {
+      flex: 1;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .sketch-queue-after .sketch-queue-rows {
+      flex: none;
+      border-color: #047857;
+      background: #ECFDF5;
+    }
+    .sketch-queue-tab {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px;
+      background: #FAF7F1;
+      border: 1px solid #DDD7C8;
+      border-radius: 4px;
+      font-family: var(--font-sans);
+      font-size: 8.5px;
+    }
+    .sketch-queue-tab.is-before {
+      border-color: #B45309;
+      background: #FFF7ED;
+    }
+    .sketch-queue-tab.is-secondary {
+      background: #fff;
+      border-style: dashed;
+    }
+    .sketch-queue-tab-label { font-weight: 600; color: #1a1816; }
+    .sketch-queue-tab-count {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: #6b6960;
+      font-size: 8px;
+    }
+    .sketch-queue-tab-count.is-active {
+      color: #047857;
+      font-weight: 600;
+    }
+
+    /*
+      Section lede — opening paragraph that sets context for the act.
+      BODY text (Poppins) — not serif. Serif is reserved for headings
+      and short highlight lines (numbers, quotes, decision-quote line).
+    */
+    .cs-lede {
+      font-family: var(--font-sans);
+      font-size: clamp(14.5px, 1.15vw, 16px);
+      line-height: 1.65;
+      color: var(--ink-80);
+      margin: 0 0 var(--s-5);
+      max-width: 65ch;
+    }
+    .cs-lede em {
+      font-style: italic;
+      color: var(--ink);
+    }
+    .cs-lede strong {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /*
+      Observation cards — used in the "what shadowing the team showed"
+      section. Each card is a tight observation → why-it-mattered pair.
+      Three across on desktop, stacked on mobile.
+    */
+    .observe-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: var(--s-5);
+    }
+    @media (max-width: 720px) {
+      .observe-grid { grid-template-columns: 1fr; }
+    }
+    .observe-card {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: var(--bg-soft);
+      padding: 20px 18px 16px;
+      position: relative;
+    }
+    .observe-card::before {
+      content: '“';
+      position: absolute;
+      top: -10px;
+      left: 14px;
+      font-family: var(--font-serif);
+      font-size: 44px;
+      line-height: 1;
+      color: #c08a3a;
+      opacity: 0.55;
+    }
+    .observe-eyebrow {
+      display: inline-block;
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .observe-line {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.4;
+      color: var(--ink);
+      margin: 0 0 10px;
+      letter-spacing: -0.005em;
+    }
+    .observe-why {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--ink-80);
+      margin: 0;
+    }
+    .observe-why b {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ============================================================
+       ACT-BASED LAYOUT COMPONENTS
+       Each act below uses a distinct visual treatment so the page
+       feels paced — not a stack of identical "section + paragraph"
+       blocks. Components are intentionally non-reusable across acts
+       to preserve variety; this is the opposite of a design system.
+       ============================================================ */
+
+    /* Drop the eyebrow's all-caps loudness without removing it from
+       the DOM (preserves anchors and existing pages that link in). */
+    .cs-section-eyebrow.is-quiet { display: none; }
+
+    /* Hero figure → first section transition.
+       The default header/figure stacking + cs-section's lack of
+       top-margin produced a dead ~64px gap. Tighten and own it. */
+    .cs-main > header { margin-bottom: var(--s-7); }     /* 48 */
+    .cs-main > header > figure { margin: var(--s-6) 0 0; } /* override inline 48 above, 0 below */
+    .cs-main > header > figure .cs-caption { margin-top: var(--s-3); }
+    .cs-main > section.cs-section:first-of-type { margin-top: 0; }
+
+    /* ── Spacing rhythm for act-based sections.
+       Single source of truth so every act feels paced the same:
+       - section title → 24px → body
+       - section lede  → 32px → body
+       - any major visual block → 32px above it, 0 below it
+       - paragraph stacking within a section → 24px between
+       Section-to-section breathing is governed by .cs-section
+       margin-bottom (96px) inherited from case-study.css.
+    */
+    .act-title {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3.4vw, 44px);
+      line-height: 1.12;
+      letter-spacing: -0.012em;
+      color: var(--ink);
+      margin: 0 0 var(--s-5);   /* 24px to body */
+    }
+    /* Lede follows the title; if used alone (no title) it still has
+       its own 32px bottom rhythm. */
+    .cs-section .cs-lede { margin: 0 0 var(--s-6); }
+    /* Every major in-act visual block: 32px above, 0 below. */
+    .act-split,
+    .obs-row,
+    .decision-quote,
+    .annotated,
+    .pill-deck,
+    .stat-spread,
+    .closing { margin: var(--s-6) 0 0; }
+    /* Paragraph rhythm — body text stacked under a visual. */
+    .decision-rationale + .decision-rationale,
+    .cs-section .cs-section-body p + p { margin-top: var(--s-5); }
+
+    /* ── Act 2: split-screen "before / after" panel.
+       Two cards side by side. Left = chaotic. Right = the new.
+       The visual carries the argument; the caption is a single line. */
+    .act-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 720px) {
+      .act-split { grid-template-columns: 1fr; }
+    }
+    .act-split-card {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: #fff;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 260px;
+    }
+    .act-split-card.is-before {
+      background: #FAF7F1;
+      border-style: dashed;
+    }
+    .act-split-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+    }
+    .act-split-card.is-before .act-split-eyebrow { color: #B45309; }
+    .act-split-card.is-after  .act-split-eyebrow { color: #047857; }
+    .act-split-line {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.35;
+      color: var(--ink);
+      margin: 0;
+    }
+    /* Chaotic-row visual — a tight grid of many micro cells to evoke
+       "too many fields, no hierarchy" without depicting a real UI. */
+    .chaos-row {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 3px;
+      padding: 8px;
+      background: #fff;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      margin-top: auto;
+    }
+    .chaos-row i {
+      display: block;
+      height: 10px;
+      background: #E8E3D5;
+      border-radius: 2px;
+    }
+    .chaos-row.is-dense i { height: 8px; }
+    /* Clean-row visual — six well-spaced columns, one with amber
+       accent to read as "the flagged row." */
+    .clean-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1.6fr 1fr 1fr 1.1fr 0.7fr;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid var(--brd);
+      border-radius: 6px;
+      align-items: center;
+      margin-top: auto;
+      font-size: 10.5px;
+    }
+    .clean-row span {
+      color: var(--ink-80);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 10px;
+    }
+    .clean-row .flag {
+      display: inline-flex;
+      padding: 2px 7px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 4px;
+      color: #C2410C;
+      font-size: 9px;
+      font-weight: 500;
+      justify-self: start;
+    }
+
+    /* ── Act 3: alternating observation rows.
+       Each observation is a full-width row with an illustrative
+       sketch on one side and the observation + interpretation on
+       the other. Alternates left/right for visual rhythm. */
+    .obs-row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--s-7);
+      align-items: center;
+    }
+    .obs-row + .obs-row {
+      margin-top: var(--s-7);
+      padding-top: var(--s-7);
+      border-top: 1px solid var(--brd);
+    }
+    .obs-row.is-reverse { grid-template-columns: 1.4fr 1fr; }
+    .obs-row.is-reverse .obs-sketch { order: 2; }
+    @media (max-width: 720px) {
+      .obs-row, .obs-row.is-reverse { grid-template-columns: 1fr; gap: var(--s-5); }
+      .obs-row.is-reverse .obs-sketch { order: 0; }
+    }
+    .obs-sketch {
+      background: #FAF7F1;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      padding: 28px 22px;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .obs-text .obs-eyebrow {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C08A3A;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .obs-text .obs-quote {
+      font-family: var(--font-serif);
+      font-size: clamp(20px, 2.1vw, 26px);
+      line-height: 1.3;
+      color: var(--ink);
+      margin: 0 0 14px;
+      letter-spacing: -0.01em;
+    }
+    .obs-text .obs-interp {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink-80);
+      margin: 0;
+    }
+    .obs-text .obs-interp b { font-weight: 500; color: var(--ink); }
+
+    /* ── Act 4: row-vs-table decision moment.
+       A single full-width "quote" card framing the design call,
+       with reasoning underneath. Used once to mark the biggest
+       single decision. */
+    .decision-quote {
+      border: 1px solid var(--brd);
+      border-left: 3px solid #C08A3A;
+      border-radius: var(--r-md);
+      background: #FFFBF1;
+      padding: 22px 26px;
+    }
+    /* Visual block in the act-rhythm normally has 32px below to the
+       next sibling; the decision-quote needs more breath before the
+       prose rationale lands underneath. */
+    .decision-quote + .decision-rationale { margin-top: var(--s-6); }
+    .decision-quote-eyebrow {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #C08A3A;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .decision-quote-line {
+      font-family: var(--font-serif);
+      font-size: clamp(20px, 2.4vw, 28px);
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .decision-rationale {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--ink-80);
+      max-width: 65ch;
+      margin: 0;
+    }
+
+    /* ── Acts 5/6: annotated visual.
+       Two-column: visual on left, numbered pin-explanations on right.
+       Pins are also rendered as numbered badges on the right column
+       (the visual itself doesn't need absolute pins — readable on
+       all sizes and accessible). */
+    .annotated {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: var(--s-6);
+    }
+    @media (max-width: 980px) {
+      .annotated { grid-template-columns: 1fr; }
+    }
+    .annotated-visual {
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: #fff;
+      overflow: hidden;
+    }
+    .annotated-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .annotated-item {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 12px;
+    }
+    .annotated-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #1a1816;
+      color: #FAF7F1;
+      font-family: var(--font-serif);
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-style: italic;
+    }
+    .annotated-item p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-80);
+    }
+    .annotated-item p b { font-weight: 500; color: var(--ink); }
+
+    /* ── Act 8: edge-case pill row.
+       A horizontal scroll of state pills, each with a one-line
+       story below on hover or always-visible. We use always-visible
+       on a 2-row staggered layout — no JS, no hover gymnastics. */
+    .pill-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .pill-deck-item {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-md);
+      background: #FAF7F1;
+    }
+    .pill-deck-pill {
+      align-self: flex-start;
+      display: inline-flex;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .pill-deck-pill.is-mismatch { background: rgba(214,142,50,.14); color: #a26a25; border: 1px solid rgba(214,142,50,.32); }
+    .pill-deck-pill.is-dup      { background: rgba(140,110,200,.14); color: #6a4fa6; border: 1px solid rgba(140,110,200,.32); }
+    .pill-deck-pill.is-partial  { background: rgba(214,142,50,.14); color: #a26a25; border: 1px solid rgba(214,142,50,.32); }
+    .pill-deck-pill.is-failed   { background: rgba(200,70,70,.12);  color: #a73838; border: 1px solid rgba(200,70,70,.28); }
+    .pill-deck-pill.is-override { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    .pill-deck-line {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink-80);
+      margin: 0;
+    }
+    .pill-deck-line b { color: var(--ink); font-weight: 500; }
+
+    /* ── Act 9: magazine-spread impact.
+       Big numerical callouts with serif typography. Each stat
+       gets generous whitespace — the numbers earn the room. */
+    .stat-spread {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s-7) var(--s-8);
+    }
+    @media (max-width: 720px) {
+      .stat-spread { grid-template-columns: 1fr; gap: var(--s-6); }
+    }
+    .stat-big {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      padding-top: var(--s-5);
+      border-top: 1px solid var(--brd);
+    }
+    .stat-big-num {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 5.5vw, 64px);
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .stat-big-num em {
+      font-style: italic;
+      color: #C08A3A;
+    }
+    .stat-big-label {
+      font-family: var(--font-sans);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin: 0;
+    }
+    .stat-big-line {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-80);
+      margin: 0;
+      max-width: 32ch;
+    }
+    .stat-footnote {
+      margin-top: var(--s-5);
+      padding-top: var(--s-5);
+      border-top: 1px solid var(--brd);
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--ink-55);
+      max-width: 65ch;
+      font-style: italic;
+    }
+    .stat-footnote b { color: var(--ink-80); font-style: normal; font-weight: 500; }
+
+    /* ── Act 10: closing breath.
+       Short paragraph + 3 italic serif lines on near-empty canvas. */
+    .closing {
+      max-width: 60ch;
+    }
+    .closing-intro {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--ink-80);
+      margin: 0 0 var(--s-6);
+    }
+    .closing-lines {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s-5);
+    }
+    .closing-lines li {
+      font-family: var(--font-serif);
+      font-size: clamp(17px, 1.8vw, 22px);
+      line-height: 1.4;
+      color: var(--ink);
+      letter-spacing: -0.005em;
+      padding-left: var(--s-5);
+      border-left: 2px solid #C08A3A;
+    }
+
+    /*
+      Workflow diagram frame — wraps the inline SVG so it sits in a
+      bordered card like the other cs-demos, but with cleaner padding
+      since the SVG already carries its own layout.
+    */
+    .wf-frame {
+      width: 100%;
+      border: 1px solid var(--brd);
+      border-radius: var(--r-lg);
+      background: #FAF7F1;
+      padding: 18px;
+      box-shadow:
+        0 24px 50px -32px rgba(13,13,11,.18),
+        0 4px 10px -6px rgba(13,13,11,.06);
+    }
+    .wf-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /*
+      Walkthrough — the shipped TMS, screen by screen.
+      Each screen sits in its own block: number + title + (optional
+      flow-brief on screen 1) + the screenshot + 3–4 pointers below.
+      Big breathable spacing so each screen lands on its own.
+    */
+    .walk { margin-top: var(--s-7); }
+    .walk-screen { margin: 0; }
+    .walk-screen + .walk-screen {
+      margin-top: var(--s-9);
+      padding-top: var(--s-7);
+      border-top: 1px solid var(--brd);
+    }
+    .walk-num {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C08A3A;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .walk-title {
+      font-family: var(--font-serif);
+      font-size: clamp(22px, 2.2vw, 28px);
+      line-height: 1.25;
+      color: var(--ink);
+      margin: 0 0 var(--s-3);
+      letter-spacing: -0.005em;
+    }
+    .walk-brief {
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--ink-80);
+      margin: 0 0 var(--s-6);
+      max-width: 65ch;
+    }
+    .walk-brief b { color: var(--ink); font-weight: 500; }
+    .walk-shot {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--r-lg);
+      border: 1px solid var(--brd);
+      background: #FAF7F1;
+      margin: var(--s-5) 0;
+      box-shadow:
+        0 24px 50px -32px rgba(13,13,11,.18),
+        0 4px 10px -6px rgba(13,13,11,.06);
+    }
+    .walk-pointers {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-5) var(--s-7);
+    }
+    @media (max-width: 720px) {
+      .walk-pointers { grid-template-columns: 1fr; gap: var(--s-5); }
+    }
+    .walk-pointers li {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink-80);
+      margin: 0;
+    }
+    .walk-pointers li b { color: var(--ink); font-weight: 500; }
+
+    /*
+      Decision cards under each screen.
+      Replaces the bare 2-column list with a grouped card layout —
+      eyebrow ("Decision 01"), serif lead, then short rationale.
+      Subtle amber left-accent gives the cards visual structure so
+      they don't read as floating text on canvas. Two across on
+      desktop, stacked on mobile.
+    */
+    .walk-decisions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s-5);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      counter-reset: walkdec;
+    }
+    @media (max-width: 720px) {
+      .walk-decisions { grid-template-columns: 1fr; gap: var(--s-5); }
+    }
+    .walk-decisions li {
+      counter-increment: walkdec;
+      position: relative;
+      padding: 18px 20px 18px 22px;
+      background: #FAF7F1;
+      border: 1px solid var(--brd);
+      border-left: 3px solid #C08A3A;
+      border-radius: var(--r-md);
+      margin: 0;
+    }
+    .walk-decisions li::before {
+      content: "Decision 0" counter(walkdec);
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C08A3A;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .walk-decisions .walk-decision-title {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      line-height: 1.35;
+      color: var(--ink);
+      margin: 0 0 6px;
+      letter-spacing: -0.005em;
+    }
+    .walk-decisions .walk-decision-body {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--ink-80);
+      margin: 0;
+    }
+    .walk-decisions .walk-decision-body b {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    /* Heading block above the workflow diagram — eyebrow, h3, intro.
+       Gives the reader context BEFORE the visual loads. */
+    .wf-heading { margin-bottom: var(--s-5); }
+    .wf-eyebrow {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-55);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .wf-title {
+      font-family: var(--font-serif);
+      font-size: clamp(20px, 1.9vw, 24px);
+      line-height: 1.25;
+      color: var(--ink);
+      margin: 0 0 6px;
+      letter-spacing: -0.005em;
+    }
+    .wf-intro {
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--ink-80);
+      margin: 0;
+      max-width: 60ch;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor (matches main site) -->
+  <div id="cdot" class="c-dot" aria-hidden="true"></div>
+  <div id="cring" class="c-ring" aria-hidden="true"></div>
+
+  <!-- Top nav — identical structure to the homepage nav (links, Resume CTA,
+       mobile hamburger + dropdown) so the header is consistent across pages.
+       Links point back to homepage sections since this is a sub-page. -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html#home" class="nav-logo">Prateek</a>
+
+      <ul class="nav-links">
+        <li><a href="../index.html#home">Home</a></li>
+        <li><a href="../index.html#work" class="active">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#ai">AI Playground</a></li>
+        <li><a href="../index.html#contact">Contact</a></li>
+      </ul>
+
+      <span class="nav-sep" aria-hidden="true"></span>
+
+      <a href="https://drive.google.com/file/d/1XLZ2Gy5GaO-_H55G0yrxjoFw5AoB3NOP/view" target="_blank" rel="noopener" class="nav-resume">
+        Resume <span class="nav-resume-arrow">↗︎</span>
+      </a>
+
+      <!-- Mobile menu toggle — only shown ≤720px (see responsive.css) -->
+      <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile dropdown menu — toggled by .nav-toggle, hidden on desktop -->
+    <div class="nav-mobile" id="navMenu">
+      <a href="../index.html#home" data-nav-mobile-link>Home</a>
+      <a href="../index.html#work" data-nav-mobile-link>Work</a>
+      <a href="../index.html#about" data-nav-mobile-link>About</a>
+      <a href="../index.html#ai" data-nav-mobile-link>AI Playground</a>
+      <a href="../index.html#contact" data-nav-mobile-link>Contact</a>
+      <a href="https://drive.google.com/file/d/1XLZ2Gy5GaO-_H55G0yrxjoFw5AoB3NOP/view" target="_blank" rel="noopener" data-nav-mobile-link>Resume ↗︎</a>
+    </div>
+  </nav>
+
+  <main class="cs-shell">
+    <div class="cs-wrap">
+
+      <aside class="cs-sidenav">
+        <span class="cs-sidenav-label">On this page</span>
+        <ul class="cs-sidenav-list">
+          <li><a href="#overview" class="is-active">What we walked into</a></li>
+          <li><a href="#observations">Three observations</a></li>
+          <li><a href="#approach">The call</a></li>
+          <li><a href="#solution">The shipped TMS</a></li>
+          <li><a href="#iterations">What I dropped</a></li>
+          <li><a href="#impact">What changed</a></li>
+          <li><a href="#learnings">Taking forward</a></li>
+        </ul>
+      </aside>
+
+      <article class="cs-main" data-ai-source>
+
+        <a href="../index.html#work" class="cs-back">
+          <span class="cs-back-arrow">←</span> Back to work
+        </a>
+
+        <header>
+          <span class="cs-eyebrow">
+            <span class="cs-eyebrow-dot"></span>
+            Eximpe &middot; Cross-border Payments
+          </span>
+          <h1 class="cs-title">Bringing transaction monitoring in-house.</h1>
+          <p class="cs-deck">
+            <strong>Eximpe</strong> is a cross-border payments company
+            — Indian buyers paying international merchants. Every
+            payment passes through a <strong>Transaction Monitoring
+            System (TMS)</strong>: a tool the in-house compliance team
+            uses to review payments that look risky, decide whether to
+            allow them, and keep a record of why. For the first two
+            years, Eximpe rented that tool from a payments partner —
+            paying a fee on every transaction and inheriting someone
+            else's interface. This project replaced it with an
+            in-house TMS designed around how the compliance team
+            actually works. I led the design end-to-end, prototyped in
+            working code, and shipped to engineering.
+          </p>
+
+          <div class="cs-meta">
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Role</span>
+              <span class="cs-meta-value">Product Designer · research → design → prototype → ship</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Timeline</span>
+              <span class="cs-meta-value">~1–2 weeks per surface · shipped, staged rollout</span>
+            </div>
+            <div class="cs-meta-item">
+              <span class="cs-meta-label">Surface</span>
+              <span class="cs-meta-value">Web · internal Eximpe ops team</span>
+            </div>
+          </div>
+
+          <!-- Hero visual — workflow diagram (restored).
+               Heading + intro above. Each box's description uses
+               two-line tspans so text never overflows. The Review
+               queue screenshot lives in the walkthrough below now;
+               this diagram sets the plain-language context first. -->
+          <figure class="wf-figure" style="margin-top: var(--s-7);">
+            <div class="wf-heading">
+              <span class="wf-eyebrow">The workflow at a glance</span>
+              <h3 class="wf-title">How a payment moves through Eximpe</h3>
+              <p class="wf-intro">Most payments clear automatically. The ones that don't are why TMS exists — and why I designed it.</p>
+            </div>
+
+            <div class="wf-frame">
+              <svg class="wf-svg" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="wf-title wf-desc">
+                <title id="wf-title">How a payment moves through Eximpe</title>
+                <desc id="wf-desc">A customer payment is auto-screened by rules and a fraud-risk check. Clean payments settle automatically. Risky ones go to a compliance officer who reviews and decides. Every decision is recorded for later audit.</desc>
+
+                <defs>
+                  <marker id="wf-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#1a1816" opacity="0.55"/>
+                  </marker>
+                </defs>
+
+                <!-- Stage 1: Customer payment -->
+                <g>
+                  <rect x="20" y="60" width="260" height="115" rx="10" fill="#fff" stroke="#DDD7C8" stroke-width="1.4"/>
+                  <text x="38" y="88" font-family="Poppins, system-ui, sans-serif" font-size="10" font-weight="500" letter-spacing="0.08em" fill="#8a8780">STEP 01</text>
+                  <text x="38" y="118" font-family="Instrument Serif, Georgia, serif" font-size="22" fill="#1a1816">Customer pays</text>
+                  <text x="38" y="140" font-family="Poppins, system-ui, sans-serif" font-size="12" fill="#6b6960">
+                    <tspan x="38" dy="0">An Indian buyer sends money</tspan>
+                    <tspan x="38" dy="14">to an overseas merchant.</tspan>
+                  </text>
+                </g>
+
+                <line x1="280" y1="117" x2="330" y2="117" stroke="#1a1816" stroke-width="1.4" opacity="0.55" marker-end="url(#wf-arr)"/>
+
+                <!-- Stage 2: Auto-screen (amber accent) -->
+                <g>
+                  <rect x="330" y="60" width="260" height="115" rx="10" fill="#FFF8EC" stroke="#C08A3A" stroke-width="1.6"/>
+                  <text x="348" y="88" font-family="Poppins, system-ui, sans-serif" font-size="10" font-weight="500" letter-spacing="0.08em" fill="#C08A3A">STEP 02 · AUTO-CHECK</text>
+                  <text x="348" y="118" font-family="Instrument Serif, Georgia, serif" font-size="22" fill="#1a1816">Rules + fraud scan</text>
+                  <text x="348" y="140" font-family="Poppins, system-ui, sans-serif" font-size="12" fill="#6b6960">
+                    <tspan x="348" dy="0">27 risk rules + a fraud check</tspan>
+                    <tspan x="348" dy="14">run on every payment.</tspan>
+                  </text>
+                </g>
+
+                <line x1="590" y1="117" x2="640" y2="117" stroke="#1a1816" stroke-width="1.4" opacity="0.55" marker-end="url(#wf-arr)"/>
+
+                <!-- Stage 3: Human review -->
+                <g>
+                  <rect x="640" y="60" width="260" height="115" rx="10" fill="#fff" stroke="#DDD7C8" stroke-width="1.4"/>
+                  <text x="658" y="88" font-family="Poppins, system-ui, sans-serif" font-size="10" font-weight="500" letter-spacing="0.08em" fill="#8a8780">STEP 03 · IF FLAGGED</text>
+                  <text x="658" y="118" font-family="Instrument Serif, Georgia, serif" font-size="22" fill="#1a1816">Officer reviews</text>
+                  <text x="658" y="140" font-family="Poppins, system-ui, sans-serif" font-size="12" fill="#6b6960">
+                    <tspan x="658" dy="0">A compliance officer opens it</tspan>
+                    <tspan x="658" dy="14">and reads why it was flagged.</tspan>
+                  </text>
+                </g>
+
+                <line x1="900" y1="117" x2="950" y2="117" stroke="#1a1816" stroke-width="1.4" opacity="0.55" marker-end="url(#wf-arr)"/>
+
+                <!-- Stage 4: Decision -->
+                <g>
+                  <rect x="950" y="60" width="230" height="115" rx="10" fill="#fff" stroke="#DDD7C8" stroke-width="1.4"/>
+                  <text x="968" y="88" font-family="Poppins, system-ui, sans-serif" font-size="10" font-weight="500" letter-spacing="0.08em" fill="#8a8780">STEP 04 · DECISION</text>
+                  <text x="968" y="118" font-family="Instrument Serif, Georgia, serif" font-size="22" fill="#1a1816">Allow or stop</text>
+                  <text x="968" y="140" font-family="Poppins, system-ui, sans-serif" font-size="12" fill="#6b6960">
+                    <tspan x="968" dy="0">Approve · Ask merchant ·</tspan>
+                    <tspan x="968" dy="14">Escalate · Refund.</tspan>
+                  </text>
+                </g>
+
+                <!-- Clean branch (from stage 2, downward, dashed) -->
+                <path d="M460 175 L460 235 L160 235 L160 265" stroke="#1a1816" stroke-width="1.2" opacity="0.4" stroke-dasharray="4 3" fill="none" marker-end="url(#wf-arr)"/>
+                <text x="220" y="227" font-family="Poppins, system-ui, sans-serif" font-size="11.5" font-style="italic" fill="#8a8780">If no rule trips → settles automatically</text>
+
+                <!-- Audit-trail caption row at bottom -->
+                <line x1="20" y1="300" x2="1180" y2="300" stroke="#1a1816" stroke-width="1" opacity="0.18"/>
+                <text x="20" y="325" font-family="Poppins, system-ui, sans-serif" font-size="11" font-weight="500" letter-spacing="0.08em" fill="#8a8780">RECORDED FOR LATER AUDIT</text>
+                <text x="20" y="346" font-family="Poppins, system-ui, sans-serif" font-size="12.5" fill="#1a1816">Every officer decision is timestamped and stored, so an auditor can later see who decided what — and why.</text>
+              </svg>
+            </div>
+          </figure>
+        </header>
+
+        <!-- ──────────── Sections ──────────── -->
+
+        <!-- ACT 2 — What we walked into.
+             Text-only now. The real Review queue screenshot above (in
+             the hero) and the walkthrough section below do the visual
+             work; this section is just the framing the reader needs. -->
+        <section id="overview" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">01 &middot; Context</span>
+          <h2 class="act-title">What we walked into.</h2>
+
+          <p class="cs-lede">
+            Eximpe's compliance team — a small group of officers — was
+            already running a daily workflow: when a payment looked
+            risky (large amount, unusual merchant, sanctions match,
+            etc.), they had to <strong>open it, read why it got
+            flagged, and decide</strong> whether to allow it, ask the
+            merchant for proof, escalate it to a senior officer, or
+            refund the customer. <strong>This decision-making — and
+            keeping a record of it — is what TMS is for.</strong>
+          </p>
+
+          <p class="cs-lede">
+            For two years they did all of that inside a third-party
+            tool Eximpe was paying for. It worked, but it slowed the
+            team down: too many columns at once, no clear "what should
+            I look at first," and changes had to be requested from a
+            vendor instead of a Slack to engineering. The brief: build
+            it in-house, and make the new version feel
+            <em>clearer</em> than the one the team already trusted.
+          </p>
+        </section>
+
+        <!-- Constraints merged inline into Act 3 (observations) below as
+             a single short paragraph; the standalone "three constraints"
+             list pattern was repetitive after Act 2. -->
+        <section id="constraints" class="cs-section" style="padding-top: 0;">
+          <span class="cs-section-eyebrow is-quiet">02 &middot; Constraints</span>
+          <p class="cs-lede" style="font-size: clamp(14px, 1.3vw, 16px); color: var(--ink-80); margin: 0;">
+            <em>A note on what I was working with:</em> the Compliance
+            team was already running daily reviews inside the partner
+            tool, so discovery meant shadowing real sessions and Slack
+            threads — not interviewing a hypothetical user. NDA kept
+            the shipped UI internal; everything visualised here is
+            illustrative. The cycle was tight: ~1–2 weeks per surface,
+            research → design → prototype-in-code → handoff.
+          </p>
+        </section>
+
+        <!-- ACT 3 — Three observation moments.
+             Each row alternates L/R with a small sketch on one side
+             and the observation + interpretation on the other.
+             Observations sourced from partner-tool walkthroughs with
+             the PACB Admin and wider compliance team. -->
+        <section id="observations" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">03 &middot; Observations</span>
+          <h2 class="act-title">Three workflow patterns the partner tool didn't anticipate.</h2>
+          <p class="cs-lede">
+            Walkthroughs of the existing partner tool with the
+            <strong>PACB Admin</strong> (who has cross-queue visibility
+            across CO, Senior CO, and PO) and conversations with the
+            wider compliance team surfaced three small behaviours that
+            kept repeating — and reshaped the brief. The team's
+            workflow: payments flagged overnight come into the queues
+            each morning, and each one has a working day to be
+            cleared, escalated, or refunded.
+          </p>
+
+          <!-- Observation 01 — sketch on left.
+               She re-sorts the queue by review-deadline on every load. -->
+          <div class="obs-row">
+            <div class="obs-sketch">
+              <svg viewBox="0 0 240 150" width="100%" height="auto" role="img" aria-label="A queue with rows being re-sorted by review deadline">
+                <defs>
+                  <marker id="o1-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C08A3A"/></marker>
+                </defs>
+                <rect x="10" y="20" width="220" height="14" rx="3" fill="#fff" stroke="#DDD7C8"/>
+                <rect x="10" y="40" width="220" height="14" rx="3" fill="#fff" stroke="#DDD7C8"/>
+                <rect x="10" y="60" width="220" height="14" rx="3" fill="#FFF8EC" stroke="#C08A3A"/>
+                <rect x="10" y="80" width="220" height="14" rx="3" fill="#fff" stroke="#DDD7C8"/>
+                <rect x="10" y="100" width="220" height="14" rx="3" fill="#fff" stroke="#DDD7C8"/>
+                <text x="146" y="14" font-family="Poppins, system-ui, sans-serif" font-size="8" fill="#8a8780" letter-spacing="0.1em">SORT BY DEADLINE ↓</text>
+                <path d="M 196 14 q 28 8 0 50" stroke="#C08A3A" stroke-width="1.4" fill="none" marker-end="url(#o1-arr)"/>
+                <text x="10" y="138" font-family="Instrument Serif, serif" font-style="italic" font-size="11" fill="#6b6960">re-sorts. every load.</text>
+              </svg>
+            </div>
+            <div class="obs-text">
+              <span class="obs-eyebrow">Observation 01</span>
+              <p class="obs-quote">Operators re-sorted the queue by review deadline every time it loaded.</p>
+              <p class="obs-interp">The partner tool defaulted to "most recent first," but compliance work is governed by which payment will breach its review deadline first. So the team re-sorted manually — every single time. <b>The right default isn't a personal preference; it's the deadline clock, baked into the page.</b></p>
+            </div>
+          </div>
+
+          <!-- Observation 02 — sketch on right (reversed).
+               Constrain the SVG inside a sized wrapper so it stops
+               clipping on narrower viewports. -->
+          <div class="obs-row is-reverse">
+            <div class="obs-sketch">
+              <svg viewBox="0 0 240 160" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A row in the queue opening into a side panel for review">
+                <rect x="6" y="68" width="124" height="22" rx="3" fill="#fff" stroke="#DDD7C8"/>
+                <text x="14" y="82" font-family="ui-monospace, monospace" font-size="9" fill="#1a1816">TXN-001721</text>
+                <text x="125" y="82" text-anchor="end" font-family="Poppins, system-ui, sans-serif" font-size="8.5" fill="#a26a25">₹77.8L</text>
+                <rect x="134" y="32" width="100" height="116" rx="6" fill="#FAF7F1" stroke="#C08A3A" stroke-width="1.4"/>
+                <text x="142" y="48" font-family="Poppins, system-ui, sans-serif" font-size="7.5" fill="#C08A3A" letter-spacing="0.08em">REVIEW PANEL</text>
+                <line x1="142" y1="56" x2="226" y2="56" stroke="#DDD7C8"/>
+                <rect x="142" y="64" width="84" height="6" rx="1" fill="#E8E3D5"/>
+                <rect x="142" y="74" width="64" height="6" rx="1" fill="#E8E3D5"/>
+                <rect x="142" y="84" width="76" height="6" rx="1" fill="#E8E3D5"/>
+                <rect x="142" y="94" width="56" height="6" rx="1" fill="#E8E3D5"/>
+                <rect x="142" y="116" width="84" height="20" rx="3" fill="#fff" stroke="#1a1816"/>
+                <text x="184" y="129" font-family="Poppins, system-ui, sans-serif" font-size="8" fill="#1a1816" text-anchor="middle">Approve ✓</text>
+                <path d="M 126 79 L 134 79" stroke="#C08A3A" stroke-width="1.4"/>
+              </svg>
+            </div>
+            <div class="obs-text">
+              <span class="obs-eyebrow">Observation 02</span>
+              <p class="obs-quote">Compliance officers always opened the side panel before approving a large payment.</p>
+              <p class="obs-interp">Inline "Approve" buttons would have looked faster, but no officer would trust a one-click approval on a high-value payment. The side panel wasn't friction — it was where the team <b>actually made the decision</b>. The new design kept the panel as the deciding moment, on purpose.</p>
+            </div>
+          </div>
+
+          <!-- Observation 03 — sketch on left.
+               Replaced "copied IDs to Slack to ping eng" with the
+               operationally more believable behaviour: she ran a side
+               spreadsheet of repeat-offender merchants. -->
+          <div class="obs-row">
+            <div class="obs-sketch">
+              <svg viewBox="0 0 240 150" width="100%" height="auto" role="img" aria-label="A side spreadsheet tracking repeat merchants outside the TMS tool">
+                <rect x="14" y="24" width="100" height="100" rx="4" fill="#fff" stroke="#DDD7C8"/>
+                <text x="22" y="40" font-family="Poppins, system-ui, sans-serif" font-size="7.5" font-weight="600" fill="#1a1816">TMS</text>
+                <rect x="22" y="48" width="84" height="8" rx="2" fill="#E8E3D5"/>
+                <rect x="22" y="60" width="84" height="8" rx="2" fill="#E8E3D5"/>
+                <rect x="22" y="72" width="84" height="8" rx="2" fill="#E8E3D5"/>
+                <rect x="22" y="84" width="84" height="8" rx="2" fill="#E8E3D5"/>
+                <rect x="22" y="96" width="84" height="8" rx="2" fill="#E8E3D5"/>
+                <rect x="130" y="42" width="98" height="92" rx="4" fill="#FFF8EC" stroke="#C08A3A"/>
+                <text x="138" y="58" font-family="Poppins, system-ui, sans-serif" font-size="7.5" font-weight="600" fill="#C08A3A">SIDE SHEET</text>
+                <line x1="138" y1="64" x2="220" y2="64" stroke="#DDD7C8"/>
+                <text x="138" y="78" font-family="ui-monospace, monospace" font-size="8" fill="#1a1816">Sunrise Exp · ×4</text>
+                <text x="138" y="92" font-family="ui-monospace, monospace" font-size="8" fill="#1a1816">Halmark · ×2</text>
+                <text x="138" y="106" font-family="ui-monospace, monospace" font-size="8" fill="#1a1816">Indo-Gulf · ×3</text>
+                <text x="138" y="120" font-family="ui-monospace, monospace" font-size="8" fill="#a26a25">Pioneer · ×6 ⚠︎</text>
+                <text x="14" y="142" font-family="Instrument Serif, serif" font-style="italic" font-size="11" fill="#6b6960">"my own list, on the side."</text>
+              </svg>
+            </div>
+            <div class="obs-text">
+              <span class="obs-eyebrow">Observation 03</span>
+              <p class="obs-quote">The team kept a side spreadsheet of merchants that kept popping up.</p>
+              <p class="obs-interp">The partner tool reviewed each payment in isolation, but compliance work is about <b>patterns</b> — the same merchant flagged four times in two weeks means something the tool wasn't surfacing. So the team tracked it manually. The new design surfaces a merchant's recent flag history right inside the review panel — no side spreadsheet needed.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACT 4 — The single biggest design call.
+             Replaces the 4-bullet "approach" list with one
+             prominent decision-quote, plus two tight footnotes
+             for the secondary decisions. -->
+        <section id="approach" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">04 &middot; Approach</span>
+          <h2 class="act-title">One decision did most of the work.</h2>
+
+          <div class="decision-quote">
+            <span class="decision-quote-eyebrow">The call</span>
+            <p class="decision-quote-line">Design the <em>row</em>, not the <em>table</em>.</p>
+          </div>
+
+          <p class="decision-rationale">
+            The partner tool exposed ~40 fields per transaction.
+            Working with the compliance lead and the risk team, I drew
+            a hard line between what an officer needs
+            <strong>at scan-time</strong> (6 fields, visible in the
+            row) and what she needs <strong>at decision-time</strong>
+            (everything else, behind a click in the review panel). One
+            split dissolved the most-cited complaint about the partner
+            tool: <em>"I can't tell what matters."</em>
+          </p>
+
+          <p class="decision-rationale">
+            <strong>The second call: split the queue by who can act.</strong>
+            Eximpe's compliance team works as four roles:
+          </p>
+          <ul class="decision-rationale" style="padding-left: 18px; list-style: disc;">
+            <li><strong>Compliance Officer (CO)</strong> — the first reviewer; clears the routine ones, asks the merchant for proof on the uncertain ones.</li>
+            <li><strong>Senior CO</strong> — handles anything the CO can't resolve, plus all higher-value payments.</li>
+            <li><strong>Principal Officer (PO)</strong> — the regulatory sign-off for sensitive cases (sanctions hits, large customer-initiated reversals).</li>
+            <li><strong>PACB Admin</strong> — the team that owns the TMS itself. Cross-role visibility (sees every queue, not just their own), configures rules, and can step in for any tier. The screens further down in this case study are all from a PACB-Admin login — which is why every tab is visible at once. In production, a CO logging in only sees the Review queue tab; a PO only sees Final review on top of theirs.</li>
+          </ul>
+          <p class="decision-rationale">
+            The old tool put every flagged payment in one shared
+            inbox. The new TMS scopes each role's view — the CO sees
+            only what's for her to action, escalations show up in the
+            Senior CO's tab, PO-only cases never appear in either,
+            and the PACB Admin sees the whole board so they can spot
+            bottlenecks no individual role would. That stops the most
+            dangerous failure mode: a junior reviewer clearing a
+            payment that needed a regulatory sign-off.
+          </p>
+
+          <p class="decision-rationale">
+            <strong>The third call: prototype in real code, not Figma.</strong>
+            Stakeholders reviewed in a working browser — which
+            surfaced empty states, loading states, and "I clicked but
+            nothing happened" edges Figma couldn't show. Both
+            iterations below died at code-fidelity that would have
+            shipped from a Figma file (see <a href="#iterations">below</a>).
+          </p>
+        </section>
+
+        <!-- ACTS 5 + 6 merged — The shipped TMS, screen by screen.
+             Six screenshots, each with a short brief and 3–4
+             pointers. The first screen also carries the flow-brief
+             that explains the funnel a flagged payment travels through. -->
+        <section id="solution" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">05 &middot; The shipped TMS</span>
+          <h2 class="act-title">The shipped TMS, screen by screen.</h2>
+          <p class="cs-lede">
+            Six screens, in the order the compliance team moves through
+            them on a normal day. The walkthrough is framed from the
+            <strong>PACB Admin</strong>'s view because PACB Admin sees
+            every queue (CO, Senior CO, PO), making it the most
+            complete window into how the system fits together.
+            <em>Note on visuals: the screens shown here are illustrative
+            of the shipped flows and structure — the production visual
+            design is under NDA, so what's on this page differs in
+            look-and-feel, though the workflow, hierarchy and
+            decisions are exactly what's live.</em>
+          </p>
+
+          <div class="walk">
+
+            <!-- Screen 1 — Review queue (with the flow-brief) -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 01 · Review queue</span>
+              <h3 class="walk-title">Where the day starts.</h3>
+              <p class="walk-brief">
+                Overnight, the <b>Rules Engine</b> ran 27 detection rules against every cross-border payment. Roughly <b>1%</b> tripped a rule and are sitting here, waiting for a Compliance Officer's decision. For each row the officer can: <b>clear it</b> (the merchant gets their money), <b>reject &amp; refund</b> (the customer is made whole), <b>ask the merchant for proof</b>, <b>escalate to a Senior CO</b>, or <b>open a case</b> if the pattern needs investigation. If a case later confirms wrongdoing, the <b>Principal Officer</b> files an STR with the regulator. The rest of this walkthrough follows that funnel — queue → transaction → case → STR — and ends in Settings, where the rules themselves are configured.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/01-review-queue.png" alt="Eximpe TMS · Review queue — flagged payments awaiting compliance decision." width="2704" height="1506" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Start with the three numbers, not the table.</p>
+                  <p class="walk-decision-body">Three top-line metrics — flagged amount, average review time, open cases — answer <em>"where do we stand?"</em> before anyone touches a row.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Surface patterns, not just rows.</p>
+                  <p class="walk-decision-body">The queue links related transactions automatically — five separate flags become one case to investigate.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Bring the evidence into the row.</p>
+                  <p class="walk-decision-body">Each row carries its violation reasons inline, so triage happens without opening anything.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Sort by deadline, not by time received.</p>
+                  <p class="walk-decision-body">Every flag has a regulator deadline, so the closest ones sort to the top — urgency comes from the data, not memory.</p>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Screen 2 — Transaction detail -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 02 · Transaction detail</span>
+              <h3 class="walk-title">A single payment, in 30 seconds.</h3>
+              <p class="walk-brief">
+                Click any row in the queue, you land here. Built so a Compliance Officer can scan, decide, and act in under a minute — without losing the audit trail.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/02-transaction-detail.png" alt="Eximpe TMS · Transaction detail page for TXN-2026-001901, ₹4,60,000 from Bharat Crafts Exports, flagged for FRM." width="2704" height="1508" loading="lazy" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Make the most decision-relevant fact the loudest.</p>
+                  <p class="walk-decision-body">Amount sits at the visual centre, not buried in a side panel — <em>"should I even care?"</em> is answered before the page finishes loading.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Answer "is this normal?" before anything else.</p>
+                  <p class="walk-decision-body">Four context tiles compare the transaction to the merchant's own baseline, so anomalies stand out without any manual lookup.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Separate safe actions from irreversible ones.</p>
+                  <p class="walk-decision-body">All actions sit in one bottom bar — approve, reject, escalate always in the same place and order, so a slip can't happen under time pressure.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Notes are a first-class part of the record.</p>
+                  <p class="walk-decision-body">Notes lives beside Audit, so an auditor's <em>"why did you approve this?"</em> is one click away — not buried in a sidebar.</p>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Screen 3 — Cases tab -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 03 · Cases</span>
+              <h3 class="walk-title">When one transaction isn't the whole story.</h3>
+              <p class="walk-brief">
+                A <b>Case</b> is an investigation workspace — a folder that lives across multiple transactions, possibly over weeks. Opened when a yes/no decision on a single payment isn't enough.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/03-cases.png" alt="Eximpe TMS · Cases tab — active investigations CASE-2026-002 and CASE-2026-001 with linked transactions and aggregate amounts." width="2704" height="1508" loading="lazy" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Make the unit of work an investigation, not a transaction.</p>
+                  <p class="walk-decision-body">A single payment is rarely suspicious; three together usually are. Cases gives investigations a workspace that spans transactions, parties and time — instead of a spreadsheet.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Lead with the aggregate, not the case ID.</p>
+                  <p class="walk-decision-body">The case headline is the total amount at risk across linked transactions, not an ID — it shows how big the decision is first.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Show momentum, not just status.</p>
+                  <p class="walk-decision-body">A Last Activity signal surfaces stale work visually, so investigations waiting on a nudge don't quietly age.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Filter out resolved work automatically.</p>
+                  <p class="walk-decision-body">Filed and closed cases stay accessible but leave the active queue — the team only sees what's actually moving.</p>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Screen 4 — Case detail -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 04 · Case detail</span>
+              <h3 class="walk-title">The investigation surface.</h3>
+              <p class="walk-brief">
+                Click a case row, you land in its workspace. Everything an investigator (or auditor) needs to understand the case lives here — investigation summary, linked transactions, evidence, the full event log.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/04-case-detail.png" alt="Eximpe TMS · Case detail for CASE-2026-002, ₹1.86 Cr aggregate at risk for Wipro Trading Arm with linked transactions and action bar." width="2704" height="1508" loading="lazy" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Force a written rationale at case opening.</p>
+                  <p class="walk-decision-body">Whoever opens a case writes the summary first — so if the analyst rotates off, the next person doesn't reverse-engineer the reasoning.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">One glanceable grid, six signals.</p>
+                  <p class="walk-decision-body">Linked txns · aggregate at risk · merchant status · opened by · last activity — six signals answer <em>"should I act now?"</em> without scrolling.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Group case actions by what they affect.</p>
+                  <p class="walk-decision-body">Funds-level actions sit together; the irreversible "terminate merchant" is set apart — grouping that prevents the wrong action under pressure.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Merchant context lives inside the case.</p>
+                  <p class="walk-decision-body">A merchant's suspension or prior STR is usually the deciding factor, so it sits in the case sidebar — full profile one click away.</p>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Screen 5 — STR register -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 05 · STR register</span>
+              <h3 class="walk-title">Filed reports — the regulator's record.</h3>
+              <p class="walk-brief">
+                Once a case confirms wrongdoing, the Principal Officer files an <b>STR (Suspicious Transaction Report)</b> with India's regulator (FIU-IND) via the FINGate 2.0 portal. The register is the audit-trail home for every filing.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/05-str-register.png" alt="Eximpe TMS · STR register listing filed reports STR-2026-001 and STR-2025-018 with FINnet refs and acknowledged status." width="2704" height="1506" loading="lazy" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Treat filed reports as immutable records.</p>
+                  <p class="walk-decision-body">Once filed, no one — not even the PO — can edit an STR, so rows aren't interactive. The design matches what the data actually is.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">The case is the way back, not the STR itself.</p>
+                  <p class="walk-decision-body">An STR is just a summary — the investigation lives in its case, so the case link is the primary entry point on every row.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">One-click evidence pack export.</p>
+                  <p class="walk-decision-body">One export icon generates the full sealed pack — KYC, linked transactions, audit trail, acknowledgement — instead of hours of manual collection.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Track external acknowledgement, not just internal submission.</p>
+                  <p class="walk-decision-body"><em>"We filed it"</em> and <em>"the regulator received it"</em> are different statuses — the register tracks both, so follow-up is obvious.</p>
+                </li>
+              </ol>
+            </div>
+
+            <!-- Screen 6 — Settings / Rule library -->
+            <div class="walk-screen">
+              <span class="walk-num">Screen 06 · Settings → Rule library</span>
+              <h3 class="walk-title">The configurable brain of the TMS.</h3>
+              <p class="walk-brief">
+                Every flag in the Review queue traces back to a rule here. 27 in the catalog, 7 currently active. PMLA requires <b>PO sign-off</b> to activate a new rule — every change shows up in Change history.
+              </p>
+              <img class="walk-shot" src="../assets/case-study/eximpe/06-settings-rules.png" alt="Eximpe TMS · Settings → Rule library with 7 active of 27 rules and parameter chips." width="2704" height="1506" loading="lazy" decoding="async" />
+              <ol class="walk-decisions">
+                <li>
+                  <p class="walk-decision-title">Standardise the rule vocabulary across the catalog.</p>
+                  <p class="walk-decision-body">Every rule uses the same four variables (X · Y · Z · N) — one mental model across 27 rules, learned once instead of per-rule.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Keep two rule types, deliberately.</p>
+                  <p class="walk-decision-body">Two rule types stay separate: regulatory hard limits vs behavioural patterns — so it's always clear which the team can tune and which are fixed by law.</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Lift Settings out of TMS.</p>
+                  <p class="walk-decision-body">Rules started nested inside TMS, but Recon and Risk needed the same config — so Settings moved to a shared org-level area. (See <a href="#iterations">Iterations</a>.)</p>
+                </li>
+                <li>
+                  <p class="walk-decision-title">Authorship surfaces in every row.</p>
+                  <p class="walk-decision-body">PMLA holds named individuals accountable, so each rule's author and last-modified date sit in the catalog — accountability visible by construction.</p>
+                </li>
+              </ol>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Iterations — two real IA decisions, no UI-tweak fillers.
+             The case study leans architectural throughout (role
+             tiers, walkthrough, impact); these iterations reinforce
+             that narrative rather than wandering into pixel choices. -->
+        <section id="iterations" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">06 &middot; Iterations</span>
+          <h2 class="act-title">Two structural calls I went back and fixed.</h2>
+          <p class="cs-lede">
+            The shipped TMS isn't the first shape it took. The two
+            iterations below are the ones that changed how the whole
+            system is organised — not how it looks. Both started as
+            reasonable defaults and got reframed mid-build.
+          </p>
+
+          <div class="iterations-grid">
+
+            <!-- Iteration 01 — Settings extracted from TMS into a
+                 shared org-level area so other modules can reuse it. -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-nest">
+                  <div class="sketch-nest-outer">
+                    <span class="sketch-nest-tag">TMS</span>
+                    <div class="sketch-nest-inner">
+                      <span class="sketch-nest-tag-inner">⚙ Rules &amp; settings</span>
+                    </div>
+                  </div>
+                  <div class="sketch-nest-arrow">→</div>
+                  <div class="sketch-nest-after">
+                    <div class="sketch-nest-mod">TMS</div>
+                    <div class="sketch-nest-mod">Recon</div>
+                    <div class="sketch-nest-mod">Risk</div>
+                    <div class="sketch-nest-settings">⚙ Settings</div>
+                  </div>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Re-architected</span>
+                <h3 class="iteration-title">Settings shouldn't live inside TMS.</h3>
+                <dl class="iteration-flow">
+                  <div class="iteration-step">
+                    <dt>First instinct</dt>
+                    <dd>Nest rule config + role management inside TMS — it's where the rules are used.</dd>
+                  </div>
+                  <div class="iteration-step">
+                    <dt>Where it broke</dt>
+                    <dd>Reconciliation and Risk would need the same roles, merchant directory, notification preferences.</dd>
+                  </div>
+                  <div class="iteration-step">
+                    <dt>The reframe</dt>
+                    <dd>Pulled config into a shared <b>org-level Settings</b> area. TMS reads from it instead of owning it. <em>See Screen 06 above.</em></dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <!-- Iteration 02 — Cases tab is a work queue, not an
+                 archive. Resolved cases (STR filed / closed-no-action)
+                 drop out of the tab but remain accessible via the
+                 STR register. -->
+            <div class="iteration">
+              <div class="iteration-sketch">
+                <div class="sketch-queue">
+                  <div class="sketch-queue-tab is-before">
+                    <span class="sketch-queue-tab-label">Cases</span>
+                    <span class="sketch-queue-tab-count">5</span>
+                  </div>
+                  <div class="sketch-queue-rows is-before">
+                    <span>CASE-001 · open</span>
+                    <span>CASE-002 · open</span>
+                    <span class="muted">CASE-003 · STR filed</span>
+                    <span class="muted">CASE-004 · closed</span>
+                    <span class="muted">CASE-005 · STR filed</span>
+                  </div>
+                  <div class="sketch-queue-arrow">→</div>
+                  <div class="sketch-queue-after">
+                    <div class="sketch-queue-tab">
+                      <span class="sketch-queue-tab-label">Cases</span>
+                      <span class="sketch-queue-tab-count is-active">2</span>
+                    </div>
+                    <div class="sketch-queue-rows">
+                      <span>CASE-001 · open</span>
+                      <span>CASE-002 · open</span>
+                    </div>
+                    <div class="sketch-queue-tab is-secondary">
+                      <span class="sketch-queue-tab-label">STR register</span>
+                      <span class="sketch-queue-tab-count">3</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="iteration-body">
+                <span class="iteration-tag">Overruled the AI</span>
+                <h3 class="iteration-title">STR-filed cases should leave the Cases tab.</h3>
+                <dl class="iteration-flow">
+                  <div class="iteration-step">
+                    <dt>First instinct</dt>
+                    <dd>Keep STR-filed cases in the Cases tab forever — the case is the investigation record, so it should stay findable. The AI agreed.</dd>
+                  </div>
+                  <div class="iteration-step">
+                    <dt>Where it broke</dt>
+                    <dd>STR-filed work isn't CO review anymore — it's <b>PO coordination with the regulator</b>: export evidence, mail to FIU-IND, await verdict, then act on it. Different audience, different operations, different data (FINnet refs, STR statuses). Pinning it all to one tab made both the queue and the register worse.</dd>
+                  </div>
+                  <div class="iteration-step">
+                    <dt>The reframe</dt>
+                    <dd>STR register became its own surface. The <b>case detail page stays the workspace for both worlds</b> — daily review actions AND post-verdict ones like Terminate merchant. One workspace, two entry points: Cases tab for active review, STR register for regulator coordination.</dd>
+                  </div>
+                </dl>
+                <p class="iteration-principle">Principle: <em>match the surface to the audience and the work — not to the underlying data.</em> The same record can live behind multiple entry points, each shaped for the job that uses it.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <blockquote class="cs-callout">
+            Both calls came from looking past what a record <em>is</em> and asking what the user needs to <em>do</em> with it next. A principle that applies anywhere multiple roles share the same data — support tickets, on-call alerts, approval queues, inboxes.
+          </blockquote>
+        </section>
+
+        <!-- ACT 8 — Edge cases as a vocabulary of pills.
+             Replaces the prose-list pattern. Each pill is the actual
+             UI element; the line below tells you what that state
+             means for the operator. Scannable like a glossary. -->
+        <!-- ACT 9 — What changed, as a magazine spread.
+             Big numerical callouts with generous whitespace. The
+             numbers earn the room. Reconciliation + watching-post
+             demoted to italic footnote. -->
+        <section id="impact" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">07 &middot; Impact</span>
+          <h2 class="act-title">What changed.</h2>
+          <p class="cs-lede">
+            Shipped; migration off the partner is staged by merchant
+            cohort, so these numbers are <em>scoped to the migrated
+            cohort</em>, not extrapolated. Measured via the team's
+            <strong>Amplitude</strong> integration over the first
+            month post-launch.
+          </p>
+
+          <div class="stat-spread">
+            <div class="stat-big">
+              <p class="stat-big-num">~280<em>/day</em></p>
+              <p class="stat-big-label">PAYMENTS ROUTED</p>
+              <p class="stat-big-line">Through the in-house TMS, across the migrated merchant group. Every one screened by the same 27 rules + fraud check before it settles.</p>
+            </div>
+
+            <div class="stat-big">
+              <p class="stat-big-num">11</p>
+              <p class="stat-big-label">HIGH-RISK MERCHANTS · FIRST 30 DAYS</p>
+              <p class="stat-big-line">Patterns the partner tool was collapsing into a generic "Review" — FX-corridor anomalies, repeat-payee mismatches, structured-amount splits.</p>
+            </div>
+
+            <div class="stat-big">
+              <p class="stat-big-num">~6<em>min</em></p>
+              <p class="stat-big-label">MEDIAN REVIEW TIME</p>
+              <p class="stat-big-line">Internal target was &lt;10 min per review. On the partner tool the same review took 15–20 min — most of it spent flipping between the queue and external context.</p>
+            </div>
+
+            <div class="stat-big">
+              <p class="stat-big-num">100<em>%</em></p>
+              <p class="stat-big-label">COMMISSION ELIMINATED · MIGRATED COHORT</p>
+              <p class="stat-big-line">Each subsequent cohort removes its per-transaction commission line from the run-rate as it completes migration.</p>
+            </div>
+
+            <div class="stat-big">
+              <p class="stat-big-num">0</p>
+              <p class="stat-big-label">CROSS-ROLE ACTION LEAKS</p>
+              <p class="stat-big-line">Since launch. The role-scoped queue model has held — no CO clearing a row that should have escalated, no PO-level approval triggered from the wrong seat.</p>
+            </div>
+          </div>
+
+          <p class="stat-footnote">
+            <b>Watching after rollout:</b> how long a review takes on
+            average, how often the team escalates each rule, and
+            requests for missing columns — the early signals that the
+            data model still has gaps. Each new merchant cohort that
+            migrates extends the same measurement above.
+          </p>
+        </section>
+
+        <!-- ACT 10 — Closing breath.
+             Short paragraph. Three serif italic lines on near-empty
+             canvas. The page exhales. -->
+        <section id="learnings" class="cs-section">
+          <span class="cs-section-eyebrow is-quiet">08 &middot; Learnings</span>
+          <h2 class="act-title">What I'm taking forward.</h2>
+
+          <div class="closing">
+            <p class="closing-intro">
+              Three things this project actually taught me — beyond
+              the surface, beyond the screens.
+            </p>
+
+            <ul class="closing-lines">
+              <li>Shadowing real workflows beats interviewing about hypothetical ones. The questions an operator <em>doesn't ask</em> are the ones I want to design around.</li>
+              <li>AI shortens the loop between decision and code-fidelity — but every wrong call still shows up. Faster tools, same judgement.</li>
+              <li>The hardest surfaces are the ones operating under regulation. Designing for the audit trail makes every other decision easier — including the layout itself.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Footer / next-case nav -->
+        <footer class="cs-foot">
+          <a href="../index.html#work" class="cs-foot-link">
+            <small>← Back to</small> All work
+          </a>
+          <a href="#overview" class="cs-foot-link" style="text-align: right;">
+            <small>Top of</small> This case study
+          </a>
+        </footer>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Floating ask-bar + Talk-to-my-AI modal (case-study scoped).
+       The AI answers STRICTLY from this page's content: modal.js reads the
+       [data-ai-source] article and api/chat.js switches to a grounded prompt. -->
+  <button type="button" class="ask-bar" id="askBar" data-modal-open="ai" aria-label="Ask about this case study">
+    <span class="ask-bar-inner">
+      <span class="ask-bar-icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.4 L8.6 5.4 L12.6 7 L8.6 8.6 L7 12.6 L5.4 8.6 L1.4 7 L5.4 5.4 Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="ask-bar-text">Ask about this case study…</span>
+      <span class="ask-bar-cta" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 12 V2 M3.5 5.5 L7 2 L10.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </span>
+  </button>
+
+  <div class="modal-backdrop" id="aiBackdrop"></div>
+
+  <aside class="modal" id="aiModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header class="modal-head">
+      <div class="modal-avatar">P</div>
+      <div class="modal-titles">
+        <span class="modal-title" id="modalTitle">Prateek's AI</span>
+        <span class="modal-status">Answering from this case study only</span>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close modal">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="bubble is-ai">
+        Hi — I'm Prateek's AI. Ask anything about this case study and I'll answer from what's on this page.
+      </div>
+    </div>
+
+    <div class="modal-prompts">
+      <button class="prompt-chip">Summarise this case study</button>
+      <button class="prompt-chip">What problem did it solve?</button>
+      <button class="prompt-chip">What were the key decisions?</button>
+      <button class="prompt-chip">What was the impact?</button>
+    </div>
+
+    <footer class="modal-foot">
+      <div class="composer">
+        <input type="text" aria-label="Ask about this case study" placeholder="Summarise this case study, or ask anything…" autocomplete="off" />
+        <button class="composer-btn is-mic" aria-label="Use voice">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="5" y="2" width="4" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M3 7 V8 A4 4 0 0 0 11 8 V7 M7 12 V14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="composer-btn is-send" aria-label="Send">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7 H12 M8 3 L12 7 L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-hints">
+        <span>Press <kbd>/</kbd> to open · <kbd>Esc</kbd> to close</span>
+        <span>Powered by AI · answers from this page</span>
+      </div>
+    </footer>
+  </aside>
+
+
+  <!-- Scripts -->
+  <script src="../scripts/cursor.js?v=86" defer></script>
+  <script src="../scripts/nav.js?v=86" defer></script>
+  <script src="../scripts/case-study.js?v=86" defer></script>
+  <script src="../scripts/modal.js?v=86" defer></script>
+
+</body>
+</html>

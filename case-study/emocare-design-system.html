@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EmoCare Design System — Prateek Daswani</title>
   <meta name="description" content="Case study: building a scalable design system for EmoCare — an emotional-support app for young adults. Tokens, components, accessibility — foundations before screens." />
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+  <link rel="apple-touch-icon" href="../favicon.svg" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Emocare Design System — Case study by Prateek Daswani" />
+  <meta property="og:description" content="Building a scalable design system for an emotional-support app — tokens, components, accessibility-first." />
+  <meta property="og:image" content="../assets/case-study/emocare/hero.avif" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Emocare Design System — Case study by Prateek Daswani" />
+  <meta name="twitter:description" content="Building a scalable design system for an emotional-support app — tokens, components, accessibility-first." />
+  <meta name="twitter:image" content="../assets/case-study/emocare/hero.avif" />
 
   <!-- Google Analytics (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMX8DPNZTF"></script>
@@ -19,13 +33,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600&display=swap" />
 
-  <link rel="stylesheet" href="../styles/tokens.css?v=66" />
-  <link rel="stylesheet" href="../styles/base.css?v=66" />
-  <link rel="stylesheet" href="../styles/cursor.css?v=66" />
-  <link rel="stylesheet" href="../styles/nav.css?v=66" />
-  <link rel="stylesheet" href="../styles/contact.css?v=66" />
-  <link rel="stylesheet" href="../styles/case-study.css?v=66" />
-  <link rel="stylesheet" href="../styles/responsive.css?v=66" />
+  <link rel="stylesheet" href="../styles/tokens.css?v=86" />
+  <link rel="stylesheet" href="../styles/base.css?v=86" />
+  <link rel="stylesheet" href="../styles/cursor.css?v=86" />
+  <link rel="stylesheet" href="../styles/nav.css?v=86" />
+  <link rel="stylesheet" href="../styles/contact.css?v=86" />
+  <link rel="stylesheet" href="../styles/case-study.css?v=86" />
+  <link rel="stylesheet" href="../styles/responsive.css?v=86" />
+  <link rel="stylesheet" href="../styles/modal.css?v=86" />
 </head>
 <body class="cs-emocare">
 
@@ -37,9 +52,10 @@
        studies are sub-pages. -->
   <nav class="nav">
     <div class="nav-inner">
-      <a href="../index.html" class="nav-logo">Prateek</a>
+      <a href="../index.html#home" class="nav-logo">Prateek</a>
 
       <ul class="nav-links">
+        <li><a href="../index.html#home">Home</a></li>
         <li><a href="../index.html#work" class="active">Work</a></li>
         <li><a href="../index.html#about">About</a></li>
         <li><a href="../index.html#ai">AI Playground</a></li>
@@ -48,7 +64,24 @@
 
       <span class="nav-sep" aria-hidden="true"></span>
 
-      <a href="../index.html" class="nav-resume">Back to portfolio <span class="nav-resume-arrow">↗</span></a>
+      <a href="https://drive.google.com/file/d/1XLZ2Gy5GaO-_H55G0yrxjoFw5AoB3NOP/view" target="_blank" rel="noopener" class="nav-resume">
+        Resume <span class="nav-resume-arrow">↗︎</span>
+      </a>
+
+      <!-- Mobile menu toggle — only shown ≤720px (see responsive.css) -->
+      <button type="button" class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile dropdown menu — toggled by .nav-toggle, hidden on desktop -->
+    <div class="nav-mobile" id="navMenu">
+      <a href="../index.html#home" data-nav-mobile-link>Home</a>
+      <a href="../index.html#work" data-nav-mobile-link>Work</a>
+      <a href="../index.html#about" data-nav-mobile-link>About</a>
+      <a href="../index.html#ai" data-nav-mobile-link>AI Playground</a>
+      <a href="../index.html#contact" data-nav-mobile-link>Contact</a>
+      <a href="https://drive.google.com/file/d/1XLZ2Gy5GaO-_H55G0yrxjoFw5AoB3NOP/view" target="_blank" rel="noopener" data-nav-mobile-link>Resume ↗︎</a>
     </div>
   </nav>
 
@@ -69,7 +102,7 @@
         </ul>
       </aside>
 
-      <article class="cs-main">
+      <article class="cs-main" data-ai-source>
 
         <a href="../index.html#work" class="cs-back">
           <span class="cs-back-arrow">←</span> Back to work
@@ -172,20 +205,20 @@
             </p>
             <ul class="cs-list">
               <li>
-                <strong>Cold &amp; clinical</strong> — BetterHelp, 7 Cups,
-                Sanvello. Professional tone, but unwelcoming to someone
-                already in distress. Dense screens. Inconsistent UI.
+                <strong>Clinical-leaning</strong> — therapy-marketplace and
+                self-report tools. Professional tone, but can feel
+                unwelcoming to someone already in distress.
               </li>
               <li>
-                <strong>Playful &amp; shallow</strong> — Wysa, some Replika
-                moments. Avatar-driven chat that swings cartoonish. Hard to
-                trust when the topic is real.
+                <strong>Playful-leaning</strong> — avatar-driven chat
+                experiences. Friendly, but the cartoonish frame is hard
+                to trust when the topic is heavy.
               </li>
               <li>
-                <strong>Beautiful but inflexible</strong> — Calm, Headspace.
-                Strong atmospheric visuals leaning heavily on
-                illustration; emotional warmth, but limited personalisation
-                and no underlying systematic structure.
+                <strong>Atmospheric but inflexible</strong> — meditation
+                and mood apps. Strong illustrative warmth, but limited
+                personalisation and little underlying systematic
+                structure for product teams to extend.
               </li>
             </ul>
             <p>
@@ -528,8 +561,81 @@
     </div>
   </main>
 
-  <script src="../scripts/cursor.js?v=66" defer></script>
-  <script src="../scripts/case-study.js?v=66" defer></script>
+  <!-- Floating ask-bar + Talk-to-my-AI modal (case-study scoped).
+       The AI answers STRICTLY from this page's content: modal.js reads the
+       [data-ai-source] article and api/chat.js switches to a grounded prompt. -->
+  <button type="button" class="ask-bar" id="askBar" data-modal-open="ai" aria-label="Ask about this case study">
+    <span class="ask-bar-inner">
+      <span class="ask-bar-icon" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.4 L8.6 5.4 L12.6 7 L8.6 8.6 L7 12.6 L5.4 8.6 L1.4 7 L5.4 5.4 Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="ask-bar-text">Ask about this case study…</span>
+      <span class="ask-bar-cta" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 12 V2 M3.5 5.5 L7 2 L10.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </span>
+  </button>
+
+  <div class="modal-backdrop" id="aiBackdrop"></div>
+
+  <aside class="modal" id="aiModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header class="modal-head">
+      <div class="modal-avatar">P</div>
+      <div class="modal-titles">
+        <span class="modal-title" id="modalTitle">Prateek's AI</span>
+        <span class="modal-status">Answering from this case study only</span>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close modal">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2 L12 12 M12 2 L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="bubble is-ai">
+        Hi — I'm Prateek's AI. Ask anything about this case study and I'll answer from what's on this page.
+      </div>
+    </div>
+
+    <div class="modal-prompts">
+      <button class="prompt-chip">Summarise this case study</button>
+      <button class="prompt-chip">What problem did it solve?</button>
+      <button class="prompt-chip">What were the key decisions?</button>
+      <button class="prompt-chip">What was the impact?</button>
+    </div>
+
+    <footer class="modal-foot">
+      <div class="composer">
+        <input type="text" aria-label="Ask about this case study" placeholder="Summarise this case study, or ask anything…" autocomplete="off" />
+        <button class="composer-btn is-mic" aria-label="Use voice">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="5" y="2" width="4" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M3 7 V8 A4 4 0 0 0 11 8 V7 M7 12 V14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="composer-btn is-send" aria-label="Send">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7 H12 M8 3 L12 7 L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-hints">
+        <span>Press <kbd>/</kbd> to open · <kbd>Esc</kbd> to close</span>
+        <span>Powered by AI · answers from this page</span>
+      </div>
+    </footer>
+  </aside>
+
+
+  <script src="../scripts/cursor.js?v=86" defer></script>
+  <script src="../scripts/nav.js?v=86" defer></script>
+  <script src="../scripts/case-study.js?v=86" defer></script>
+  <script src="../scripts/modal.js?v=86" defer></script>
 
 </body>
 </html>

@@ -28,8 +28,21 @@
     if (section) map.set(section, link);
   });
 
+  const strip = document.querySelector('.cs-sidenav-list');
+
+  // Keep the active chip in view inside the horizontal strip (mobile only,
+  // where the strip actually scrolls). Centers the chip without touching the
+  // page's vertical scroll.
+  function revealChip(link) {
+    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
+    const target = link.offsetLeft - (strip.clientWidth - link.offsetWidth) / 2;
+    const max = strip.scrollWidth - strip.clientWidth;
+    strip.scrollTo({ left: Math.max(0, Math.min(target, max)), behavior: 'smooth' });
+  }
+
   function setActive(link) {
     navLinks.forEach((l) => l.classList.toggle('is-active', l === link));
+    revealChip(link);
   }
 
   if (typeof IntersectionObserver === 'undefined') {
