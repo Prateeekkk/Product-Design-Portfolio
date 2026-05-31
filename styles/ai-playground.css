@@ -1,5 +1,1082 @@
 /*
   ─────────────────────────────────────────────────
+  Shipping with AI — compact 2×2 grid + hover reveal
+  ─────────────────────────────────────────────────
+  Replaces the previous tall four-block stack. Same four moments
+  (Framing · Prototype · Edge cases · Implementation), now in a
+  dense visual grid — each cell shows a corner badge + animated
+  demo always; on hover the bottom overlay slides up with a brief
+  description. Demos themselves are unchanged (CSS-only, NDA-safe).
+*/
+
+.workflow {
+  position: relative;
+  padding: var(--section-pad-y) var(--space);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.workflow-head {
+  display: block;
+  margin-bottom: var(--s-7);   /* tightened from --s-9 */
+  max-width: 720px;
+}
+.workflow-head .eyebrow { margin-bottom: var(--s-5); }
+.workflow-head .section-title { margin-top: var(--s-3); }
+.workflow-lede {
+  margin-top: var(--s-3);
+  font-size: var(--fs-h4);
+  line-height: var(--lh-loose);
+  color: var(--ink-55);
+  max-width: 540px;
+}
+
+/* 2×2 grid of compact workflow cells */
+.workflow-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-7);              /* 48px — generous so cells breathe */
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  Each cell is a vertical pair: visual frame on top + always-visible
+  text caption below. The visual frame is the bordered animated panel;
+  the caption sits cleanly below it (no border, no bg) so it reads as
+  a portfolio-style figure caption rather than an overlaid hover state.
+*/
+.workflow-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);              /* 16px between visual and caption */
+  cursor: none;
+}
+
+/* Visual frame — the animated demo lives here, all of the chrome */
+.workflow-cell-visual {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 252, 244, 0.6) 0%, transparent 70%),
+    var(--bg-soft);
+  box-shadow:
+    0 24px 50px -32px rgba(13, 13, 11, 0.16),
+    0 4px 10px -6px rgba(13, 13, 11, 0.05);
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .4s ease,
+              border-color .3s ease;
+}
+.workflow-cell:hover .workflow-cell-visual,
+.workflow-cell:focus-within .workflow-cell-visual {
+  transform: translateY(-3px);
+  border-color: var(--brd-mid);
+  box-shadow:
+    0 40px 70px -28px rgba(13, 13, 11, 0.22),
+    0 10px 22px -8px rgba(13, 13, 11, 0.10);
+}
+
+/* Caption block — always visible below the visual */
+.workflow-cell-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--s-1) 2px 0;
+  max-width: 480px;
+}
+.workflow-cell-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin-bottom: 2px;
+}
+.workflow-cell-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 32px;
+  letter-spacing: -0.02em;
+  color: var(--amber);
+  line-height: 1;
+  /* tabular numerals — reads even more editorial */
+  font-feature-settings: "tnum" 1;
+}
+.workflow-cell-tag {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+  position: relative;
+  /* Small dot before the tag for editorial rhythm */
+}
+.workflow-cell-tag::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-25);
+  margin-right: 8px;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+.workflow-cell-title {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 1.7vw, 24px);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ink);
+  margin: 4px 0 0;
+}
+.workflow-cell-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-55);
+  max-width: 460px;
+}
+
+/* Pause demo when the cell is hovered — lets users scrutinise mid-loop */
+.workflow-cell:hover .demo *,
+.workflow-cell:focus-within .demo * { animation-play-state: paused !important; }
+
+/*
+  ─────────────────────────────────────────────────
+  Demo visuals — pure CSS keyframe animations.
+  All four loop continuously and pause on hover so the user can stare.
+  ─────────────────────────────────────────────────
+*/
+.demo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+}
+.workflow-block-visual:hover .demo * { animation-play-state: paused !important; }
+
+.demo-caption {
+  position: absolute;
+  left: 14px; bottom: 12px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-25);
+  font-weight: 500;
+}
+
+/*
+  ─── 01 · Framing — chips drift inward into a central structured panel ───
+  Phase 1 (0–600ms)   : six raw fragments fade in around the frame edges.
+  Phase 2 (650–1100ms): the chips drift inward toward the centre and
+                        soften (lower opacity, no rotation).
+  Phase 3 (900ms+)    : the structured panel scales in at the centre.
+  Phase 4 (1100ms+)   : panel rows wipe in top-to-bottom; the final row
+                        activates with the amber accent (highlighted insight).
+  All motion happens within ~30px of the centre — no chips arrive from
+  outside the frame, nothing exits the frame.
+*/
+.demo-framing {
+  padding: 0;
+  height: 100%;
+}
+.demo-framing .demo-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  padding: 24px;
+}
+
+/* Raw fragments — appear at corner-ish zones, then drift inward */
+.demo-framing .frag {
+  position: absolute;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 6px;
+  padding: 5px 9px;
+  font-size: 10.5px;
+  color: var(--ink-80);
+  box-shadow: 0 4px 10px -6px rgba(13,13,11,.12);
+  opacity: 0;
+  transition:
+    opacity .85s cubic-bezier(.22, 1, .36, 1) calc(var(--frag-i, 1) * 90ms),
+    transform .9s cubic-bezier(.22, 1, .36, 1) calc(var(--frag-i, 1) * 90ms);
+  white-space: nowrap;
+  z-index: 2;
+}
+.demo-framing .frag span { letter-spacing: 0.02em; }
+
+/* Resting positions: corner zones around a central panel.
+   `--rx, --ry` define the inward-drift distance (Phase 2). */
+.demo-framing .frag-a { top: 10%;  left: 8%;   --rx: 14px;  --ry: 8px;   transform: rotate(-6deg) translate(-6px, -4px); }
+.demo-framing .frag-b { top: 8%;   right: 8%;  --rx: -14px; --ry: 8px;   transform: rotate(5deg)  translate(6px, -4px); }
+.demo-framing .frag-c { top: 36%;  left: 4%;   --rx: 18px;  --ry: 0;     transform: rotate(-3deg) translate(-6px, 0); }
+.demo-framing .frag-d { top: 38%;  right: 4%;  --rx: -18px; --ry: 0;     transform: rotate(4deg)  translate(6px, 0); }
+.demo-framing .frag-e { bottom: 10%; left: 10%; --rx: 12px; --ry: -8px;  transform: rotate(-5deg) translate(-6px, 4px); }
+.demo-framing .frag-f { bottom: 8%; right: 12%; --rx: -12px; --ry: -8px; transform: rotate(7deg)  translate(6px, 4px); }
+
+/* Phase 1 → Phase 2: chips appear, then drift inward toward the centre.
+   The end-state transform pulls each chip closer to the centre by --rx/--ry
+   and fades them down to 0.45 opacity so they read as "absorbed" by the
+   structured panel that takes over visually. */
+.workflow-cell.is-active .demo-framing .frag {
+  opacity: 1;
+  transform: rotate(0deg) translate(0, 0);
+}
+.workflow-cell.is-active .demo-framing .frag {
+  /* Two-phase: full opacity at appearance, dim once the panel is up */
+  animation: frag-settle 1.6s cubic-bezier(.22, 1, .36, 1) calc(var(--frag-i, 1) * 90ms) forwards;
+}
+@keyframes frag-settle {
+  0%   { opacity: 0; transform: rotate(var(--rot, 0deg)) translate(0, 0); }
+  35%  { opacity: 1; transform: rotate(var(--rot, 0deg)) translate(0, 0); }
+  70%  { opacity: 0.85; transform: translate(calc(var(--rx) * 0.4), calc(var(--ry) * 0.4)); }
+  100% { opacity: 0.45; transform: translate(var(--rx), var(--ry)); }
+}
+
+/* Central structured panel — the "frame" the chaos resolves into */
+.demo-framing .demo-target {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 64%;
+  max-width: 240px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 14px 32px -18px rgba(13,13,11,.22);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.94);
+  transition:
+    opacity .55s cubic-bezier(.22, 1, .36, 1) 850ms,
+    transform .65s cubic-bezier(.22, 1, .36, 1) 850ms;
+  z-index: 3;
+}
+.workflow-cell.is-active .demo-framing .demo-target {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Each panel row wipes in top → bottom, staggered by --line-i */
+.demo-framing .demo-target-line {
+  font-size: 10.5px;
+  color: var(--ink-80);
+  padding: 4px 8px;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    clip-path .5s cubic-bezier(.22, 1, .36, 1) calc(1100ms + var(--line-i, 1) * 110ms),
+    border-color .4s ease calc(1700ms + var(--line-i, 1) * 110ms),
+    background .4s ease calc(1700ms + var(--line-i, 1) * 110ms);
+}
+.workflow-cell.is-active .demo-framing .demo-target-line {
+  clip-path: inset(0 0 0 0);
+}
+/* Final row activates as the "highlighted insight" — amber accent */
+.workflow-cell.is-active .demo-framing .demo-target-line:last-child {
+  border-left-color: var(--amber);
+  background: rgba(214, 142, 50, 0.08);
+  color: var(--ink);
+}
+
+/*
+  ─── 02 · Prototype — skeleton wireframe → live hydration ───
+  A single dashboard interface evolves in place: low-fi skeleton bones
+  shimmer first, then each section "hydrates" top-to-bottom by
+  crossfading its skeleton to real content. After the last section
+  hydrates, a "live" pill in the title bar pulses on.
+  No screen swaps — the same window evolves from low-fi to live.
+*/
+.demo-prototype { padding: 24px; }
+.demo-window {
+  position: relative;
+  width: 90%;
+  max-width: 440px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px -22px rgba(13,13,11,.22);
+}
+.demo-window-bar {
+  height: 24px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--brd);
+  display: flex;
+  gap: 5px;
+  padding: 0 10px;
+  align-items: center;
+}
+.demo-window-bar i {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--brd-mid);
+}
+.demo-window-body {
+  position: relative;
+  min-height: 200px;
+}
+
+/* "Live" indicator inside title bar — appears only when fully hydrated */
+.demo-proto-live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  opacity: 0;
+  transform: translateX(4px);
+  transition:
+    opacity .5s cubic-bezier(.22, 1, .36, 1) 1.6s,
+    transform .5s cubic-bezier(.22, 1, .36, 1) 1.6s;
+}
+.demo-proto-live-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #52a87a;
+  box-shadow: 0 0 0 0 rgba(82, 168, 122, 0.5);
+}
+.workflow-cell.is-active .demo-proto-live {
+  opacity: 1;
+  transform: translateX(0);
+}
+.workflow-cell.is-active .demo-proto-live-dot {
+  animation: proto-live-pulse 2.4s ease-in-out 2s infinite;
+}
+@keyframes proto-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(82, 168, 122, 0.5); }
+  50%      { box-shadow: 0 0 0 4px rgba(82, 168, 122, 0); }
+}
+
+/* Build container */
+.demo-proto-build {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/*
+  Each `.demo-proto-section` is a stacked pair: skeleton on top, real
+  content layered above (absolute). On activation, the skeleton fades
+  out as the real content fades in — sequentially per --hydrate-i.
+*/
+.demo-proto-section {
+  position: relative;
+  --hydrate-base: calc(var(--hydrate-i, 1) * 380ms);
+  /* Min-height ensures skeleton has body to render even before real
+     content drives layout. */
+  min-height: 18px;
+}
+
+/* Skeleton bones — overlay real content at rest. Real content drives
+   section height so nothing clips when the skeleton fades out. */
+.demo-proto-skel {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 1;
+  transition: opacity .45s cubic-bezier(.22, 1, .36, 1) var(--hydrate-base);
+  z-index: 2;
+  pointer-events: none;
+  background: var(--white);
+}
+.workflow-cell.is-active .demo-proto-skel { opacity: 0; }
+
+.demo-proto-skel-h::before,
+.demo-proto-skel-kpis,
+.demo-proto-skel-rows { background: transparent; }
+
+.demo-proto-skel-h::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(13,13,11,0.06) 0%, rgba(13,13,11,0.10) 50%, rgba(13,13,11,0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+.demo-proto-skel-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.demo-proto-skel-kpis > span {
+  background: linear-gradient(90deg, rgba(13,13,11,0.06) 0%, rgba(13,13,11,0.10) 50%, rgba(13,13,11,0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+.demo-proto-skel-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.demo-proto-skel-rows > span {
+  flex: 1;
+  background: linear-gradient(90deg, rgba(13,13,11,0.06) 0%, rgba(13,13,11,0.10) 50%, rgba(13,13,11,0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 3px;
+}
+/* Subtle shimmer once active so skeletons read as "loading", not flat */
+.workflow-cell.is-active .demo-proto-skel-h::before,
+.workflow-cell.is-active .demo-proto-skel-kpis > span,
+.workflow-cell.is-active .demo-proto-skel-rows > span {
+  animation: proto-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes proto-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Real content — drives section height; opacity-fades in over skeleton */
+.demo-proto-real {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity .45s cubic-bezier(.22, 1, .36, 1) calc(var(--hydrate-base) + 250ms),
+    transform .55s cubic-bezier(.22, 1, .36, 1) calc(var(--hydrate-base) + 250ms);
+}
+.workflow-cell.is-active .demo-proto-real {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Header content */
+.demo-proto-h {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.demo-proto-sub {
+  font-size: 10.5px;
+  color: var(--ink-55);
+  margin-top: 2px;
+}
+
+/* KPI cards — populated row */
+.demo-proto-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.demo-proto-kpis > span {
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+}
+.demo-proto-kpis b {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--ink);
+  font-weight: 500;
+  /* Tiny count-up "ramp" via tabular numerals — stays accurate on stagger */
+  font-feature-settings: "tnum" 1;
+}
+.demo-proto-kpis em {
+  font-style: normal;
+  font-size: 9px;
+  color: var(--ink-55);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Table rows — populated rows */
+.demo-proto-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.demo-proto-rows > div {
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: var(--ink-80);
+}
+.demo-proto-rows .mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  color: var(--ink);
+}
+.demo-proto-rows .pill {
+  font-size: 9px;
+  padding: 2px 7px;
+}
+
+/*
+  ─── 03 · Edge cases — live monitoring table ───
+  Multi-row monitoring view. On viewport entry: rows reveal top-to-
+  bottom with clip-path mask + opacity stagger. Status pills scale
+  in after their row settles. Error rows soft-pulse once. The flagged
+  row's status flips from "Pending" → "Mismatch" via masked left-to-
+  right reveal — feels like the system detected the issue, not just
+  flipped a label.
+*/
+.demo-edge {
+  padding: 22px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.demo-edge-table {
+  width: 92%;
+  max-width: 460px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px -18px rgba(13,13,11,.20);
+}
+
+.demo-edge-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 0.9fr 1fr;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 10.5px;
+  color: var(--ink-80);
+  border-bottom: 1px solid var(--brd);
+  align-items: center;
+  position: relative;
+}
+.demo-edge-row:last-child { border-bottom: none; }
+
+.demo-edge-row-head {
+  background: var(--bg-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-55);
+  font-weight: 500;
+  font-size: 9.5px;
+}
+
+.demo-edge-row .mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Stagger reveal — each row wipes in via clip-path top→bottom + opacity */
+.demo-edge-row:not(.demo-edge-row-head) {
+  clip-path: inset(0 0 100% 0);
+  opacity: 0;
+  transition:
+    clip-path .5s cubic-bezier(.22, 1, .36, 1) calc(var(--row-i, 1) * 90ms),
+    opacity .35s ease-out                       calc(var(--row-i, 1) * 90ms);
+}
+.workflow-cell.is-active .demo-edge-row {
+  clip-path: inset(0 0 0 0);
+  opacity: 1;
+}
+
+/* Pill — scoped to .workflow-cell so it doesn't collide with the hero's
+   .pill rule (which has its own opacity-0 + arise animation that would
+   otherwise leak into these demos). */
+.workflow-cell .pill {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid transparent;
+  /* Kill the hero's `.pill` rule that adds margin-bottom: 36px and an
+     `arise` animation. Without these resets the rows in Card 02 / 03
+     stretch to ~64px tall and the demo overflows its frame. */
+  margin: 0;
+  animation: none;
+  opacity: 1;
+}
+.workflow-cell .pill-paid      { background: rgba(82, 168, 122, 0.12); color: #3e8a5c; border-color: rgba(82, 168, 122, 0.24); }
+.workflow-cell .pill-pending   { background: rgba(13, 13, 11, 0.05);   color: var(--ink-55); border-color: var(--brd); }
+.workflow-cell .pill-mismatch  { background: rgba(214, 142, 50, 0.16); color: #a26a25; border-color: rgba(214, 142, 50, 0.32); }
+.workflow-cell .pill-duplicate { background: rgba(140, 110, 200, 0.16); color: #6a4fa6; border-color: rgba(140, 110, 200, 0.32); }
+.workflow-cell .pill-failed    { background: rgba(200, 70, 70, 0.14);  color: #a73838; border-color: rgba(200, 70, 70, 0.30); }
+
+/* The flagged row that flips its status pill mid-reveal.
+   "Pending" sits in place initially; "Mismatch" wipes in over it
+   left-to-right via clip-path + the original Pending fades away. */
+.demo-edge-pill-flip {
+  position: relative;
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+}
+.demo-edge-pill-from,
+.demo-edge-pill-to {
+  display: inline-flex;
+}
+.demo-edge-pill-from {
+  opacity: 1;
+  transition: opacity .35s ease-out 1.4s;
+}
+.demo-edge-pill-to {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path .55s cubic-bezier(.22, 1, .36, 1) 1.5s;
+}
+.workflow-cell.is-active .demo-edge-pill-from { opacity: 0; }
+.workflow-cell.is-active .demo-edge-pill-to   { clip-path: inset(0 0 0 0); }
+
+/* Error rows soft-pulse once after they reveal — draws the eye to issues */
+.demo-edge-row-flag {
+  --pulse-delay: calc(var(--row-i, 1) * 90ms + 700ms);
+}
+.workflow-cell.is-active .demo-edge-row-flag {
+  animation: edge-row-pulse 1.6s ease-out var(--pulse-delay) 1 both;
+}
+@keyframes edge-row-pulse {
+  0%   { background: transparent; }
+  35%  { background: rgba(255, 246, 228, 0.85); }
+  100% { background: transparent; }
+}
+
+/* Live status indicator — bottom-left of the box, "3 issues detected" */
+.demo-edge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-55);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity .5s cubic-bezier(.22, 1, .36, 1) 1.6s,
+    transform .5s cubic-bezier(.22, 1, .36, 1) 1.6s;
+}
+.demo-edge-status b {
+  color: var(--ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.demo-edge-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d65a5a;
+  box-shadow: 0 0 0 0 rgba(214, 90, 90, 0.4);
+}
+.workflow-cell.is-active .demo-edge-status {
+  opacity: 1;
+  transform: translateY(0);
+}
+.workflow-cell.is-active .demo-edge-status-dot {
+  animation: edge-status-pulse 2.2s ease-in-out 1.7s infinite;
+}
+@keyframes edge-status-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214, 90, 90, 0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(214, 90, 90, 0); }
+}
+
+/*
+  ─── 04 · Implementation — central component + orbiting specs ───
+  A single component (handoff button) sits at the optical centre of the
+  card. Four token chips animate into the four corners, each tethered
+  to the component by a hairline that draws inward. After the specs
+  settle, the button runs its 4-state cycle once and idles on success.
+  All motion is contained — chips appear from a small offset (~10px),
+  hairlines draw between fixed anchor points, button states crossfade
+  in place. Nothing arrives from outside the frame.
+*/
+.demo-impl {
+  display: block;
+  padding: 0;
+  height: 100%;
+}
+.demo-impl-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  overflow: hidden;
+}
+/* Subtle measurement grid — fades in once on activation, stays */
+.demo-impl-grid {
+  position: absolute;
+  inset: 16px;
+  background-image:
+    linear-gradient(to right, rgba(13,13,11,0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(13,13,11,0.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: center center;
+  opacity: 0;
+  transition: opacity .8s cubic-bezier(.22, 1, .36, 1) .2s;
+  pointer-events: none;
+  border-radius: 8px;
+}
+.workflow-cell.is-active .demo-impl-grid { opacity: 1; }
+
+/* Central component — the focal anchor */
+.demo-impl-center {
+  position: relative;
+  z-index: 2;
+}
+.demo-impl-stage {
+  position: relative;
+  width: 132px;
+  height: 40px;
+}
+.demo-btn {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  opacity: 0;
+}
+.demo-btn-default { background: var(--ink); color: var(--bg); border: 1px solid var(--ink); }
+.demo-btn-hover   { background: #2a2a28; color: var(--bg); border: 1px solid #2a2a28; transform: translateY(-1px); box-shadow: 0 8px 22px -10px rgba(13,13,11,.30); }
+.demo-btn-loading { background: var(--bg-soft); color: var(--ink-55); border: 1px solid var(--brd); }
+.demo-btn-success { background: rgba(82, 168, 122, 0.14); color: #3e8a5c; border: 1px solid rgba(82, 168, 122, 0.28); }
+.demo-btn .demo-spinner {
+  width: 11px; height: 11px;
+  border: 1.5px solid var(--brd-mid);
+  border-top-color: var(--ink-55);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  animation-play-state: paused;
+}
+.workflow-cell.is-active .demo-btn .demo-spinner { animation-play-state: running; }
+.demo-btn .demo-check {
+  width: 14px; height: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(82, 168, 122, 0.22);
+  color: #3e8a5c;
+  border-radius: 50%;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/*
+  Button states cycle ONCE on activation, settling on `success`.
+  Total runtime ~5.4s.
+    default  : 0.0–1.6s
+    hover    : 1.6–2.6s
+    loading  : 2.6–4.4s
+    success  : 4.4s+ (stays)
+  Each state uses `forwards` fill-mode + delay-based stagger so the
+  button doesn't loop visibly invisibly from page load.
+*/
+.demo-btn { animation-fill-mode: forwards; }
+/* Button cycle starts after the orbiting specs have settled (~1.6s) so
+   the eye reads "spec assembled → component ships." */
+.workflow-cell.is-active .demo-btn-default { animation: btn-state-default 1.6s cubic-bezier(.22, 1, .36, 1) 1.6s forwards; }
+.workflow-cell.is-active .demo-btn-hover   { animation: btn-state-hover   1.0s cubic-bezier(.22, 1, .36, 1) 3.0s forwards; }
+.workflow-cell.is-active .demo-btn-loading { animation: btn-state-loading 1.4s cubic-bezier(.22, 1, .36, 1) 3.9s forwards; }
+.workflow-cell.is-active .demo-btn-success { animation: btn-state-success 1.0s cubic-bezier(.22, 1, .36, 1) 5.1s forwards; }
+
+@keyframes btn-state-default {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes btn-state-hover {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes btn-state-loading {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes btn-state-success {
+  0%   { opacity: 0; transform: scale(.96); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/*
+  Orbiting spec annotations — four token chips at the corners of the
+  frame, each tethered to the central button by a hairline. Chips fade
+  + drift into place from a small inward offset; the connector then
+  draws inward from the chip toward the centre.
+    01 · radius   (top-left)
+    02 · padding  (top-right)
+    03 · colour   (bottom-left)
+    04 · motion   (bottom-right)
+*/
+.demo-impl-spec {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Stagger entry per --token-i */
+  opacity: 0;
+  transition:
+    opacity .55s cubic-bezier(.22, 1, .36, 1) calc(280ms + var(--token-i, 1) * 140ms),
+    transform .65s cubic-bezier(.22, 1, .36, 1) calc(280ms + var(--token-i, 1) * 140ms);
+}
+.workflow-cell.is-active .demo-impl-spec {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Anchor each spec to a corner, with the line pointing inward */
+.demo-impl-spec-tl {
+  top: 22px; left: 22px;
+  flex-direction: row;
+  transform: translate(-6px, -6px);
+}
+.demo-impl-spec-tr {
+  top: 22px; right: 22px;
+  flex-direction: row-reverse;
+  transform: translate(6px, -6px);
+}
+.demo-impl-spec-bl {
+  bottom: 22px; left: 22px;
+  flex-direction: row;
+  transform: translate(-6px, 6px);
+}
+.demo-impl-spec-br {
+  bottom: 22px; right: 22px;
+  flex-direction: row-reverse;
+  transform: translate(6px, 6px);
+}
+
+/* The token chip itself */
+.demo-impl-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(13,13,11,0.04);
+}
+.demo-impl-token b {
+  font-weight: 500;
+  color: var(--ink-55);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 9px;
+}
+.demo-impl-token em {
+  font-style: normal;
+  color: var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: -0.005em;
+}
+
+/* Hairline connector — draws inward toward the centre after the chip
+   settles. Stagger continues from --token-i so spec → line is sequential. */
+.demo-impl-line {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--brd-mid, var(--brd));
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform .5s cubic-bezier(.22, 1, .36, 1) calc(520ms + var(--token-i, 1) * 140ms);
+}
+.demo-impl-spec-tr .demo-impl-line,
+.demo-impl-spec-br .demo-impl-line { transform-origin: right center; }
+.workflow-cell.is-active .demo-impl-line {
+  transform: scaleX(1);
+}
+
+/*
+  ─────────────────────────────────────────────────
+  CTA card — kept identical to old .ai-flow-cta visually,
+  just renamed to .workflow-cta for the new namespace.
+  ─────────────────────────────────────────────────
+*/
+.workflow-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+  margin-top: var(--s-9);
+  padding: var(--s-6);
+  background: var(--bg-soft);
+  border: 1px solid var(--brd);
+  border-radius: var(--r-lg);
+}
+.workflow-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  max-width: 520px;
+}
+.workflow-cta-eyebrow {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  font-weight: 500;
+}
+.workflow-cta-text p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-80);
+}
+.workflow-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--bg);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--r-pill);
+  cursor: none;
+  transition: transform .25s var(--ease-out), background .25s ease;
+  white-space: nowrap;
+}
+.workflow-cta-btn:hover { transform: translateY(-1px); background: #2a2a28; }
+.workflow-cta-btn-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 3px rgba(82, 168, 122, 0.18);
+}
+.workflow-cta-btn-arrow {
+  font-size: 12px;
+  transition: transform .25s var(--ease-out);
+}
+.workflow-cta-btn:hover .workflow-cta-btn-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Responsive collapse */
+@media (max-width: 1100px) {
+  .workflow-grid { gap: var(--s-6); }
+  .workflow-cell-num { font-size: 28px; }
+}
+@media (max-width: 720px) {
+  /* Single column on phones — visual + caption stay vertically stacked */
+  .workflow-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-7);
+  }
+  .workflow-cell-visual {
+    aspect-ratio: 4 / 3;
+  }
+  .workflow-cell-num { font-size: 24px; }
+  .workflow-cell-title { font-size: 18px; }
+  .workflow-cell-body { font-size: 13.5px; }
+
+  /* Demo internals — tighter for phone-width cells */
+  .demo-framing .demo-stage { padding: 16px; }
+  .demo-prototype, .demo-edge { padding: 12px; }
+  .demo-impl-frame { padding: 18px; }
+  .demo-framing .frag { font-size: 9.5px; padding: 3px 7px; }
+  .demo-framing .demo-target { width: 70%; padding: 10px; }
+  .demo-framing .demo-target-line { font-size: 10px; padding: 3px 6px; }
+
+  /* Card 04 — pull corner specs in tighter and shrink chip type so the
+     two chips on each row don't collide at narrow widths. */
+  .demo-impl-spec-tl,
+  .demo-impl-spec-bl { left: 12px; }
+  .demo-impl-spec-tr,
+  .demo-impl-spec-br { right: 12px; }
+  .demo-impl-spec-tl,
+  .demo-impl-spec-tr { top: 14px; }
+  .demo-impl-spec-bl,
+  .demo-impl-spec-br { bottom: 14px; }
+  .demo-impl-token { padding: 4px 7px; font-size: 9.5px; }
+  .demo-impl-token b { font-size: 8.5px; }
+  .demo-impl-token em { font-size: 9.5px; }
+  .demo-impl-line { width: 12px; }
+
+  .workflow-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding: var(--s-5);
+  }
+  .workflow-cta-btn { align-self: stretch; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo *,
+  .demo-proto,
+  .demo-table-row {
+    animation: none !important;
+  }
+  /* Show a static version: final state of each demo */
+  .demo-proto-final { opacity: 1; }
+  .demo-framing .demo-target { opacity: 1; transform: translateY(-50%); }
+  .demo-framing .frag { opacity: 1; }
+  .demo-btn-default { opacity: 1; }
+}
+
+/*
+  ─────────────────────────────────────────────────
+  LEGACY (text-heavy ai-flow grid) — kept below for restore.
+  Original four-step grid used .ai-flow* classes. Markup has been
+  replaced in index.html; CSS kept here in case we need to revert.
+  ─────────────────────────────────────────────────
+*/
+
+/*
+  ─────────────────────────────────────────────────
   AI in my workflow — NEW (replaces the experimental playground)
   ─────────────────────────────────────────────────
   Four-step grid that explains how AI fits into Prateek's design loop:
