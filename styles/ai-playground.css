@@ -774,7 +774,11 @@
   white-space: nowrap;
   opacity: 0;
 }
-.demo-btn-default { background: var(--ink); color: var(--bg); border: 1px solid var(--ink); }
+/* Default ("Hand off") is the static resting state — visible even if the
+   one-shot button cycle never runs (IO miss / animation interrupted /
+   captured mid lead-in), so the stage is never blank. The cycle below
+   animates over it when the cell activates and settles on success. */
+.demo-btn-default { background: var(--ink); color: var(--bg); border: 1px solid var(--ink); opacity: 1; }
 .demo-btn-hover   { background: #2a2a28; color: var(--bg); border: 1px solid #2a2a28; transform: translateY(-1px); box-shadow: 0 8px 22px -10px rgba(13,13,11,.30); }
 .demo-btn-loading { background: var(--bg-soft); color: var(--ink-55); border: 1px solid var(--brd); }
 .demo-btn-success { background: rgba(82, 168, 122, 0.14); color: #3e8a5c; border: 1px solid rgba(82, 168, 122, 0.28); }
@@ -818,8 +822,7 @@
 .workflow-cell.is-active .demo-btn-success { animation: btn-state-success 1.0s cubic-bezier(.22, 1, .36, 1) 5.1s forwards; }
 
 @keyframes btn-state-default {
-  0%   { opacity: 0; }
-  20%  { opacity: 1; }
+  0%   { opacity: 1; }
   85%  { opacity: 1; }
   100% { opacity: 0; }
 }
