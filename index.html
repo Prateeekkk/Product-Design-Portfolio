@@ -37,21 +37,21 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="styles/tokens.css?v=88" />
-  <link rel="stylesheet" href="styles/base.css?v=88" />
-  <link rel="stylesheet" href="styles/cursor.css?v=88" />
-  <link rel="stylesheet" href="styles/loader.css?v=88" />
-  <link rel="stylesheet" href="styles/nav.css?v=88" />
-  <link rel="stylesheet" href="styles/hero.css?v=88" />
-  <link rel="stylesheet" href="styles/impact.css?v=88" />
-  <link rel="stylesheet" href="styles/work.css?v=88" />
-  <link rel="stylesheet" href="styles/about.css?v=88" />
-  <link rel="stylesheet" href="styles/experience.css?v=88" />
-  <link rel="stylesheet" href="styles/ai-playground.css?v=88" />
-  <link rel="stylesheet" href="styles/testimonials.css?v=88" />
-  <link rel="stylesheet" href="styles/contact.css?v=88" />
-  <link rel="stylesheet" href="styles/modal.css?v=88" />
-  <link rel="stylesheet" href="styles/responsive.css?v=88" />
+  <link rel="stylesheet" href="styles/tokens.css?v=89" />
+  <link rel="stylesheet" href="styles/base.css?v=89" />
+  <link rel="stylesheet" href="styles/cursor.css?v=89" />
+  <link rel="stylesheet" href="styles/loader.css?v=89" />
+  <link rel="stylesheet" href="styles/nav.css?v=89" />
+  <link rel="stylesheet" href="styles/hero.css?v=89" />
+  <link rel="stylesheet" href="styles/impact.css?v=89" />
+  <link rel="stylesheet" href="styles/work.css?v=89" />
+  <link rel="stylesheet" href="styles/about.css?v=89" />
+  <link rel="stylesheet" href="styles/experience.css?v=89" />
+  <link rel="stylesheet" href="styles/ai-playground.css?v=89" />
+  <link rel="stylesheet" href="styles/testimonials.css?v=89" />
+  <link rel="stylesheet" href="styles/contact.css?v=89" />
+  <link rel="stylesheet" href="styles/modal.css?v=89" />
+  <link rel="stylesheet" href="styles/responsive.css?v=89" />
 </head>
 <body class="loader-active">
 
@@ -1020,13 +1020,9 @@
       </div>
     </div>
 
-    <div class="modal-prompts">
-      <button class="prompt-chip">Walk me through his strongest project</button>
-      <button class="prompt-chip">How does AI fit into his workflow?</button>
-      <button class="prompt-chip">What's his design philosophy?</button>
-      <button class="prompt-chip">Why should we hire him?</button>
-      <button class="prompt-chip">Explain Eximpe in 3 lines</button>
-    </div>
+    <!-- Prompt chips are rendered + rotated by scripts/modal.js so we only ever
+         show a few at a time (keeps the modal from overflowing on mobile). -->
+    <div class="modal-prompts" data-modal-prompts></div>
 
     <footer class="modal-foot">
       <div class="composer">
@@ -1051,12 +1047,12 @@
 
   </aside>
 
-  <script src="scripts/loader.js?v=88"></script>
-  <script src="scripts/cursor.js?v=88" defer></script>
-  <script src="scripts/nav.js?v=88" defer></script>
-  <script src="scripts/modal.js?v=88" defer></script>
-  <script src="scripts/scenes.js?v=88" defer></script>
-  <script src="scripts/main.js?v=88" defer></script>
+  <script src="scripts/loader.js?v=89"></script>
+  <script src="scripts/cursor.js?v=89" defer></script>
+  <script src="scripts/nav.js?v=89" defer></script>
+  <script src="scripts/modal.js?v=89" defer></script>
+  <script src="scripts/scenes.js?v=89" defer></script>
+  <script src="scripts/main.js?v=89" defer></script>
 
 </body>
 </html>

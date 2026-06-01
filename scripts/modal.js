@@ -13,7 +13,8 @@
   const input    = modal.querySelector('.composer input');
   const sendBtn  = modal.querySelector('.composer-btn.is-send');
   const micBtn   = modal.querySelector('.composer-btn.is-mic');
-  const chips    = modal.querySelectorAll('.prompt-chip');
+  const promptsEl = modal.querySelector('[data-modal-prompts]')
+                 || modal.querySelector('.modal-prompts');
 
   // Grounding context. On case-study pages an element marked [data-ai-source]
   // holds the article; we pass its readable text to the API so the AI answers
@@ -225,11 +226,79 @@
     });
   }
 
-  chips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      send(chip.textContent.trim());
-    });
-  });
+  /* --- Prompt chips (limited + self-rotating) ---
+     Show only MAX_VISIBLE chips at once so the modal never gets buried on
+     mobile. When a chip is clicked we send it, drop it, and pull in a fresh
+     suggestion — preferring a follow-up tied to what was just asked, then
+     falling back to any unused base prompt. */
+
+  const MAX_VISIBLE = 3;
+
+  // Each base prompt carries follow-ups that make sense as a next question.
+  const promptPool = [
+    { q: 'Walk me through his strongest project',
+      next: ['What was the impact of that work?', 'What was the hardest tradeoff there?'] },
+    { q: 'How does AI fit into his workflow?',
+      next: ['Show me a concrete example', 'Where does he still do the thinking?'] },
+    { q: "What's his design philosophy?",
+      next: ['How does that show up in his work?', 'What detail does he obsess over?'] },
+    { q: 'Why should we hire him?',
+      next: ["What's his biggest strength?", 'What kind of team fits him best?'] },
+    { q: 'Explain Eximpe in 3 lines',
+      next: ['What did he actually design there?', 'What was the hardest part of Eximpe?'] }
+  ];
+
+  // Flat queue of suggestions still waiting to be shown. Follow-ups get
+  // spliced in ahead of the remaining base prompts when their parent is used.
+  const used = new Set();
+  const queue = promptPool.map((p) => p.q);
+  const followupsFor = {};
+  promptPool.forEach((p) => { followupsFor[p.q] = p.next.slice(); });
+
+  function makeChip(text) {
+    const chip = document.createElement('button');
+    chip.className = 'prompt-chip';
+    chip.type = 'button';
+    chip.textContent = text;
+    chip.addEventListener('click', () => onChipClick(chip, text));
+    return chip;
+  }
+
+  // Pull the next unused suggestion from the queue.
+  function nextSuggestion() {
+    while (queue.length) {
+      const candidate = queue.shift();
+      if (!used.has(candidate)) return candidate;
+    }
+    return null;
+  }
+
+  function addChipIfRoom() {
+    if (!promptsEl) return;
+    if (promptsEl.children.length >= MAX_VISIBLE) return;
+    const next = nextSuggestion();
+    if (next) {
+      used.add(next);
+      promptsEl.appendChild(makeChip(next));
+    }
+  }
+
+  function onChipClick(chip, text) {
+    // Queue this prompt's follow-ups ahead of remaining base prompts.
+    const follows = followupsFor[text];
+    if (follows && follows.length) {
+      queue.unshift(...follows.filter((f) => !used.has(f)));
+    }
+    chip.remove();
+    send(text);
+    // Backfill so we keep up to MAX_VISIBLE chips while the pool lasts.
+    addChipIfRoom();
+  }
+
+  if (promptsEl) {
+    promptsEl.innerHTML = '';
+    for (let i = 0; i < MAX_VISIBLE; i++) addChipIfRoom();
+  }
 
   // Mic button — real voice input via the Web Speech API.
   // Hidden entirely on browsers that don't support it (no fake demo).
