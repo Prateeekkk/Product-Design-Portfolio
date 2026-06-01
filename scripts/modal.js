@@ -234,8 +234,10 @@
 
   const MAX_VISIBLE = 3;
 
-  // Each base prompt carries follow-ups that make sense as a next question.
-  const promptPool = [
+  // Homepage (general mode) uses this curated pool with follow-ups. Case-study
+  // pages instead keep their own page-specific chips authored in the HTML — we
+  // detect that below and rotate those rather than overwriting them.
+  const homePromptPool = [
     { q: 'Walk me through his strongest project',
       next: ['What was the impact of that work?', 'What was the hardest tradeoff there?'] },
     { q: 'How does AI fit into his workflow?',
@@ -247,6 +249,17 @@
     { q: 'Explain Eximpe in 3 lines',
       next: ['What did he actually design there?', 'What was the hardest part of Eximpe?'] }
   ];
+
+  // [data-modal-prompts] is the opt-in homepage container that JS owns fully.
+  // Anything else (e.g. case-study pages) keeps its static chips: we read their
+  // text as a plain pool with no follow-ups, so grounded pages stay on-topic.
+  const isManaged = promptsEl && promptsEl.hasAttribute('data-modal-prompts');
+  const promptPool = isManaged
+    ? homePromptPool
+    : (promptsEl
+        ? Array.from(promptsEl.querySelectorAll('.prompt-chip'))
+            .map((c) => ({ q: c.textContent.trim(), next: [] }))
+        : []);
 
   // Flat queue of suggestions still waiting to be shown. Follow-ups get
   // spliced in ahead of the remaining base prompts when their parent is used.
@@ -295,7 +308,7 @@
     addChipIfRoom();
   }
 
-  if (promptsEl) {
+  if (promptsEl && promptPool.length) {
     promptsEl.innerHTML = '';
     for (let i = 0; i < MAX_VISIBLE; i++) addChipIfRoom();
   }
