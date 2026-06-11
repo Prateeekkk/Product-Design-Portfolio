@@ -1797,18 +1797,14 @@
           </span>
           <h1 class="cs-title">Bringing transaction monitoring in-house.</h1>
           <p class="cs-deck">
-            <strong>Eximpe</strong> is a cross-border payments company
-            — Indian buyers paying international merchants. Every
-            payment passes through a <strong>Transaction Monitoring
-            System (TMS)</strong>: a tool the in-house compliance team
-            uses to review payments that look risky, decide whether to
-            allow them, and keep a record of why. For the first two
-            years, Eximpe rented that tool from a payments partner —
-            paying a fee on every transaction and inheriting someone
-            else's interface. This project replaced it with an
-            in-house TMS designed around how the compliance team
-            actually works. I led the design end-to-end, prototyped in
-            working code, and shipped to engineering.
+            <strong>Eximpe</strong> is a cross-border payments
+            company. Every risky payment passes through a
+            <strong>Transaction Monitoring System (TMS)</strong> where
+            compliance officers decide whether to allow it. For two
+            years, Eximpe rented the TMS from a partner. This project
+            replaced it in-house — designed around how the team
+            actually works. I led design end-to-end and prototyped in
+            code.
           </p>
 
           <div class="cs-meta">
@@ -1923,40 +1919,12 @@
           <h2 class="act-title">What we walked into.</h2>
 
           <p class="cs-lede">
-            Eximpe's compliance team — a small group of officers — was
-            already running a daily workflow: when a payment looked
-            risky (large amount, unusual merchant, sanctions match,
-            etc.), they had to <strong>open it, read why it got
-            flagged, and decide</strong> whether to allow it, ask the
-            merchant for proof, escalate it to a senior officer, or
-            refund the customer. <strong>This decision-making — and
-            keeping a record of it — is what TMS is for.</strong>
-          </p>
-
-          <p class="cs-lede">
-            For two years they did all of that inside a third-party
-            tool Eximpe was paying for. It worked, but it slowed the
-            team down: too many columns at once, no clear "what should
-            I look at first," and changes had to be requested from a
-            vendor instead of a Slack to engineering. The brief: build
-            it in-house, and make the new version feel
-            <em>clearer</em> than the one the team already trusted.
-          </p>
-        </section>
-
-        <!-- Constraints merged inline into Act 3 (observations) below as
-             a single short paragraph; the standalone "three constraints"
-             list pattern was repetitive after Act 2. -->
-        <section id="constraints" class="cs-section" style="padding-top: 0;">
-          <span class="cs-section-eyebrow is-quiet">02 &middot; Constraints</span>
-          <p class="cs-lede" style="font-size: clamp(14px, 1.3vw, 16px); color: var(--ink-80); margin: 0;">
-            <em>A note on what I was working with:</em> the Compliance
-            team was already running daily reviews inside the partner
-            tool, so discovery meant shadowing real sessions and Slack
-            threads — not interviewing a hypothetical user. NDA kept
-            the shipped UI internal; everything visualised here is
-            illustrative. The cycle was tight: ~1–2 weeks per surface,
-            research → design → prototype-in-code → handoff.
+            Compliance officers reviewed flagged payments daily and
+            chose to <strong>allow, request proof, escalate, or
+            refund</strong> — for two years inside a slow third-party
+            tool where every change went through a vendor.
+            <strong>The brief: rebuild it in-house, make it feel
+            <em>clearer</em> than the tool they already trusted.</strong>
           </p>
         </section>
 
@@ -1966,17 +1934,12 @@
              Observations sourced from partner-tool walkthroughs with
              the PACB Admin and wider compliance team. -->
         <section id="observations" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">03 &middot; Observations</span>
+          <span class="cs-section-eyebrow is-quiet">02 &middot; Observations</span>
           <h2 class="act-title">Three workflow patterns the partner tool didn't anticipate.</h2>
           <p class="cs-lede">
-            Walkthroughs of the existing partner tool with the
-            <strong>PACB Admin</strong> (who has cross-queue visibility
-            across CO, Senior CO, and PO) and conversations with the
-            wider compliance team surfaced three small behaviours that
-            kept repeating — and reshaped the brief. The team's
-            workflow: payments flagged overnight come into the queues
-            each morning, and each one has a working day to be
-            cleared, escalated, or refunded.
+            Walkthroughs with the <strong>PACB Admin</strong> and
+            wider team surfaced three small behaviours that kept
+            repeating — and reshaped the brief.
           </p>
 
           <!-- Observation 01 — sketch on left.
@@ -2000,7 +1963,7 @@
             <div class="obs-text">
               <span class="obs-eyebrow">Observation 01</span>
               <p class="obs-quote">Operators re-sorted the queue by review deadline every time it loaded.</p>
-              <p class="obs-interp">The partner tool defaulted to "most recent first," but compliance work is governed by which payment will breach its review deadline first. So the team re-sorted manually — every single time. <b>The right default isn't a personal preference; it's the deadline clock, baked into the page.</b></p>
+              <p class="obs-interp">The partner tool defaulted to "most recent first," but compliance work runs on review-deadline urgency. So the team re-sorted manually — every single load. <b>The right default isn't a preference; it's the deadline clock, baked in.</b></p>
             </div>
           </div>
 
@@ -2028,7 +1991,7 @@
             <div class="obs-text">
               <span class="obs-eyebrow">Observation 02</span>
               <p class="obs-quote">Compliance officers always opened the side panel before approving a large payment.</p>
-              <p class="obs-interp">Inline "Approve" buttons would have looked faster, but no officer would trust a one-click approval on a high-value payment. The side panel wasn't friction — it was where the team <b>actually made the decision</b>. The new design kept the panel as the deciding moment, on purpose.</p>
+              <p class="obs-interp">Inline "Approve" buttons would have looked faster, but no officer trusts a one-click approval on a high-value payment. <b>The side panel isn't friction — it's where the decision actually happens.</b> The new design keeps it that way, on purpose.</p>
             </div>
           </div>
 
@@ -2059,7 +2022,7 @@
             <div class="obs-text">
               <span class="obs-eyebrow">Observation 03</span>
               <p class="obs-quote">The team kept a side spreadsheet of merchants that kept popping up.</p>
-              <p class="obs-interp">The partner tool reviewed each payment in isolation, but compliance work is about <b>patterns</b> — the same merchant flagged four times in two weeks means something the tool wasn't surfacing. So the team tracked it manually. The new design surfaces a merchant's recent flag history right inside the review panel — no side spreadsheet needed.</p>
+              <p class="obs-interp">The partner tool reviewed each payment in isolation, but compliance work is about <b>patterns</b> — one merchant flagged four times in two weeks means something. The new design surfaces a merchant's recent flag history inside the review panel. No side spreadsheet needed.</p>
             </div>
           </div>
         </section>
@@ -2069,7 +2032,7 @@
              prominent decision-quote, plus two tight footnotes
              for the secondary decisions. -->
         <section id="approach" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">04 &middot; Approach</span>
+          <span class="cs-section-eyebrow is-quiet">03 &middot; Approach</span>
           <h2 class="act-title">One decision did most of the work.</h2>
 
           <div class="decision-quote">
@@ -2078,44 +2041,27 @@
           </div>
 
           <p class="decision-rationale">
-            The partner tool exposed ~40 fields per transaction.
-            Working with the compliance lead and the risk team, I drew
-            a hard line between what an officer needs
-            <strong>at scan-time</strong> (6 fields, visible in the
-            row) and what she needs <strong>at decision-time</strong>
-            (everything else, behind a click in the review panel). One
-            split dissolved the most-cited complaint about the partner
-            tool: <em>"I can't tell what matters."</em>
+            The partner tool exposed ~40 fields per transaction. I drew
+            a hard line between <strong>scan-time</strong> (6 fields,
+            visible in the row) and <strong>decision-time</strong>
+            (everything else, behind a click). One split dissolved the
+            most-cited complaint: <em>"I can't tell what matters."</em>
           </p>
 
           <p class="decision-rationale">
-            <strong>The second call: split the queue by who can act.</strong>
-            Eximpe's compliance team works as four roles:
+            <strong>Second call: split the queue by who can act.</strong>
+            Compliance runs as four roles:
           </p>
           <ul class="decision-rationale" style="padding-left: 18px; list-style: disc;">
-            <li><strong>Compliance Officer (CO)</strong> — the first reviewer; clears the routine ones, asks the merchant for proof on the uncertain ones.</li>
-            <li><strong>Senior CO</strong> — handles anything the CO can't resolve, plus all higher-value payments.</li>
-            <li><strong>Principal Officer (PO)</strong> — the regulatory sign-off for sensitive cases (sanctions hits, large customer-initiated reversals).</li>
-            <li><strong>PACB Admin</strong> — the team that owns the TMS itself. Cross-role visibility (sees every queue, not just their own), configures rules, and can step in for any tier. The screens further down in this case study are all from a PACB-Admin login — which is why every tab is visible at once. In production, a CO logging in only sees the Review queue tab; a PO only sees Final review on top of theirs.</li>
+            <li><strong>Compliance Officer (CO)</strong> — first reviewer; clears routine flags, requests merchant proof on the uncertain ones.</li>
+            <li><strong>Senior CO</strong> — handles what the CO can't resolve, plus higher-value payments.</li>
+            <li><strong>Principal Officer (PO)</strong> — regulatory sign-off for sensitive cases (sanctions hits, large reversals).</li>
+            <li><strong>PACB Admin</strong> — owns the TMS itself: cross-role visibility, configures rules, can step in for any tier. <em>All screens below are from a PACB-Admin login, which is why every tab shows.</em></li>
           </ul>
           <p class="decision-rationale">
-            The old tool put every flagged payment in one shared
-            inbox. The new TMS scopes each role's view — the CO sees
-            only what's for her to action, escalations show up in the
-            Senior CO's tab, PO-only cases never appear in either,
-            and the PACB Admin sees the whole board so they can spot
-            bottlenecks no individual role would. That stops the most
-            dangerous failure mode: a junior reviewer clearing a
-            payment that needed a regulatory sign-off.
-          </p>
-
-          <p class="decision-rationale">
-            <strong>The third call: prototype in real code, not Figma.</strong>
-            Stakeholders reviewed in a working browser — which
-            surfaced empty states, loading states, and "I clicked but
-            nothing happened" edges Figma couldn't show. Both
-            iterations below died at code-fidelity that would have
-            shipped from a Figma file (see <a href="#iterations">below</a>).
+            Scoping each role's view kills the most dangerous failure
+            mode: a junior reviewer clearing a payment that needed
+            regulatory sign-off.
           </p>
         </section>
 
@@ -2124,19 +2070,15 @@
              pointers. The first screen also carries the flow-brief
              that explains the funnel a flagged payment travels through. -->
         <section id="solution" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">05 &middot; The shipped TMS</span>
+          <span class="cs-section-eyebrow is-quiet">04 &middot; The shipped TMS</span>
           <h2 class="act-title">The shipped TMS, screen by screen.</h2>
           <p class="cs-lede">
-            Six screens, in the order the compliance team moves through
-            them on a normal day. The walkthrough is framed from the
-            <strong>PACB Admin</strong>'s view because PACB Admin sees
-            every queue (CO, Senior CO, PO), making it the most
-            complete window into how the system fits together.
-            <em>Note on visuals: the screens shown here are illustrative
-            of the shipped flows and structure — the production visual
-            design is under NDA, so what's on this page differs in
-            look-and-feel, though the workflow, hierarchy and
-            decisions are exactly what's live.</em>
+            Six screens, in the order the team moves through them.
+            Framed from the <strong>PACB Admin</strong> view — the
+            only role that sees every queue.
+            <em style="color: var(--ink-80);">Screens are illustrative
+            (production visuals under NDA); workflow and hierarchy are
+            exactly what's live.</em>
           </p>
 
           <div class="walk">
@@ -2146,7 +2088,7 @@
               <span class="walk-num">Screen 01 · Review queue</span>
               <h3 class="walk-title">Where the day starts.</h3>
               <p class="walk-brief">
-                Overnight, the <b>Rules Engine</b> ran 27 detection rules against every cross-border payment. Roughly <b>1%</b> tripped a rule and are sitting here, waiting for a Compliance Officer's decision. For each row the officer can: <b>clear it</b> (the merchant gets their money), <b>reject &amp; refund</b> (the customer is made whole), <b>ask the merchant for proof</b>, <b>escalate to a Senior CO</b>, or <b>open a case</b> if the pattern needs investigation. If a case later confirms wrongdoing, the <b>Principal Officer</b> files an STR with the regulator. The rest of this walkthrough follows that funnel — queue → transaction → case → STR — and ends in Settings, where the rules themselves are configured.
+                Overnight, the <b>Rules Engine</b> flags ~1% of payments. Each lands here for a CO to <b>clear</b>, <b>refund</b>, <b>request proof</b>, <b>escalate</b>, or <b>open a case</b>.
               </p>
               <img class="walk-shot" src="../assets/case-study/eximpe/01-review-queue.png" alt="Eximpe TMS · Review queue — flagged payments awaiting compliance decision." width="2704" height="1506" decoding="async" />
               <ol class="walk-decisions">
@@ -2157,10 +2099,6 @@
                 <li>
                   <p class="walk-decision-title">Surface patterns, not just rows.</p>
                   <p class="walk-decision-body">The queue links related transactions automatically — five separate flags become one case to investigate.</p>
-                </li>
-                <li>
-                  <p class="walk-decision-title">Bring the evidence into the row.</p>
-                  <p class="walk-decision-body">Each row carries its violation reasons inline, so triage happens without opening anything.</p>
                 </li>
                 <li>
                   <p class="walk-decision-title">Sort by deadline, not by time received.</p>
@@ -2186,14 +2124,6 @@
                   <p class="walk-decision-title">Answer "is this normal?" before anything else.</p>
                   <p class="walk-decision-body">Four context tiles compare the transaction to the merchant's own baseline, so anomalies stand out without any manual lookup.</p>
                 </li>
-                <li>
-                  <p class="walk-decision-title">Separate safe actions from irreversible ones.</p>
-                  <p class="walk-decision-body">All actions sit in one bottom bar — approve, reject, escalate always in the same place and order, so a slip can't happen under time pressure.</p>
-                </li>
-                <li>
-                  <p class="walk-decision-title">Notes are a first-class part of the record.</p>
-                  <p class="walk-decision-body">Notes lives beside Audit, so an auditor's <em>"why did you approve this?"</em> is one click away — not buried in a sidebar.</p>
-                </li>
               </ol>
             </div>
 
@@ -2211,16 +2141,8 @@
                   <p class="walk-decision-body">A single payment is rarely suspicious; three together usually are. Cases gives investigations a workspace that spans transactions, parties and time — instead of a spreadsheet.</p>
                 </li>
                 <li>
-                  <p class="walk-decision-title">Lead with the aggregate, not the case ID.</p>
-                  <p class="walk-decision-body">The case headline is the total amount at risk across linked transactions, not an ID — it shows how big the decision is first.</p>
-                </li>
-                <li>
                   <p class="walk-decision-title">Show momentum, not just status.</p>
                   <p class="walk-decision-body">A Last Activity signal surfaces stale work visually, so investigations waiting on a nudge don't quietly age.</p>
-                </li>
-                <li>
-                  <p class="walk-decision-title">Filter out resolved work automatically.</p>
-                  <p class="walk-decision-body">Filed and closed cases stay accessible but leave the active queue — the team only sees what's actually moving.</p>
                 </li>
               </ol>
             </div>
@@ -2246,10 +2168,6 @@
                   <p class="walk-decision-title">Group case actions by what they affect.</p>
                   <p class="walk-decision-body">Funds-level actions sit together; the irreversible "terminate merchant" is set apart — grouping that prevents the wrong action under pressure.</p>
                 </li>
-                <li>
-                  <p class="walk-decision-title">Merchant context lives inside the case.</p>
-                  <p class="walk-decision-body">A merchant's suspension or prior STR is usually the deciding factor, so it sits in the case sidebar — full profile one click away.</p>
-                </li>
               </ol>
             </div>
 
@@ -2273,10 +2191,6 @@
                 <li>
                   <p class="walk-decision-title">One-click evidence pack export.</p>
                   <p class="walk-decision-body">One export icon generates the full sealed pack — KYC, linked transactions, audit trail, acknowledgement — instead of hours of manual collection.</p>
-                </li>
-                <li>
-                  <p class="walk-decision-title">Track external acknowledgement, not just internal submission.</p>
-                  <p class="walk-decision-body"><em>"We filed it"</em> and <em>"the regulator received it"</em> are different statuses — the register tracks both, so follow-up is obvious.</p>
                 </li>
               </ol>
             </div>
@@ -2302,10 +2216,6 @@
                   <p class="walk-decision-title">Lift Settings out of TMS.</p>
                   <p class="walk-decision-body">Rules started nested inside TMS, but Recon and Risk needed the same config — so Settings moved to a shared org-level area. (See <a href="#iterations">Iterations</a>.)</p>
                 </li>
-                <li>
-                  <p class="walk-decision-title">Authorship surfaces in every row.</p>
-                  <p class="walk-decision-body">PMLA holds named individuals accountable, so each rule's author and last-modified date sit in the catalog — accountability visible by construction.</p>
-                </li>
               </ol>
             </div>
 
@@ -2317,13 +2227,11 @@
              tiers, walkthrough, impact); these iterations reinforce
              that narrative rather than wandering into pixel choices. -->
         <section id="iterations" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">06 &middot; Iterations</span>
+          <span class="cs-section-eyebrow is-quiet">05 &middot; Iterations</span>
           <h2 class="act-title">Two structural calls I went back and fixed.</h2>
           <p class="cs-lede">
-            The shipped TMS isn't the first shape it took. The two
-            iterations below are the ones that changed how the whole
-            system is organised — not how it looks. Both started as
-            reasonable defaults and got reframed mid-build.
+            Two structural calls that reshaped how the system is
+            organised — both reframed mid-build.
           </p>
 
           <div class="iterations-grid">
@@ -2413,22 +2321,17 @@
                   </div>
                   <div class="iteration-step">
                     <dt>Where it broke</dt>
-                    <dd>STR-filed work isn't CO review anymore — it's <b>PO coordination with the regulator</b>: export evidence, mail to FIU-IND, await verdict, then act on it. Different audience, different operations, different data (FINnet refs, STR statuses). Pinning it all to one tab made both the queue and the register worse.</dd>
+                    <dd>STR-filed work isn't CO review anymore — it's <b>PO coordination with the regulator</b>: export evidence, mail FIU-IND, await verdict. Different audience, different data (FINnet refs, STR statuses). One tab made both the queue and the register worse.</dd>
                   </div>
                   <div class="iteration-step">
                     <dt>The reframe</dt>
-                    <dd>STR register became its own surface. The <b>case detail page stays the workspace for both worlds</b> — daily review actions AND post-verdict ones like Terminate merchant. One workspace, two entry points: Cases tab for active review, STR register for regulator coordination.</dd>
+                    <dd>STR register became its own surface. The <b>case detail page stays the workspace for both worlds</b> — daily review AND post-verdict actions like Terminate merchant. Two entry points: Cases tab for active review, STR register for regulator coordination.</dd>
                   </div>
                 </dl>
-                <p class="iteration-principle">Principle: <em>match the surface to the audience and the work — not to the underlying data.</em> The same record can live behind multiple entry points, each shaped for the job that uses it.</p>
               </div>
             </div>
 
           </div>
-
-          <blockquote class="cs-callout">
-            Both calls came from looking past what a record <em>is</em> and asking what the user needs to <em>do</em> with it next. A principle that applies anywhere multiple roles share the same data — support tickets, on-call alerts, approval queues, inboxes.
-          </blockquote>
         </section>
 
         <!-- ACT 8 — Edge cases as a vocabulary of pills.
@@ -2440,7 +2343,7 @@
              numbers earn the room. Reconciliation + watching-post
              demoted to italic footnote. -->
         <section id="impact" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">07 &middot; Impact</span>
+          <span class="cs-section-eyebrow is-quiet">06 &middot; Impact</span>
           <h2 class="act-title">What changed.</h2>
           <p class="cs-lede">
             Shipped; migration off the partner is staged by merchant
@@ -2482,20 +2385,13 @@
             </div>
           </div>
 
-          <p class="stat-footnote">
-            <b>Watching after rollout:</b> how long a review takes on
-            average, how often the team escalates each rule, and
-            requests for missing columns — the early signals that the
-            data model still has gaps. Each new merchant cohort that
-            migrates extends the same measurement above.
-          </p>
         </section>
 
         <!-- ACT 10 — Closing breath.
              Short paragraph. Three serif italic lines on near-empty
              canvas. The page exhales. -->
         <section id="learnings" class="cs-section">
-          <span class="cs-section-eyebrow is-quiet">08 &middot; Learnings</span>
+          <span class="cs-section-eyebrow is-quiet">07 &middot; Learnings</span>
           <h2 class="act-title">What I'm taking forward.</h2>
 
           <div class="closing">
