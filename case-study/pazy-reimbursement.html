@@ -358,8 +358,14 @@
                 <!-- Scene 1: Dashboard -->
                 <div class="bf-scene bf-scene-dash">
                   <div class="bf-dash-header">
-                    <div class="bf-avatar"></div>
-                    <div class="bf-bank-pill"><span class="bf-bank-dot"></span>Connected Banking <span class="bf-chev">&#9662;</span></div>
+                    <div class="bf-avatar">
+                      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <circle cx="14" cy="14" r="14" fill="#F4A261"/>
+                        <circle cx="14" cy="11" r="4.5" fill="#FFFFFF" fill-opacity="0.96"/>
+                        <path d="M4.5 26.5c1.6-4.6 5-7 9.5-7s7.9 2.4 9.5 7" fill="#FFFFFF" fill-opacity="0.96"/>
+                      </svg>
+                    </div>
+                    <div class="bf-bank-pill"><span class="bf-bank-dot"></span>Acme Inc <span class="bf-chev">&#9662;</span></div>
                     <div class="bf-help">?</div>
                   </div>
                   <div class="bf-hello">Hello Prateek</div>
@@ -367,7 +373,7 @@
                   <div class="bf-section-head">Needs Review</div>
                   <div class="bf-tabs">
                     <div class="bf-tab">Payruns</div>
-                    <div class="bf-tab">Vendor Invoices</div>
+                    <div class="bf-tab">Invoices</div>
                     <div class="bf-tab bf-tab-active">Reimbursements<span class="bf-tab-bar"></span></div>
                   </div>
 
@@ -504,7 +510,7 @@
             /* === Scene 1: Dashboard === */
             .bf-scene-dash { padding: 10px 16px 14px; display: flex; flex-direction: column; }
             .bf-dash-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-            .bf-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #F4A261 0%, #E76F51 100%); flex-shrink: 0; }
+            .bf-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; background: #F4A261; }
             .bf-bank-pill { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; background: #F4F4F5; color: #0F1419; font-size: 11px; font-weight: 500; padding: 6px 10px; border-radius: 14px; border: 1px solid #E4E4E7; }
             .bf-bank-dot { width: 6px; height: 6px; border-radius: 50%; background: #0F5B3A; }
             .bf-chev { font-size: 8px; opacity: .5; margin-left: 2px; }
