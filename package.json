@@ -1,0 +1,15 @@
+{
+  "name": "product-design-portfolio",
+  "version": "1.0.0",
+  "description": "Product Designer Portfolio",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": ["portfolio", "design"],
+  "author": "Prateek",
+  "license": "MIT",
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
