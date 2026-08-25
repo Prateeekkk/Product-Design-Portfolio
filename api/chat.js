@@ -263,7 +263,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'openai/gpt-oss-120b',
         messages: [{ role: 'system', content: systemContent }, ...history],
         temperature: context ? 0.3 : 0.7,
         max_tokens: 400
